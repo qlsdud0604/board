@@ -22,6 +22,8 @@ public class BoardDTO {
 
     private String secretYn;   // 비밀 여부
 
+    private String deleteYn;   // 삭제 여부
+
     private LocalDateTime insertTime;   // 등록일
 
     private LocalDateTime updateTime;   // 수정일

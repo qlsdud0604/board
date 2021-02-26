@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class BoardController {
 
@@ -45,6 +47,14 @@ public class BoardController {
 
         }
         return "redirect:/board/list.do";
+    }
+
+    @GetMapping(value = "/board/list.do")
+    public String openBoardList(Model model) {
+        List<BoardDTO> boardList = boardService.getBoardList();
+        model.addAttribute("boardList", boardList);
+
+        return "board/list";
     }
 }
 

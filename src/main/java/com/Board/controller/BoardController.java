@@ -70,8 +70,30 @@ public class BoardController {
             return "redirect:/board/list.do";
         }
         model.addAttribute("board", board);
+        boardService.cntPlus(idx);
 
         return "board/view";
+    }
+
+    @PostMapping(value = "/board/delete.do")
+    public String deleteBoard(@RequestParam(value = "idx", required = false) Long idx) {
+        if (idx == null) {
+
+            return "redirect:/board/list.do";
+        }
+
+        try {
+            boolean isDeleted = boardService.deleteBoard(idx);
+
+            if (isDeleted == false) {
+
+            }
+        } catch (DataAccessException e) {
+
+        } catch (Exception e) {
+
+        }
+        return "redirect:/board/list.do";
     }
 }
 

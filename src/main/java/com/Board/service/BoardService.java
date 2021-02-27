@@ -13,4 +13,6 @@ public interface BoardService {
     public boolean deleteBoard(Long idx);
 
     public List<BoardDTO> getBoardList();
+
+    public boolean cntPlus(Long idx);
 }

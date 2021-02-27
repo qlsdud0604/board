@@ -58,6 +58,11 @@ public class BoardServiceImpl implements BoardService {
 
         return boardList;
     }
+
+    @Override
+    public boolean cntPlus(Long idx) {
+        return boardMapper.cntPlus(idx);
+    }
 }
 
 /**

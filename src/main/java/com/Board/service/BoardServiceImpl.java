@@ -43,7 +43,7 @@ public class BoardServiceImpl implements BoardService {
             queryResult = boardMapper.deleteBoard(idx);
         }
 
-        return (queryResult != 1) ? true : false;
+        return (queryResult == 1) ? true : false;
     }
 
     @Override

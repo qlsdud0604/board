@@ -1,6 +1,7 @@
 package com.Board.mapper;
 
 import com.Board.domain.BoardDTO;
+import com.Board.paging.Criteria;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,9 +16,9 @@ public interface BoardMapper {
 
     public int deleteBoard(Long idx);   // 게시글을 삭제하는 DELETE 쿼리를 호출하는 메소드
 
-    public List<BoardDTO> selectBoardList();   // 게시글 목록을 조회하는 SELECT 쿼리를 호출하는 메소드
+    public List<BoardDTO> selectBoardList(Criteria criteria);   // 게시글 목록을 조회하는 SELECT 쿼리를 호출하는 메소드
 
-    public int selectBoardTotalCount();   // 삭제 여부가 'N'으로 지정된 게시글의 개수를 조회하는 SELECT 쿼리를 호출하는 메소드
+    public int selectBoardTotalCount(Criteria criteria);   // 삭제 여부가 'N'으로 지정된 게시글의 개수를 조회하는 SELECT 쿼리를 호출하는 메소드
 
     public boolean cntPlus(Long idx);   // 게시글의 조회수를 카운트 하는 UPDATE 쿼리를 호출하는 메소드
 }

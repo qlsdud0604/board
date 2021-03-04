@@ -41,7 +41,7 @@ public class DBConfiguration {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource());
         factoryBean.setMapperLocations(applicationContext.getResources("classpath:/mappers/**/*Mapper.xml"));   // XML Mapper를 인식하도록 하는 역할
-        factoryBean.setTypeAliasesPackage("com.Board.domain");
+        factoryBean.setTypeAliasesPackage("com.Board.*");
         factoryBean.setConfiguration(mybatisConfg());
         return factoryBean.getObject();
     }

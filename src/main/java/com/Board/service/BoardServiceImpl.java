@@ -2,6 +2,7 @@ package com.Board.service;
 
 import com.Board.domain.BoardDTO;
 import com.Board.mapper.BoardMapper;
+import com.Board.paging.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,13 +48,13 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardDTO> getBoardList() {
+    public List<BoardDTO> getBoardList(Criteria criteria) {
         List<BoardDTO> boardList = Collections.emptyList();
 
-        int boardTotalCount = boardMapper.selectBoardTotalCount();
+        int boardTotalCount = boardMapper.selectBoardTotalCount(criteria);
 
         if (boardTotalCount > 0) {
-            boardList = boardMapper.selectBoardList();
+            boardList = boardMapper.selectBoardList(criteria);
         }
 
         return boardList;

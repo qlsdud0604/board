@@ -1,5 +1,10 @@
 package com.Board.paging;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PaginationInfo {
 
     private Criteria criteria;   // 페이징 계산에 필요한 파라미터들이 담긴 클래스
@@ -60,7 +65,7 @@ public class PaginationInfo {
 
         hasPreviousPage = firstPage != 1;
 
-        hasNextPage = (lastPage * criteria.getRecordsPerPage()) < totalPageCount;
+        hasNextPage = (lastPage * criteria.getRecordsPerPage()) < totalRecordCount;
     }
 }
 

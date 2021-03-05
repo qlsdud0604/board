@@ -68,7 +68,7 @@
         idx = #{idx}
     </update>
 
-    <select id="selectBoardList" parameterType="com.Board.paging.Criteria" resultType="com.Board.domain.BoardDTO">
+    <select id="selectBoardList" parameterType="com.Board.domain.BoardDTO" resultType="com.Board.domain.BoardDTO">
         SELECT
         <include refid="boardColumns"/>
         FROM
@@ -80,10 +80,10 @@
         idx DESC,
         insert_time DESC
         LIMIT
-        #{startPage},#{recordsPerPage}
+        #{paginationInfo.firstRecordIndex},#{recordsPerPage}
     </select>
 
-    <select id="selectBoardTotalCount" parameterType="com.Board.paging.Criteria" resultType="int">
+    <select id="selectBoardTotalCount" parameterType="com.Board.domain.BoardDTO" resultType="int">
         SELECT
         COUNT(*)
         FROM

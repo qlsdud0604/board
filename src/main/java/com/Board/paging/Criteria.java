@@ -21,8 +21,4 @@ public class Criteria {
         this.recordsPerPage = 10;
         this.pageSize = 10;
     }
-
-    public int getStartPage() {   // MySQL에서 LIMIT 구문의 앞부분에 사용되는 메소드
-        return (currentPageNo - 1) * recordsPerPage;
-    }
 }

@@ -29,4 +29,52 @@
     </ul>
 </nav>
 
+<div th:fragment="search" id="adv-search" class="input-group">
+    <input type="text" id="mainSearchKeyword" class="form-control" th:value="${params.searchKeyword}"
+           placeholder="키워드를 입력해 주세요."/>
+    <div class="input-group-btn">
+        <div class="btn-group" role="group">
+            <div class="dropdown dropdown-lg">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                        aria-expanded="false"><span class="caret"></span></button>
+                <div class="dropdown-menu dropdown-menu-right" role="menu">
+                    <!--/* 검색 form */-->
+                    <form id="searchForm" th:action="@{/board/list.do}" method="get"
+                          th:onsubmit="return searchBoard(this)" class="form-horizontal" role="form">
+                        <!-- /* 현재 페이지 번호, 페이지당 출력할 데이터 개수, 페이지 하단에 출력할 페이지 개수 Hidden 파라미터 */ -->
+                        <input type="hidden" name="currentPageNo" value="1"/>
+                        <input type="hidden" name="recordsPerPage" th:value="${params.recordsPerPage}"/>
+                        <input type="hidden" name="pageSize" th:value="${params.pageSize}"/>
+
+                        <div class="form-group">
+                            <label for="filter">검색 유형</label>
+                            <select name="searchType" class="form-control">
+                                <option value="" th:selected="${#strings.isEmpty( params.searchType )}">전체</option>
+                                <option value="title" th:selected="${#strings.equals( params.searchType, 'title' )}">
+                                    제목
+                                </option>
+                                <option value="content"
+                                        th:selected="${#strings.equals( params.searchType, 'content' )}">내용
+                                </option>
+                                <option value="writer" th:selected="${#strings.equals( params.searchType, 'writer' )}">
+                                    작성자
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="contain">키워드</label>
+                            <input type="text" name="searchKeyword" class="form-control"
+                                   th:value="${params.searchKeyword}"/>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"
+                                                                            aria-hidden="true"></span></button>
+                    </form>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="searchBoard(null)"><span
+                    class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+        </div>
+    </div>
+</div>
+
 </html>

@@ -75,12 +75,12 @@
         tb_board
         WHERE
         delete_yn = 'N'
+        <include refid="CommonMapper.search"></include>
         ORDER BY
         notice_yn ASC,
         idx DESC,
         insert_time DESC
-        LIMIT
-        #{paginationInfo.firstRecordIndex},#{recordsPerPage}
+        <include refid="CommonMapper.paging"></include>
     </select>
 
     <select id="selectBoardTotalCount" parameterType="com.Board.domain.BoardDTO" resultType="int">
@@ -90,6 +90,7 @@
         tb_board
         WHERE
         delete_yn = 'N'
+        <include refid="CommonMapper.search"></include>
     </select>
 
     <update id="cntPlus" parameterType="Long">

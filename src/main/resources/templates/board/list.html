@@ -6,12 +6,7 @@
 </th:block>
 
 <th:block layout:fragment="search">
-    <form action="#" id="searchform-header" class="searchform js__toggle active pull-right">
-        <input type="search" placeholder="Search..." class="input-search">
-        <button class="mdi mdi-magnify button-search" type="submit">
-            <i class="fa fa-search" aria-hidden="true"></i>
-        </button>
-    </form>
+    <div th:replace="board/fragments/common::search"></div>
 </th:block>
 
 <th:block layout:fragment="content">
@@ -30,7 +25,8 @@
             <tr th:if="${not #lists.isEmpty( boardList )}" th:each="row : ${boardList}">
                 <td scope="row" th:text="${#strings.equals( row.noticeYn, 'Y' ) ? '공지' : row.idx}"></td>
                 <td class="text-left">
-                    <a th:href="@{/board/view.do( idx=${row.idx} )}" th:text="${row.title}"></a>
+                    <a th:href="|@{/board/view.do}${params.makeQueryString(params.currentPageNo)}& idx=${row.idx}|"
+                       th:text="${row.title}"></a>
                 </td>
                 <td th:text="${row.writer}"></td>
                 <td th:text="${#temporals.format( row.insertTime, 'yyyy-MM-dd' )}"></td>
@@ -58,6 +54,28 @@
 
         function movePage(uri, queryString) {
             location.href = uri + queryString;
+        }
+
+        function searchBoard(form) {
+            if (isEmpty(form) == true) {
+                var searchKeyword = document.getElementById("mainSearchKeyword");
+
+                if (isEmpty(searchKeyword.value) == true) {
+                    alert("키워드를 입력해 주세요.")
+                    searchKeyword.focus();
+                    return false;
+                }
+
+                form = document.getElementById("searchForm");
+                form.searchKeyword.value = searchKeyword.value;
+                form.submit();
+            }
+
+            if (isEmpty(form.searchKeyword.value) == true) {
+                alert("키워드를 입력해 주세요.")
+                form.searchKeyword.focus();
+                return false;
+            }
         }
 
         /*]]>*/

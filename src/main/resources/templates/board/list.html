@@ -25,7 +25,7 @@
             <tr th:if="${not #lists.isEmpty( boardList )}" th:each="row : ${boardList}">
                 <td scope="row" th:text="${#strings.equals( row.noticeYn, 'Y' ) ? '공지' : row.idx}"></td>
                 <td class="text-left">
-                    <a th:href="|@{/board/view.do}${params.makeQueryString(params.currentPageNo)}& idx=${row.idx}|"
+                    <a th:href="|@{/board/view.do}${params.makeQueryString(params.currentPageNo)}&idx=${row.idx}|"
                        th:text="${row.title}"></a>
                 </td>
                 <td th:text="${row.writer}"></td>
@@ -77,6 +77,7 @@
                 return false;
             }
         }
+        /*[- end of function -]*/
 
         /*]]>*/
     </script>

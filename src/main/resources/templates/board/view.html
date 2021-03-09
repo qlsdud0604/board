@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorator="board/layout/basic">
 <th:block layout:fragment="title">
-    <title>this is view page</title>
+    <title>This is view page</title>
 </th:block>
 
 <th:block layout:fragment="content">
@@ -44,12 +44,13 @@
             </div>
         </form>
 
-        <div class="btn_wrap text-center">
-            <a th:href="@{/board/list.do}" class="btn btn-default waves-effect waves-light">뒤로가기</a>
-            <a th:href="@{/board/write.do( idx=${board.idx} )}"
+        <div class="btn_wrap text-center" th:object="${params}">
+            <a th:href="|@{/board/list.do}*{makeQueryString(currentPageNo)}|"
+               class="btn btn-default waves-effect waves-light">뒤로가기</a>
+            <a th:href="|@{/board/write.do}*{makeQueryString(currentPageNo)}&idx=${board.idx}|"
                class="btn btn-primary waves-effect waves-light">수정하기</a>
             <button type="button" class="btn btn-danger waves-effect waves-light"
-                    th:onclick="deleteBoard([[ ${board.idx} ]])">삭제하기
+                    th:onclick="deleteBoard([[ ${board.idx} ]], [[ *{makeQueryString(currentPageNo)} ]])">삭제하기
             </button>
         </div>
     </div>
@@ -100,7 +101,7 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        function deleteBoard(idx) {
+        function deleteBoard(idx, queryString) {
 
             if (confirm(idx + "번 게시글을 삭제할까요?")) {
                 var uri = /*[[ @{/board/delete.do} ]]*/;
@@ -108,6 +109,14 @@
 
                 html += '<form name="dataForm" action="' + uri + '" method="post">';
                 html += '<input type="hidden" name="idx" value="' + idx + '" />';
+
+                queryString = new URLSearchParams(queryString);
+                queryString.forEach(function (value, key) {
+                    if (isEmpty(value) == false) {
+                        html += '<input type="hidden" name="' + key + '" value="' + value + '" />';
+                    }
+                });
+
                 html += '</form>';
 
                 $("body").append(html);

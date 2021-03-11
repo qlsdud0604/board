@@ -18,5 +18,5 @@ public interface CommentMapper {
 
     public List<CommentDTO> selectCommentList(CommentDTO params);   // 댓글 목록을 조회하는 SELECT 쿼리 호출
 
-    public int selectCommnetTotalCount(CommentDTO params);   // 갯글 개수를 조회하는 SELECT 쿼리 호출
+    public int selectCommentTotalCount(CommentDTO params);   // 갯글 개수를 조회하는 SELECT 쿼리 호출
 }

@@ -23,7 +23,7 @@ public class CommentServiceImpl implements CommentService {
         else
             queryResult = commentMapper.updateComment(params);
 
-        return queryResult == 1 ? true : false;
+        return (queryResult == 1) ? true : false;
     }
 
     @Override
@@ -35,14 +35,14 @@ public class CommentServiceImpl implements CommentService {
         if (comment != null && "N".equals(comment.getDeleteYn()))
             queryResult = commentMapper.deleteComment(idx);
 
-        return queryResult == 1 ? true : false;
+        return (queryResult == 1) ? true : false;
     }
 
     @Override
     public List<CommentDTO> getCommentList(CommentDTO params) {
         List<CommentDTO> commentList = Collections.emptyList();
 
-        int commentTotalCount = commentMapper.selectCommnetTotalCount(params);
+        int commentTotalCount = commentMapper.selectCommentTotalCount(params);
 
         if (commentTotalCount > 0)
             commentList = commentMapper.selectCommentList(params);

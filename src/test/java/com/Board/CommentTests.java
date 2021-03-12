@@ -24,9 +24,9 @@ public class CommentTests {
 
         CommentDTO params = new CommentDTO();
 
-        params.setBoardIdx((long) 100);
-        params.setContent("21번 댓글 추가");
-        params.setWriter("21번 작성자");
+        params.setBoardIdx((long) 213);
+        params.setContent("첫번째 댓글 추가");
+        params.setWriter("첫번째 작성자");
 
         commentService.registerComment(params);
 

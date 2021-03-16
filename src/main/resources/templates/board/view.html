@@ -238,11 +238,11 @@
             var uri = /*[[ @{/comments/} + ${board.idx} ]]*/;
 
             $.get(uri, function (response) {
-                if (isEmpty(response) == false) {
-                    var commentsHtml = "";
 
-                    $(response.commentList).each(function (idx, comment) {
-                        commentsHtml += `
+                var commentsHtml = "";
+
+                $(response.commentList).each(function (idx, comment) {
+                    commentsHtml += `
 						<li>
 							<span class="name">${comment.writer}</span>
 							<span class="desc">${comment.content}</span>
@@ -250,14 +250,47 @@
 							<button type="button" onclick="openModal(${comment.idx}, '${comment.writer}', '${comment.content}')" class="btn btn-xs btn-circle"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></button>
 						</li>
 					`;
-                    });
+                });
 
-                    $(".notice-list").html(commentsHtml);
-                }
+                $(".notice-list").html(commentsHtml);
+
+
             }, "json");
         }
 
         /*[- end of function -]*/
+
+        function deleteComment(idx) {
+
+            if (!confirm('댓글을 삭제하시겠습니까?')) {
+                return false;
+            }
+
+            var uri = [[@{/comments/
+        } ]]
+            +idx;
+            var headers = {"Content-Type": "application/json", "X-HTTP-Method-Override": "DELETE"};
+
+            $.ajax({
+                url: uri,
+                type: "DELETE",
+                headers: headers,
+                dataType: "json",
+                success: function (response) {
+                    if (response.result == false) {
+                        alert("댓글 삭제에 실패하였습니다.");
+                        return false;
+                    }
+
+                    printCommentList();
+                    $("#commentModal").modal("hide");
+                },
+                error: function (xhr, status, error) {
+                    alert("에러가 발생하였습니다.");
+                    return false;
+                }
+            });
+        }
 
         /*]]>*/
     </script>

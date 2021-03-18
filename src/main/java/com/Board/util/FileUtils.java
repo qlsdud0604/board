@@ -1,6 +1,7 @@
 package com.Board.util;
 
 import com.Board.domain.FileDTO;
+import com.Board.exception.AttachFileException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;

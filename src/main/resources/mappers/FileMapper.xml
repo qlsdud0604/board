@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.Board.mapper.FileMapper">
+
+    <sql id="fileColumns">
+        idx
+        , board_idx
+        , original_name
+        , save_name
+        , size
+        , delete_yn
+        , insert_time
+        , delete_time
+    </sql>
+
+    <insert id="insertFile" parameterType="list">
+        INSERT INTO tb_file (
+        <include refid="fileColumns"/>
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.idx}
+            , #{item.boardIdx}
+            , #{item.originalName}
+            , #{item.saveName}
+            , #{item.size}
+            , 'N'
+            , NOW()
+            , NULL
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectFileDetail" parameterType="long" resultType="com.Board.domain.FileDTO">
+        SELECT
+        <include refid="fileColumns"/>
+        FROM
+        tb_file
+        WHERE
+        delete_yn = 'N'
+        AND
+        idx = #{idx}
+    </select>
+
+    <update id="deleteFile" parameterType="long">
+        UPDATE tb_file
+        SET
+        delete_yn = 'Y'
+        , delete_time = NOW()
+        WHERE
+        board_idx = #{boardIdx}
+    </update>
+
+    <select id="selectFileList" parameterType="long" resultType="com.Board.domain.FileDTO">
+        SELECT
+        <include refid="fileColumns"/>
+        FROM
+        tb_file
+        WHERE
+        delete_yn = 'N'
+        AND
+        board_idx = #{boardIdx}
+    </select>
+
+    <select id="selectFileTotalCount" parameterType="long" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        tb_file
+        WHERE
+        delete_yn = 'N'
+        AND
+        board_idx = #{boardIdx}
+    </select>
+
+</mapper>

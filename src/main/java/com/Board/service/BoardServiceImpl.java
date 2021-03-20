@@ -1,11 +1,16 @@
 package com.Board.service;
 
 import com.Board.domain.BoardDTO;
+import com.Board.domain.FileDTO;
 import com.Board.mapper.BoardMapper;
+import com.Board.mapper.FileMapper;
 import com.Board.paging.Criteria;
 import com.Board.paging.PaginationInfo;
+import com.Board.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +21,11 @@ public class BoardServiceImpl implements BoardService {
     @Autowired
     private BoardMapper boardMapper;
 
+    @Autowired
+    private FileMapper fileMapper;
+
+    @Autowired
+    private FileUtils fileUtils;
 
     @Override
     public boolean registerBoard(BoardDTO params) {
@@ -28,6 +38,24 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return (queryResult == 1) ? true : false;
+    }
+
+    @Override
+    public boolean registerBoard(BoardDTO params, MultipartFile[] files) {
+        int queryResult = 1;
+
+        if (registerBoard(params) == false)
+            return false;
+
+        List<FileDTO> fileList = fileUtils.uploadFiles(files, params.getIdx());
+
+        if (CollectionUtils.isEmpty(fileList) == false) {
+            queryResult = fileMapper.insertFile(fileList);
+
+            if (queryResult < 1)
+                queryResult = 0;
+        }
+        return (queryResult > 0);
     }
 
     @Override

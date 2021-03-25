@@ -98,6 +98,18 @@ public class BoardServiceImpl implements BoardService {
     public boolean cntPlus(Long idx) {
         return boardMapper.cntPlus(idx);
     }
+
+    @Override
+    public List<FileDTO> getFileList(Long boardIdx) {
+        int fileTotalCount = fileMapper.selectFileTotalCount(boardIdx);
+
+        if (fileTotalCount < 1)
+            return Collections.emptyList();
+
+        return fileMapper.selectFileList(boardIdx);
+    }
+
+
 }
 
 /**

@@ -2,6 +2,7 @@ package com.Board.controller;
 
 import com.Board.constant.Method;
 import com.Board.domain.BoardDTO;
+import com.Board.domain.FileDTO;
 import com.Board.service.BoardService;
 import com.Board.util.UiUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,15 @@ public class BoardController extends UiUtils {
             model.addAttribute("board", new BoardDTO());
         } else {
             BoardDTO board = boardService.getBoardDetail(idx);
+
             if (board == null || "Y".equals(board.getDeleteYn())) {
                 return showMessageWithRedirect("없는 게시글이거나 이미 삭제된 게시글입니다.", "/board/list.do", Method.GET, null, model);
             }
             model.addAttribute("board", board);
+
+            List<FileDTO> fileList = boardService.getFileList(idx);
+
+            model.addAttribute("fileList", fileList);
         }
 
         return "board/write";

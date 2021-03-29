@@ -74,4 +74,15 @@
         board_idx = #{boardIdx}
     </select>
 
+    <update id="undeleteAttach" parameterType="list">
+        UPDATE tb_file
+        SET
+        delete_yn = 'N'
+        WHERE
+        idx IN
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
 </mapper>

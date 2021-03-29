@@ -16,4 +16,6 @@ public interface FileMapper {
     public List<FileDTO> selectFileList(Long boardIdx);   // 특정 게시글에 포함된 파일 목록을 조회하는 SELECT 쿼리를 호출
 
     public int selectFileTotalCount(Long boardIdx);   // 특정 게시글에 포함된 파일 개수를 조회하는 SELECT 쿼리를 호출
+
+    public int undeleteFile(List<Long> idxs);
 }

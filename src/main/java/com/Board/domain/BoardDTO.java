@@ -24,7 +24,7 @@ public class BoardDTO extends CommonDTO {
 
     private String changeYn;   // 파일 변경 여부
 
-    private List<Long> fileIndexList;   // 파일 인덱스 리스트
+    private List<Long> fileIdxs;   // 파일 인덱스 리스트
 
 }
 

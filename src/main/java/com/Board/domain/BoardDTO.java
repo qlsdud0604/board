@@ -3,6 +3,8 @@ package com.Board.domain;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class BoardDTO extends CommonDTO {
@@ -19,6 +21,10 @@ public class BoardDTO extends CommonDTO {
     private String noticeYn;   // 공지 여부
 
     private String secretYn;   // 비밀 여부
+
+    private String changeYn;   // 파일 변경 여부
+
+    private List<Long> fileIndexList;   // 파일 인덱스 리스트
 
 }
 

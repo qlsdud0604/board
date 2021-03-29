@@ -12,6 +12,9 @@
             <!--/* update의 경우 서버로 전달할 게시글 번호 (PK) */-->
             <input type="hidden" th:if="*{idx != null and idx > 0}" th:field="*{idx}"/>
 
+            <!--/* 파일이 변경된 경우, 해당 파라미터를 이용하여 파일 삭제 및 재등록 처리 */-->
+            <input type="hidden" th:field="*{changeYn}" value="N" />
+
             <div class="form-group">
                 <label for="noticeYn" class="col-sm-2 control-label">공지글 설정</label>
                 <div class="col-sm-10" style="margin-top: 10px;">

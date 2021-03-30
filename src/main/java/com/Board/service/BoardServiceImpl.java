@@ -35,9 +35,16 @@ public class BoardServiceImpl implements BoardService {
             queryResult = boardMapper.insertBoard(params);
         } else {
             queryResult = boardMapper.updateBoard(params);
-        }
 
-        return (queryResult == 1) ? true : false;
+            if ("Y".equals(params.getChangeYn())) {
+                fileMapper.deleteFile(params.getIdx());
+
+                if (CollectionUtils.isEmpty(params.getFileIdxs()) == false) {
+                    fileMapper.undeleteFile(params.getFileIdxs());
+                }
+            }
+        }
+        return (queryResult > 0);
     }
 
     @Override
@@ -108,8 +115,6 @@ public class BoardServiceImpl implements BoardService {
 
         return fileMapper.selectFileList(boardIdx);
     }
-
-
 }
 
 /**

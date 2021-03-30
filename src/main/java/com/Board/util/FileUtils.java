@@ -28,8 +28,6 @@ public class FileUtils {
     }
 
     public List<FileDTO> uploadFiles(MultipartFile[] files, Long boardIdx) {   // 서버에 첨부 파일을 생성하고, 업로드 파일 목록 반환
-        if (files[0].getSize() < 1)
-            return Collections.emptyList();
 
         List<FileDTO> fileList = new ArrayList<>();
 
@@ -38,6 +36,9 @@ public class FileUtils {
             dir.mkdirs();
 
         for (MultipartFile file : files) {
+            if (file.getSize() < 1) {
+                continue;
+            }
             try {
                 final String extension = FilenameUtils.getExtension(file.getOriginalFilename());   // 파일 확장자
 

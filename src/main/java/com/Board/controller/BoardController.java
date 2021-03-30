@@ -25,7 +25,7 @@ public class BoardController extends UiUtils {
     BoardService boardService;
 
     @GetMapping(value = "/board/write.do")
-    public String openBoardWriter(@ModelAttribute("params") BoardDTO params, @RequestParam(value = "idx", required = false) Long idx, Model model) {
+    public String openBoardWrite(@ModelAttribute("params") BoardDTO params, @RequestParam(value = "idx", required = false) Long idx, Model model) {
         if (idx == null) {
             model.addAttribute("board", new BoardDTO());
         } else {
@@ -40,7 +40,6 @@ public class BoardController extends UiUtils {
 
             model.addAttribute("fileList", fileList);
         }
-
         return "board/write";
     }
 

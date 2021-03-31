@@ -79,6 +79,18 @@
                     <p class="form-control" th:text="*{viewCnt}"></p>
                 </div>
             </div>
+
+            <div th:if="${not #lists.isEmpty( fileList )}" class="form-group">
+                <label for="inp-type-4" class="col-sm-2 control-label">File</label>
+                <div class="col-sm-10">
+                    <div class="form-control file_list">
+                        <a th:each="row, status : ${fileList}" th:href="@{/board/download.do( idx=${row.idx} )}">
+                            <i class="fa fa-file-o" aria-hidden="true"></i>
+                            [[ ${row.originalName} ]]
+                        </a>
+                    </div>
+                </div>
+            </div>
         </form>
 
         <div class="btn_wrap text-center" th:object="${params}">

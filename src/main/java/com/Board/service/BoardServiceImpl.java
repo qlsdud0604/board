@@ -115,6 +115,11 @@ public class BoardServiceImpl implements BoardService {
 
         return fileMapper.selectFileList(boardIdx);
     }
+
+    @Override
+    public FileDTO getFileDetail(Long idx) {
+        return fileMapper.selectFileDetail(idx);
+    }
 }
 
 /**

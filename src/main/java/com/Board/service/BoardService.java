@@ -21,4 +21,6 @@ public interface BoardService {
     public boolean cntPlus(Long idx);
 
     public List<FileDTO> getFileList(Long boardIdx);
+
+    public FileDTO getFileDetail(Long idx);
 }

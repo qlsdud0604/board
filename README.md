@@ -1,21 +1,21 @@
 # Spring Boot를 활용한 게시판의 제작
-### 목차 :book:
-1. [프로젝트 이름](#1-프로젝트-이름-memo)
+### 목차
+1. [프로젝트 이름](#1-프로젝트-이름)
 
-2. [프로젝트 일정](#2-프로젝트-일정-calendar)
+2. [프로젝트 일정](#2-프로젝트-일정)
 
-3. [기술 스택](#3-기술-스택-computer)
+3. [기술 스택](#3-기술-스택)
 
 ---
-### 1. 프로젝트 이름 :memo:
+### 1. 프로젝트 이름
 * **게시물 등록, 조회, 수정, 삭제가 가능한 게시판**
 
 ---
-### 2. 프로젝트 일정 :calendar:
+### 2. 프로젝트 일정
 
 
 ---
-### 3. 기술 스택 :computer:
+### 3. 기술 스택
 * IDE
 ```
 - IntelliJ
@@ -78,7 +78,10 @@
 **1) 데이터 소스 설정**   
 ㆍ 스프링 부트에서 데이터 소스 설정 방법은 두 가지가 존재   
 ㆍ "@Bean" 애너테이션 또는 "application.properties" 파일을 이용 가능 (이번 프로젝트에서는 후자의 방법을 사용)   
-ㆍ src/main/resources 디렉터리의 application.properties 파일에 아래 코드를 입력   
+ㆍ src/main/resources 디렉터리의 application.properties 파일에 아래 코드를 입력
+<details>
+    <summary><b>코드 보기</b></summary>
+
 ```
 spring.datasource.hikari.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.datasource.hikari.jdbc-url=jdbc:mysql://localhost:3306/board?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&useSSL=false
@@ -86,6 +89,8 @@ spring.datasource.hikari.username=username
 spring.datasource.hikari.password=password
 spring.datasource.hikari.connection-test-query=SELECT NOW() FROM dual
 ```
+</details>
+
 |속성|설명|
 |---|---|
 |jdbc-url|데이터베이스의 주소를 의미하며, 포트 번호뒤의 board는 생성한 스키마의 이름|
@@ -96,6 +101,9 @@ spring.datasource.hikari.connection-test-query=SELECT NOW() FROM dual
 
 **2) 데이터베이스 설정**   
 ㆍ configuration 패키지 내 DBConfiguration 클래스를 통해 데이터베이스 설정 완료
+<details>
+    <summary><b>코드 보기</b></summary>
+	
 ```java
 @Configuration
 @PropertySource("classpath:/application.properties")
@@ -129,6 +137,8 @@ public class DBConfiguration {
 	}
 }
 ```
+</details>
+
 |애너테이션 및 메서드|설명|
 |---|---|
 |@Configuration|해당 애너테이션이 지정된 클래스를 자바 기반의 설정 파일로 인식|
@@ -148,7 +158,10 @@ public class DBConfiguration {
 ### 6. 게시판 CRUD 처리
 **1) 게시판 테이블 생성**   
 ㆍ 게시판 테이블은 데이터베이스에 저장될 게시물에 대한 정보를 정의한 것   
-ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행   
+ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행
+<details>
+    <summary><b>코드 보기</b></summary>
+	
 ```
 CREATE TABLE tb_board (
     idx INT NOT NULL AUTO_INCREMENT COMMENT '번호 (PK)',
@@ -165,12 +178,16 @@ CREATE TABLE tb_board (
     PRIMARY KEY (idx)
 )  COMMENT '게시판';
 ```
+</details>
 </br>
 
 **2) 도메인 클래스 생성**   
 ㆍ 도메인 클래스는 위에서 생성한 게시판 테이블에 대한 구조화 역할을 함   
 ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송은 의미하는 xxxDTO로 네이밍을 함   
-ㆍ domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성   
+ㆍ domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성
+<details>
+    <summary><b>코드 보기</b></summary>
+	
 ```java
 @Getter
 @Setter
@@ -199,11 +216,15 @@ public class BoardDTO {
 	private LocalDateTime deleteTime;
 }
 ```
+</details>
 </br>
 
 **3) Mapper 인터페이스 생성**      
 ㆍ Mapper 인터페이스는 데이터베이스와 통신 역할을 함   
 ㆍ mapper 패키지에 BoardMapper 인터페이스를 생성하고 아래 코드를 작성
+<details>
+    <summary><b>코드 보기</b></summary>
+	
 ```
 @Mapper
 public interface BoardMapper {
@@ -221,6 +242,8 @@ public interface BoardMapper {
 	public int selectBoardTotalCount();
 }
 ```
+</details>
+	
 |애너테이션 및 메서드|설명|
 |---|---|
 |@Mapper|마이바티스는 인터페이스에 @Mapper만 지정을 해주면 XML Mapper에서 메서드의 이름과 일치하는 SQL 문을 찾아 실행해줌|
@@ -235,7 +258,10 @@ public interface BoardMapper {
 **4) 마이바티스 XML Mapper 생성**   
 ㆍ XML Mapper는 BoardMapper 인터페이스와 SQL문의 연결을 위한 역할이며, 실제 SQL 쿼리 문이 정의됨     
 ㆍ src/main/resources 디렉터리에 mappers 폴더 생성 후 BoardMapper.xml 파일을 추가   
-ㆍ BoardMapper.xml 파일에 아래에 소스코드를 작성   
+ㆍ BoardMapper.xml 파일에 아래에 소스코드를 작성
+<details>
+    <summary><b>코드 보기</b></summary>
+	
 ```sql
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -331,6 +357,8 @@ public interface BoardMapper {
 
 </mapper>
 ```
+</details>
+
 |태그 및 속성|설명|
 |---|---|
 |&lt;mapper&gt;|해당 태그 namespace 속성에는 SQL 쿼리문과 매핑을 위한 BoardMapper 인터페이스의 경로가 지정|
@@ -344,15 +372,22 @@ public interface BoardMapper {
 **5) 마이바티스 SELECT 컬럼과 DTO 멤버 변수의 매핑**   
 ㆍ BoardMapper.xml의 boardColumns SQL 조각은 스네이크 케이스를 사용하고 있고, BoardDTO 클래스의 멤버 변수는 카멜 케이스를 사용   
 ㆍ 서로 다른 표현식에 사용은 추가 설정을 통해 자동으로 매칭이 되도로 처리가 가능   
-ㆍ application.properties 파일 하단에 아래 설정을 추가   
+ㆍ application.properties 파일 하단에 아래 설정을 추가
+<details>
+    <summary><b>코드 보기</b></summary>
+	
 ```
 mybatis.configuration.map-underscore-to-camel-case=true
 ```
+</details>
 </br>
 
 **6) DBConfiguration 클래스 처리**   
 ㆍ application.properies 파일에 마이바티스 설정을 추가하였으니, 해당 설정을 처리할 빈을 정의해야 함   
-ㆍ DBConfiguration 클래스에 아래 코드를 추가   
+ㆍ DBConfiguration 클래스에 아래 코드를 추가
+<details>
+    <summary><b>코드 보기</b></summary>
+	
 ```java
 @Configuration
 @PropertySource("classpath:/application.properties")
@@ -394,6 +429,8 @@ public class DBConfiguration {
 	}
 }
 ```
+</details>
+
 |메서드|설명|
 |---|---|
 |setTypeAliasesPackage|BoardMapper XML의 parameterType과 resultTrpe은 클래스의 풀 패키지 경로가 포함이 되어야함, 해당메서드를 사용함으로써 풀 패키지 경로 생략 가능|

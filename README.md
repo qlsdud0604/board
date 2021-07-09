@@ -82,7 +82,7 @@
 **2) BoardApplication 클래스**   
 ㆍ 해당 클래스 내의 main 메서드는 SpringApplication.run 메서드를 호출해서 웹 애플리케이션을 실행하는 역할을 함   
 ㆍ "@SpringBootApplication"은 다음 3가지 애너테이션으로 구성   
-|애너테이션|설명|
+|구성 요소|설명|
 |---|---|
 |@EnableAutoConfiguration|다양한 설정들의 일부가 자동으로 완료됨|
 |@ComponentScan|자동으로 컴포넌트 클래스를 검색하고 스프링 애플리케이션 콘텍스트에 빈으로 등록함|
@@ -90,7 +90,7 @@
 </br>
 
 **3) src/main/resources 디렉터리**   
-|폴더 및 파일|설명|
+|구성 요소|설명|
 |---|---|
 |templates|템플릿 엔진을 활용한 동적 리소스 파일이 위치|
 |static|css, fonts, images, plugin, scripts와 같은 정적 리소스 파일이 위치|
@@ -123,7 +123,7 @@ spring.datasource.hikari.connection-test-query=SELECT NOW() FROM dual
 ```
 </details>
 
-|속성|설명|
+|구성 요소|설명|
 |---|---|
 |jdbc-url|데이터베이스의 주소를 의미하며, 포트 번호뒤의 board는 생성한 스키마의 이름|
 |username|MySQL의 아이디를 의미|
@@ -276,7 +276,7 @@ public interface BoardMapper {
 ```
 </details>
 	
-|애너테이션 및 메서드|설명|
+|구성 요소|설명|
 |---|---|
 |@Mapper|마이바티스는 인터페이스에 @Mapper만 지정을 해주면 XML Mapper에서 메서드의 이름과 일치하는 SQL 문을 찾아 실행해줌|
 |insert|게시글을 생성하는 INSERT 쿼리를 호출하는 메소드|
@@ -391,7 +391,7 @@ public interface BoardMapper {
 ```
 </details>
 
-|태그 및 속성|설명|
+|구성 요소|설명|
 |---|---|
 |&lt;mapper&gt;|해당 태그 namespace 속성에는 SQL 쿼리문과 매핑을 위한 BoardMapper 인터페이스의 경로가 지정|
 |&lt;sql&gt;|공통으로 사용되거나 반복적으로 사용되는 테이블의 컬럼을 SQL 조각으로 정의하여 boardColumns라는 이름으로 사용|
@@ -463,9 +463,157 @@ public class DBConfiguration {
 ```
 </details>
 
-|메서드|설명|
+|구성 요소|설명|
 |---|---|
 |setTypeAliasesPackage|BoardMapper XML의 parameterType과 resultTrpe은 클래스의 풀 패키지 경로가 포함이 되어야함, 해당메서드를 사용함으로써 풀 패키지 경로 생략 가능|
 |setConfiguration|마이바티스 설정과 관련된 빈을 설정 파일로 지정|
 |mybatisConfig|application.properties 파일에서 mybatis.configuration으로 시작하는 모든 설정을 읽어 들여 빈으로 등록|
 </br>
+
+---
+### 7. 게시판 등록 구현
+**1) Service 영역**   
+ㆍ Service 영역은 비즈니스 로직을 담당   
+ㆍ service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public interface BoardService {
+
+	public boolean registerBoard(BoardDTO params);
+
+	public BoardDTO getBoardDetail(Long idx);
+
+	public boolean deleteBoard(Long idx);
+
+	public List<BoardDTO> getBoardList();
+}
+```
+</details>
+	
+ㆍ service 패키지에 BoardServiceImpl 클래스 생성   
+ㆍ BoardServiceImpl 클래스는 BoardService 인터페이스의 구현 클래스 역할을 함   
+ㆍ BoardServiceImpl 클래스에 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Service
+public class BoardServiceImpl implements BoardService {
+
+	@Autowired
+	private BoardMapper boardMapper;
+
+	@Override
+	public boolean registerBoard(BoardDTO params) {
+		int queryResult = 0;
+
+		if (params.getIdx() == null) {
+			queryResult = boardMapper.insertBoard(params);
+		} else {
+			queryResult = boardMapper.updateBoard(params);
+		}
+
+		return (queryResult == 1) ? true : false;
+	}
+
+	@Override
+	public BoardDTO getBoardDetail(Long idx) {
+		return boardMapper.selectBoardDetail(idx);
+	}
+
+	@Override
+	public boolean deleteBoard(Long idx) {
+		int queryResult = 0;
+
+		BoardDTO board = boardMapper.selectBoardDetail(idx);
+
+		if (board != null && "N".equals(board.getDeleteYn())) {
+			queryResult = boardMapper.deleteBoard(idx);
+		}
+
+		return (queryResult == 1) ? true : false;
+	}
+
+	@Override
+	public List<BoardDTO> getBoardList() {
+		List<BoardDTO> boardList = Collections.emptyList();
+
+		int boardTotalCount = boardMapper.selectBoardTotalCount();
+
+		if (boardTotalCount > 0) {
+			boardList = boardMapper.selectBoardList();
+		}
+
+		return boardList;
+	}
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|@Service|해당 클래스가 비즈니스 로직을 담당하는 서비스 클래스임을 지정|
+|registerBoard|1. params의 idx가 null이라면, insertBoard 메서드가 실행 </br>2. params의 idx가 null이 아니라면, updateBoard 메서드가 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
+|getBoardDetail|하나의 게시글을 조회하는 selectBoardDetail 메서드의 결과값을 반환|
+|deleteBoard|1. 파라미터로 입력받은 idx에 해당하는 게시물을 조회</br>2. 해당 게시물이 null이 아니거나, 이미 삭제된 게시물이 아니라면 deleteBoard 메서드 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
+|getBoardList|1. 비어있는 리스트를 선언</br>2. 삭제되지 않은 게시글들을 비어있는 리스트에 삽입</br>3. 해당 리스트를 반환|
+</br>
+
+**2) Controller 영역**   
+ㆍ Controller 영역은 Model 영역과 View 영역을 연결해주고, 사용자의 요청과 응답을 처리해 줌   
+ㆍ controller 패키지에 BoardController 클래스를 생성하고 아래에 코드를 작성
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Controller
+public class BoardController {
+
+	@Autowired
+	private BoardService boardService;
+
+	@GetMapping(value = "/board/write.do")
+	public String openBoardWrite(@RequestParam(value = "idx", required = false) Long idx, Model model) {
+		if (idx == null) {
+			model.addAttribute("board", new BoardDTO());
+		} else {
+			BoardDTO board = boardService.getBoardDetail(idx);
+			if (board == null) {
+				return "redirect:/board/list.do";
+			}
+			model.addAttribute("board", board);
+		}
+
+		return "board/write";
+	}
+	
+	@PostMapping(value = "/board/register.do")
+	public String registerBoard(final BoardDTO params) {
+		try {
+			boolean isRegistered = boardService.registerBoard(params);
+			if (isRegistered == false) {
+				// 게시글 등록에 실패하였다는 메시지 전달
+			}
+		} catch (DataAccessException e) {
+			// 데이터베이스 처리 과정에 문제가 발생하였다는 메시지 전달
+
+		} catch (Exception e) {
+			// 시스템에 문제가 발생하였다는 메시지 전달
+		}
+		return "redirect:/board/list.do";
+	}
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|@Controller|해당 클래스가 컨트롤러 클래스임을 지정|
+|@GetMapping|1. get 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. get 방식은 파라미터가 주소창에 노출이되며, 주로 데이터를 조회할 때 사용|
+|@RequestParam|1. 화면에서 전달받은 파라미터를 처리하는 데 사용</br>2. required 속성이 false라면 반드시 필요한 파라미터가 아니라는 의미|
+|Model|메서드의 파라미터로 지정된 Model 객체는 데이터를 뷰로 전달하는 데 사용|
+|리턴 타입|1. 컨트롤러 메서드의 리턴타입은 String으로 사용자에 보여줄 화면의 경로를 반환</br>2. 반환된 경로를 자동으로 연결하여 사용자에게 제공|
+|@PostMapping|1. post 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. post 방식은 파라미터가 주소창에 노출되지 않으며, 주로 데이터를 생성할 때 사용|
+|params|BoardDTO의 멤버 변수명과 사용자 입력 필드의 name 속성 값이 동일하면, params의 각 멤버 변수에 전달된 값들이 자동으로 매핑됨|

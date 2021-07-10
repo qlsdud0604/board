@@ -1,16 +1,14 @@
 # Spring Boot를 활용한 게시판의 제작
 ### 목차
 1. [프로젝트 이름](#1-프로젝트-이름)
-
 2. [프로젝트 일정](#2-프로젝트-일정)
-
 3. [기술 스택](#3-기술-스택)
-
 4. [프로젝트 구조](#4-프로젝트-구조)
-
 5. [MySQL 연동](#5-MySQL-연동)
-
 6. [게시판 CRUD 처리](#6-게시판-CRUD-처리)
+7. [게시글 등록 구현](#7-게시글-등록-구현)
+8. [게시글 조회 구현](#8-게시글-조회-구현)
+9. [게시글 삭제 구현](#9-게시글-삭제-구현)
 
 ---
 ### 1. 프로젝트 이름
@@ -189,7 +187,7 @@ public class DBConfiguration {
 ---
 ### 6. 게시판 CRUD 처리
 **1) 게시판 테이블 생성**   
-ㆍ 게시판 테이블은 데이터베이스에 저장될 게시물에 대한 정보를 정의한 것   
+ㆍ 게시판 테이블은 데이터베이스에 저장될 게시에 대한 정보를 정의한 것   
 ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행
 <details>
     <summary><b>코드 보기</b></summary>
@@ -403,7 +401,7 @@ public interface BoardMapper {
 
 **5) 마이바티스 SELECT 컬럼과 DTO 멤버 변수의 매핑**   
 ㆍ BoardMapper.xml의 boardColumns SQL 조각은 스네이크 케이스를 사용하고 있고, BoardDTO 클래스의 멤버 변수는 카멜 케이스를 사용   
-ㆍ 서로 다른 표현식에 사용은 추가 설정을 통해 자동으로 매칭이 되도로 처리가 가능   
+ㆍ 서로 다른 표현식 사용은 추가 설정을 통해 자동으로 매칭이 되도록 처리가 가능   
 ㆍ application.properties 파일 하단에 아래 설정을 추가
 <details>
     <summary><b>코드 보기</b></summary>
@@ -471,7 +469,7 @@ public class DBConfiguration {
 </br>
 
 ---
-### 7. 게시판 등록 구현
+### 7. 게시글 등록 구현
 **1) Service 영역**   
 ㆍ Service 영역은 비즈니스 로직을 담당   
 ㆍ service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성   
@@ -617,3 +615,98 @@ public class BoardController {
 |리턴 타입|1. 컨트롤러 메서드의 리턴타입은 String으로 사용자에 보여줄 화면의 경로를 반환</br>2. 반환된 경로를 자동으로 연결하여 사용자에게 제공|
 |@PostMapping|1. post 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. post 방식은 파라미터가 주소창에 노출되지 않으며, 주로 데이터를 생성할 때 사용|
 |params|BoardDTO의 멤버 변수명과 사용자 입력 필드의 name 속성 값이 동일하면, params의 각 멤버 변수에 전달된 값들이 자동으로 매핑됨|
+</br>
+
+---
+### 8. 게시글 리스트 구현
+**1) Controller 영역**   
+ㆍ 게시글 목록을 보여줄 리스트 페이지에 대한 Controller 영역의 처리가 필요   
+ㆍ BoardController 클래스에 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@GetMapping(value = "/board/list.do")
+public String openBoardList(Model model) {
+	List<BoardDTO> boardList = boardService.getBoardList();
+	model.addAttribute("boardList", boardList);
+
+	return "board/list";
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|boardList|BoardService에서 호출한 getBoardList 메서드의 실행 결과를 담아 View 영역으로 전달하는데 사용|
+</br>
+
+---
+### 9. 게시글 조회 구현
+**1) Controller 영역**   
+ㆍ 특정 게시물을 조회해 출력해 주는 Controller 영역의 처리가 필요   
+ㆍ BoardController 클래스에 아래의 코드를 작성
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@GetMapping(value = "/board/view.do")
+public String openBoardDetail(@RequestParam(value = "idx", required = false) Long idx, Model model) {
+	if (idx == null) {
+		// 올바르지 않은 접근이라는 메시지를 전달하고, 게시글 리스트로 이동
+		return "redirect:/board/list.do";
+	}
+
+	BoardDTO board = boardService.getBoardDetail(idx);
+	if (board == null || "Y".equals(board.getDeleteYn())) {
+		// 없는 게시글이거나, 이미 삭제된 게시글이라는 메시지를 전달하고, 게시글 리스트로 이동
+		return "redirect:/board/list.do";
+	}
+	model.addAttribute("board", board);
+
+	return "board/view";
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|board|getBoardDetail 메서드의 인자로 idx를 전달해서 게시글 정보를 담아 View 영역으로 전달|
+</br>
+	
+---
+### 9. 게시글 삭제 구현
+**1) Controller 영역**   
+ㆍ 특정 게시물을 삭제해 주는 Controller 영역의 처리가 필요   
+ㆍ BoardController 클래스에 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@PostMapping(value = "/board/delete.do")
+public String deleteBoard(@RequestParam(value = "idx", required = false) Long idx) {
+	if (idx == null) {
+		// 올바르지 않은 접근이라는 메시지를 전달하고, 게시글 리스트로 이동
+		return "redirect:/board/list.do";
+	}
+
+	try {
+		boolean isDeleted = boardService.deleteBoard(idx);
+		if (isDeleted == false) {
+			// 게시글 삭제에 실패하였다는 메시지를 전달
+		}
+	} catch (DataAccessException e) {
+		// 데이터베이스 처리 과정에 문제가 발생하였다는 메시지를 전달
+	} catch (Exception e) {
+		// 시스템에 문제가 발생하였다는 메시지를 전달
+	}
+	return "redirect:/board/list.do";
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|isDeleted|deletedBoard 메서드의 인자로 idx를 전달해서 해당 게시글을 삭제 후 true 또는 false 값을 저장|
+</br>
+

@@ -4,11 +4,12 @@
 2. [프로젝트 일정](#2-프로젝트-일정)
 3. [기술 스택](#3-기술-스택)
 4. [프로젝트 구조](#4-프로젝트-구조)
-5. [MySQL 연동](#5-MySQL-연동)
-6. [게시판 CRUD 처리](#6-게시판-CRUD-처리)
+5. [MySQL 연동](#5-mysql-연동)
+6. [게시판 CRUD 처리](#6-게시판-crud-처리)
 7. [게시글 등록 구현](#7-게시글-등록-구현)
-8. [게시글 조회 구현](#8-게시글-조회-구현)
-9. [게시글 삭제 구현](#9-게시글-삭제-구현)
+8. [게시글 리스트 구현](#8-게시글-리스트-구현)
+9. [게시글 조회 구현](#9-게시글-조회-구현)
+10. [게시글 삭제 구현](#10-게시글-삭제-구현)
 
 ---
 ### 1. 프로젝트 이름
@@ -675,7 +676,7 @@ public String openBoardDetail(@RequestParam(value = "idx", required = false) Lon
 </br>
 	
 ---
-### 9. 게시글 삭제 구현
+### 10. 게시글 삭제 구현
 **1) Controller 영역**   
 ㆍ 특정 게시물을 삭제해 주는 Controller 영역의 처리가 필요   
 ㆍ BoardController 클래스에 아래의 코드를 작성   
@@ -711,7 +712,7 @@ public String deleteBoard(@RequestParam(value = "idx", required = false) Long id
 </br>
 
 ---
-### 10. 경고 메시지 처리
+### 11. 경고 메시지 처리
 **1) Enum 클래스**   
 ㆍ constatnt 패키지를 추가한 후, Method라는 이름으로 다음의 Enum 클래스를 추가   
 ㆍ Enum 클래스는 상수를 처리하는 목적으로 사용  
@@ -724,7 +725,8 @@ public enum Method {
 }
 ```
 </details>
-	
+</br>
+
 **2) 공통 컨트롤러 생성**   
 ㆍ util 패키지를 생성한 후 UiUtils 클래스를 추가   
 ㆍ UiUtils 클래스에 아래 코드를 작성   
@@ -854,3 +856,71 @@ public class BoardController extends UiUtils {
 }
 ```
 </details>
+</br>
+	
+---
+### 12. 인터셉터 적용
+**1) 인터셉터란?**   
+ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다."라는 의미가 있음   
+ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용   
+ㆍ 예를 들어, 특정 페이지에 접근할 때 로그인이나 계정의 권한과 관련된 처리를 인터셉터를 통해 효율적으로 해결 가능   
+</br>
+
+**2)인터셉터 구현**   
+ㆍ 스프링에서 인터셉터는 "HandlerInterceptor" 인터페이스를 상속받아 구현할 수 있음   
+ㆍ 해당 인터페이스는 preHandle, postHandle, afterCompletion, afterConcurrentHandlingStarted 총 네 개의 메서드를 포함   
+ㆍ interceptor 패키지에 LoggerInterceptor 클래스를 추가한 후 다음의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Slf4j
+public class LoggerInterceptor implements HandlerInterceptor {
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        log.debug("");
+        log.debug("==================== BEGIN ====================");
+        log.debug("Request URI ===> " + request.getRequestURI());
+
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        log.debug("==================== END ======================");
+        log.debug("");
+    }
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|preHandle|컨트롤러의 메서드에 매핑된 특정 URI를 호출했을 때 컨트롤러에 접근하기 전에 실행되는 메서드|
+|postHandle|컨트롤러를 경유한 다음 화면으로 결과를 전달하기 전에 실행되는 메서드|
+</br>
+
+**3)LoggerInterceptor 클래스를 빈으로 등록**   
+ㆍ configuration 패키지에 MvcConfiguration 클래스를 생성 후, 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Configuration
+public class MvcConfiguration implements WebMvcConfigurer {
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new LoggerInterceptor())
+		.excludePathPatterns("/css/**", "/fonts/**", "/plugin/**", "/scripts/**");
+	}
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|addInterceptor|특정 인터셉터를 빈으로 등록하기 위한 메서드|
+|excludePathPatterns|특정 패턴의 주소를 인터셉터에서 제외하는 메서드|
+</br>

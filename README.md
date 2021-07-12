@@ -710,3 +710,147 @@ public String deleteBoard(@RequestParam(value = "idx", required = false) Long id
 |isDeleted|deletedBoard 메서드의 인자로 idx를 전달해서 해당 게시글을 삭제 후 true 또는 false 값을 저장|
 </br>
 
+---
+### 10. 경고 메시지 처리
+**1) Enum 클래스**   
+ㆍ constatnt 패키지를 추가한 후, Method라는 이름으로 다음의 Enum 클래스를 추가   
+ㆍ Enum 클래스는 상수를 처리하는 목적으로 사용  
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public enum Method {
+    GET, POST, PUT, PATCH, DELETE
+}
+```
+</details>
+	
+**2) 공통 컨트롤러 생성**   
+ㆍ util 패키지를 생성한 후 UiUtils 클래스를 추가   
+ㆍ UiUtils 클래스에 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Controller
+public class UiUtils {
+
+	public String showMessageWithRedirect(@RequestParam(value = "message", required = false) String message,
+										  @RequestParam(value = "redirectUri", required = false) String redirectUri,
+										  @RequestParam(value = "method", required = false) Method method,
+										  @RequestParam(value = "params", required = false) Map<String, Object> params, Model model) {
+
+		model.addAttribute("message", message);
+		model.addAttribute("redirectUri", redirectUri);
+		model.addAttribute("method", method);
+		model.addAttribute("params", params);
+
+		return "utils/message-redirect";
+	}
+
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|message|사용자에게 전달할 메시지|
+|redirectUri|이동할 페이지의 URI|
+|method|Enum 클래스에 선언한 HTTP 요청 메서드|
+|params|View 영역으로 전달할 파라미터|
+</br>
+
+**3) BoardController 변경**   
+ㆍ BoardController에 사용자에게 출력할 메시지에 대한 처리 필요   
+ㆍ BoardController는 UiUtils 클래스를 상속 받음   
+ㆍ 경고 메시지에 대한 주석 처리 부분에 아래 코드 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Controller
+public class BoardController extends UiUtils {
+
+	@Autowired
+	private BoardService boardService;
+
+	@GetMapping(value = "/board/write.do")
+	public String openBoardWrite(@RequestParam(value = "idx", required = false) Long idx, Model model) {
+		if (idx == null) {
+			model.addAttribute("board", new BoardDTO());
+		} else {
+			BoardDTO board = boardService.getBoardDetail(idx);
+			if (board == null) {
+				return "redirect:/board/list.do";
+			}
+			model.addAttribute("board", board);
+		}
+
+		return "board/write";
+	}
+
+	@PostMapping(value = "/board/register.do")
+	public String registerBoard(final BoardDTO params, Model model) {
+		try {
+			boolean isRegistered = boardService.registerBoard(params);
+			if (isRegistered == false) {
+				return showMessageWithRedirect("게시글 등록에 실패하였습니다.", "/board/list.do", Method.GET, null, model);
+			}
+		} catch (DataAccessException e) {
+			return showMessageWithRedirect("데이터베이스 처리 과정에 문제가 발생하였습니다.", "/board/list.do", Method.GET, null, model);
+
+		} catch (Exception e) {
+			return showMessageWithRedirect("시스템에 문제가 발생하였습니다.", "/board/list.do", Method.GET, null, model);
+		}
+
+		return showMessageWithRedirect("게시글 등록이 완료되었습니다.", "/board/list.do", Method.GET, null, model);
+	}
+
+	@GetMapping(value = "/board/list.do")
+	public String openBoardList(Model model) {
+		List<BoardDTO> boardList = boardService.getBoardList();
+		model.addAttribute("boardList", boardList);
+
+		return "board/list";
+	}
+
+	@GetMapping(value = "/board/view.do")
+	public String openBoardDetail(@RequestParam(value = "idx", required = false) Long idx, Model model) {
+		if (idx == null) {
+			// 올바르지 않은 접근이라는 메시지를 전달하고, 게시글 리스트로 이동
+			return "redirect:/board/list.do";
+		}
+
+		BoardDTO board = boardService.getBoardDetail(idx);
+		if (board == null || "Y".equals(board.getDeleteYn())) {
+			// 없는 게시글이거나, 이미 삭제된 게시글이라는 메시지를 전달하고, 게시글 리스트로 이동
+			return "redirect:/board/list.do";
+		}
+		model.addAttribute("board", board);
+
+		return "board/view";
+	}
+
+	@PostMapping(value = "/board/delete.do")
+	public String deleteBoard(@RequestParam(value = "idx", required = false) Long idx, Model model) {
+		if (idx == null) {
+			return showMessageWithRedirect("올바르지 않은 접근입니다.", "/board/list.do", Method.GET, null, model);
+		}
+
+		try {
+			boolean isDeleted = boardService.deleteBoard(idx);
+			if (isDeleted == false) {
+				return showMessageWithRedirect("게시글 삭제에 실패하였습니다.", "/board/list.do", Method.GET, null, model);
+			}
+		} catch (DataAccessException e) {
+			return showMessageWithRedirect("데이터베이스 처리 과정에 문제가 발생하였습니다.", "/board/list.do", Method.GET, null, model);
+
+		} catch (Exception e) {
+			return showMessageWithRedirect("시스템에 문제가 발생하였습니다.", "/board/list.do", Method.GET, null, model);
+		}
+
+		return showMessageWithRedirect("게시글 삭제가 완료되었습니다.", "/board/list.do", Method.GET, null, model);
+	}
+}
+```
+</details>

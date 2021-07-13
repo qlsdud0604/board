@@ -866,7 +866,7 @@ public class BoardController extends UiUtils {
 ㆍ 예를 들어, 특정 페이지에 접근할 때 로그인이나 계정의 권한과 관련된 처리를 인터셉터를 통해 효율적으로 해결 가능   
 </br>
 
-**2)인터셉터 구현**   
+**2) 인터셉터 구현**   
 ㆍ 스프링에서 인터셉터는 "HandlerInterceptor" 인터페이스를 상속받아 구현할 수 있음   
 ㆍ 해당 인터페이스는 preHandle, postHandle, afterCompletion, afterConcurrentHandlingStarted 총 네 개의 메서드를 포함   
 ㆍ interceptor 패키지에 LoggerInterceptor 클래스를 추가한 후 다음의 코드를 작성   
@@ -924,3 +924,77 @@ public class MvcConfiguration implements WebMvcConfigurer {
 |addInterceptor|특정 인터셉터를 빈으로 등록하기 위한 메서드|
 |excludePathPatterns|특정 패턴의 주소를 인터셉터에서 제외하는 메서드|
 </br>
+
+---
+### 12. AOP 적용
+**1) AOP란?**   
+ㆍ AOP는 Aspect Oriented Programming의 약자   
+ㆍ 관점 지향 프로그램으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와줌   
+ㆍ 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 로그 출력, 보안 처리, 예외 처리와 같은 코드를 별도로 분리하는 모듈화의 개념   
+ㆍ AOP에서 관점을 핵심적인 관점과 부가적인 관점으로 나눌 수 있음   
+ㆍ 핵심적인 관점은 핵심 비즈니스 로직을 의미하고, 부가적인 관점은 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 부분을 의미   
+<img src="https://blog.kakaocdn.net/dn/pD57t/btqDLEZKQib/1KOdMZKJgFY06WMwxNydkk/img.png" width="50%">   
+ㆍ 위 사진은 일반적인 객체 지향 프로그래밍의 동작과정을 보여줌   
+ㆍ 각각의 화살표는 하나의 기능을 구현하는 게 필요한 작업을 의미   
+ㆍ 로그 출력, 보안 처리와 같은 부가적인 기능들이 각각의 작업에 추가됨으로써 코드가 복잡해지고, 생산성이 낮아짐   
+<img src="https://blog.kakaocdn.net/dn/DWbbY/btqGfN6LnPh/DVVAcqmplI6UEqZVjkhnyK/img.png" width="50%">   
+ㆍ 위 사진은 관점 지향 프로그래밍의 동작과정을 보여줌   
+ㆍ 객체 지향 프로그래밍과 달리 부가적인 기능들이 핵심 비즈니스 로직 바깥에서 동작   
+ㆍ 이와 같이 공통으로 처리해야하는 기능들을 별도로 분리하여 중복되는 코드를 제거하고, 재사용성을 극대화 할 수 있음   
+</br>
+
+**2) AOP 용어**   
+|구성 요소|설명|
+|---|---|
+|Aspect|1. 공통으로 적용될 기능</br>2. 부가적인 기능을 정의한 코드인 Advice와 Advice를 어느 곳에 적용할지 결정하는 Pointcut의 조합으로 만들어짐|
+|Advice|실제로 부가적인 기능을 구현한 객체|
+|JoinPoint|Advice를 적용할 위치|
+|Pointcut|1. Advice를 적용할 JoinPoint를 선별하는 과정이나, 그 기능을 정의한 모듈</br>2. 어떤 JoinPoint를 사용할지 결정|
+|Target|1. 실제로 비즈니스 로직을 수행하는 개체</br>2. 즉, Advice를 적용할 대상을 의미|
+|Proxy|Advice가 적용되었을 때 생성되는 객체|
+|Introduction|Target에는 없는 새로운 메서드나 인스턴스 변수를 추가하는 기능|
+|Weaving|Pointcut에 의해 결정된 Target의 JoinPoint에 Advice를 적용하는 것|
+</br>
+
+**3) AOP 구현**   
+ㆍ aop 패키지를 추가하고 LoggerAspect 클래스 생성 후 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Component
+@Aspect
+public class LoggerAspect {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	@Around("execution(* com.Board..controller.*Controller.*(..)) or execution(* com.Board..service.*Impl.*(..)) or execution(* com.Board..mapper.*Mapper.*(..))")
+	public Object printLog(ProceedingJoinPoint joinPoint) throws Throwable {
+
+		String type = "";
+		String name = joinPoint.getSignature().getDeclaringTypeName();
+
+		if (name.contains("Controller") == true) {
+			type = "Controller ===> ";
+
+		} else if (name.contains("Service") == true) {
+			type = "ServiceImpl ===> ";
+
+		} else if (name.contains("Mapper") == true) {
+			type = "Mapper ===> ";
+		}
+
+		logger.debug(type + name + "." + joinPoint.getSignature().getName() + "()");
+		return joinPoint.proceed();
+	}
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|@Component|1. 스프링 컨테이너에 빈으로 등록하기 위한 애너테이션</br>2. @Bean은 개발자가 제어할 수 없는 외부 라이브러리를 빈으로 등록할 때 사용</br>3. @Component는 개발자가 직접 정의한 클래스를 빈으로 등록할 때 사용|
+|@Aspect|AOP 기능을 하는 클래스에 지정하는 애너테이션|
+|@Around|Advice의 종류 중 한 가지로 Target 메서드 호출 이전과 이후에 모두 적용됨을 의미|
+|execution|1. Pointcut을 지정하는 문법</br>2. 즉, 어떤 위치에 공통 기능을 적용할 것인지 정의|
+|getSignature( )|실행되는 대상 객체 메서드에 대한 정보를 가지고 옴|

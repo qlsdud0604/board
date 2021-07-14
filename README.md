@@ -998,3 +998,83 @@ public class LoggerAspect {
 |@Around|Advice의 종류 중 한 가지로 Target 메서드 호출 이전과 이후에 모두 적용됨을 의미|
 |execution|1. Pointcut을 지정하는 문법</br>2. 즉, 어떤 위치에 공통 기능을 적용할 것인지 정의|
 |getSignature( )|실행되는 대상 객체 메서드에 대한 정보를 가지고 옴|
+</br>
+
+---
+### 13. 트랜잭션 적용
+**1) 트랜잭션이란?**   
+ㆍ 트랜잭션은 일련의 작업들이 모두 하나의 논리적 작업으로 취급되는 것을 말함   
+ㆍ 즉, 하나의 작업에 여러 개의 작업이 같이 묶여 있는 것   
+ㆍ 논리적 작업을 취소하게 되면, 내부에 포함된 일련의 작업들이 모두 취소됨   
+ㆍ 이렇게 함으로써 데이터의 무결성을 보장할 수 있음   
+</br>
+
+**2) 트랜잭션의 기본 원칙**   
+|특성|설명|
+|원자성(Atomicity)|1. 하나의 트랜잭션은 모두 하나의 작업 단위로 처리되어야 하는 특성</br>2. 트랜잭션이 A, B, C로 구성된다면 A, B, C의 처리 결과는 모두 동일해야 함</br>3. 또한 A, B, C의 처리 중 하나라도 실패했다면 세 가지 모두 처음 상태로 되돌아가야 함|
+|일관성(Consistency)|트랜잭션이 실행을 성공적으로 완료했다면 언제나 일관성 있는 데이터베이스 상태를 유지해야 함|
+|고립성(Isolation)|트랜잭션은 독립적으로 처리되며, 처리되는 중간에 외부에서의 간섭은 없어야 함|
+|지속성(Durability)|트랜잭션의 실행 결과는 지속적으로 유지되어야 함|
+</br>
+
+**3) 트랜잭션 설정**   
+ㆍ 트랜잭션 설정 방법은 XML 설정, 애너테이션 설정, AOP 설정으로 나눌 수 있음   
+ㆍ 이번 프로젝트에서는 AOP 설정을 사용   
+ㆍ DBConfiguration 클래스에 아래 사진에 표시된 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	<img src="https://user-images.githubusercontent.com/61148914/125553148-f61516e3-564b-4cd8-8fa0-a4a9f993016a.png" width="60%">
+</details>
+
+|구성 요소|설명|
+|---|---|
+|@EnableTransactionManagement|1. 스프링에서 제공하는 애너테이션 기반 트랜잭션을 활성화</br>2. 이번 프로젝트에서는 애너테이션이 아닌 AOP를 이용한 트랜잭션을 사용할 예정|
+|transactionManager|스프링에서 제공해주는 트랜잭션 매니저를 빈으로 등록해주는 메서드|
+</br>
+
+**4) 트랜잭션 구현**   
+ㆍ aop 패키지에 TransactionAspect 클래스를 추가하고 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Configuration
+public class TransactionAspect {
+
+	@Autowired
+	private PlatformTransactionManager transactionManager;
+
+	private static final String EXPRESSION = "execution(* com.Board..service.*Impl.*(..))";
+
+	@Bean
+	public TransactionInterceptor transactionAdvice() {
+		List<RollbackRuleAttribute> rollbackRules = Collections.singletonList(new RollbackRuleAttribute(Exception.class));
+
+		RuleBasedTransactionAttribute transactionAttribute = new RuleBasedTransactionAttribute();
+		transactionAttribute.setRollbackRules(rollbackRules);
+		transactionAttribute.setName("*");
+
+		MatchAlwaysTransactionAttributeSource attributeSource = new MatchAlwaysTransactionAttributeSource();
+		attributeSource.setTransactionAttribute(transactionAttribute);
+
+		return new TransactionInterceptor(transactionManager, attributeSource);
+	}
+
+	@Bean
+	public Advisor transactionAdvisor() {
+		AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+		pointcut.setExpression(EXPRESSION);
+
+		return new DefaultPointcutAdvisor(pointcut, transactionAdvice());
+	}
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|transactionManager|DBConfiguration 클래스에 빈으로 등록한 PlatformTransactionManager 객체|
+|EXPRESSION|포인트컷으로써, 비즈니스 로직을 수행하는 모든 xxxImpl 클래스의 모든 메서드를 의미|
+|rollbackRules|1. 트랜잭션에서 롤백을 수행하는 규칙</br>2. RollbackRuleAttibute 생성자의 인자로 Exception 클래스를 지정</br>3. 어떠한 예외가 발생하던 무조건 롤백이 수행되도록 설정|
+|pointcut|1. AOP의 포인트컷을 설정하기 위한 객체</br>2. EXPRESSION에 지정한 xxxImpl 클래스의 모든 메서드를 대상으로 설정|
+</br>

@@ -10,6 +10,10 @@
 8. [게시글 리스트 구현](#8-게시글-리스트-구현)
 9. [게시글 조회 구현](#9-게시글-조회-구현)
 10. [게시글 삭제 구현](#10-게시글-삭제-구현)
+11. [경고 메시지 처리](#11-경고-메시지-처리)
+12. [인터셉터 적용](#12-인터셉터-적용)
+13. [AOP 적용](#13-aop-적용)
+14. [트랜잭션 적용](#14-트랜잭션-적용)
 
 ---
 ### 1. 프로젝트 이름
@@ -278,12 +282,12 @@ public interface BoardMapper {
 |구성 요소|설명|
 |---|---|
 |@Mapper|마이바티스는 인터페이스에 @Mapper만 지정을 해주면 XML Mapper에서 메서드의 이름과 일치하는 SQL 문을 찾아 실행해줌|
-|insert|게시글을 생성하는 INSERT 쿼리를 호출하는 메소드|
-|selectBoardDetail|하나의 게시글을 조회하는 SELECT 쿼리를 호출하는 메소드|
-|updateBoard|게시글을 수정하는 UPDATE 쿼리를 호출하는 메소드|
-|deleteBoard|게시글을 삭제하는 DELETE 쿼리를 호출하는 메소드|
-|selectBoardList|게시글 목록을 조회하는 SELECT 쿼리를 호출하는 메소드|
-|selectBoardTotalCount|삭제 여부가 'N'으로 지정된 게시글의 개수를 조회하는 SELECT 쿼리를 호출하는 메소드|
+|insert|게시글을 생성하는 INSERT 쿼리를 호출하는 메서드|
+|selectBoardDetail|하나의 게시글을 조회하는 SELECT 쿼리를 호출하는 메서드|
+|updateBoard|게시글을 수정하는 UPDATE 쿼리를 호출하는 메서드|
+|deleteBoard|게시글을 삭제하는 DELETE 쿼리를 호출하는 메서드|
+|selectBoardList|게시글 목록을 조회하는 SELECT 쿼리를 호출하는 메서드|
+|selectBoardTotalCount|삭제 여부가 'N'으로 지정된 게시글의 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
 </br>
 
 **4) 마이바티스 XML Mapper 생성**   
@@ -926,7 +930,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 </br>
 
 ---
-### 12. AOP 적용
+### 13. AOP 적용
 **1) AOP란?**   
 ㆍ AOP는 Aspect Oriented Programming의 약자   
 ㆍ 관점 지향 프로그램으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와줌   
@@ -1001,7 +1005,7 @@ public class LoggerAspect {
 </br>
 
 ---
-### 13. 트랜잭션 적용
+### 14. 트랜잭션 적용
 **1) 트랜잭션이란?**   
 ㆍ 트랜잭션은 일련의 작업들이 모두 하나의 논리적 작업으로 취급되는 것을 말함   
 ㆍ 즉, 하나의 작업에 여러 개의 작업이 같이 묶여 있는 것   

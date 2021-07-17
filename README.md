@@ -447,7 +447,7 @@ public class DBConfiguration {
 		SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
 		factoryBean.setDataSource(dataSource());
 		factoryBean.setMapperLocations(applicationContext.getResources("classpath:/mappers/**/*Mapper.xml"));
-		factoryBean.setTypeAliasesPackage("com.board.domain");
+		factoryBean.setTypeAliasesPackage("com.Board.domain");
 		factoryBean.setConfiguration(mybatisConfg());
 		return factoryBean.getObject();
 	}
@@ -1083,3 +1083,181 @@ public class TransactionAspect {
 |rollbackRules|1. 트랜잭션에서 롤백을 수행하는 규칙</br>2. RollbackRuleAttibute 생성자의 인자로 Exception 클래스를 지정</br>3. 어떠한 예외가 발생하던 무조건 롤백이 수행되도록 설정|
 |pointcut|1. AOP의 포인트컷을 설정하기 위한 객체</br>2. EXPRESSION에 지정한 xxxImpl 클래스의 모든 메서드를 대상으로 설정|
 </br>
+
+---
+### 15. 페이징 처리
+**1) 페이징이란?**   
+ㆍ 사용자가 어떠한 데이터를 필요로 할 때 전체 데이터 중 일부를 보여주는 방식   
+</br>
+
+**2) 공통 페이징 파라미터 치리용 클래스 생성**   
+ㆍ paging 패키지르 추가하고, Criteria 클래스를 생성한 후 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class Criteria {
+
+	private int currentPageNo;
+	
+	private int recordsPerPage;
+
+	private int pageSize;
+
+	private String searchKeyword;
+
+	private String searchType;
+
+	public Criteria() {
+		this.currentPageNo = 1;
+		this.recordsPerPage = 10;
+		this.pageSize = 10;
+	}
+
+	public int getStartPage() {
+		return (currentPageNo - 1) * recordsPerPage;
+	}
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|currentPageNo|1. 현재 페이지 번호</br>2. 화면을 처리할 때 페이징 정보를 계산하는 용도로 사용|
+|recordsPerPage|1. 페이지마다 출력할 데이터의 개수</br>2. 화면을 처리할 때 페이징 정보를 계산하는 데 사용|
+|pageSize|1. 화면 하단에 출력할 페이지의 크기를 지정</br>2. 5로 지정하면 1부터 5까지의 페이지가 보임|
+|searchKeyword|검색 키워드를 의미|
+|searchType|1. 검색 유형을 의미</br>2. 제목, 내용, 작성자 등</br>3. searchKeyword와 함께 사용|
+</br>
+
+**3) Mapper 인터페이스와 XML의 변경**   
+ㆍ BoardMapper 인터페이스의 selectBoardList와 selectBoardTotalCount 메서드를 아래에 코드처럼 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Mapper
+public interface BoardMapper {
+
+	public int insertBoard(BoardDTO params);
+
+	public BoardDTO selectBoardDetail(Long idx);
+
+	public int updateBoard(BoardDTO params);
+
+	public int deleteBoard(Long idx);
+
+	public List<BoardDTO> selectBoardList(Criteria criteria);
+
+	public int selectBoardTotalCount(Criteria criteria);
+}
+```
+</details>
+	
+ㆍ BoardMapper XML 파일의 selectBoardList와 selectBoardTotalCount 쿼리를 아래 코드처럼 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<select id="selectBoardList" parameterType="Criteria" resultType="BoardDTO">
+	SELECT
+		<include refid="boardColumns" />
+	FROM
+		tb_board
+	WHERE
+		delete_yn = 'N'
+	ORDER BY
+		notice_yn ASC,
+		idx DESC,
+		insert_time DESC
+	LIMIT
+		#{startPage}, #{recordsPerPage}
+</select>
+
+<select id="selectBoardTotalCount" parameterType="Criteria" resultType="int">
+	SELECT
+		COUNT(*)
+	FROM
+		tb_board
+	WHERE
+		delete_yn = 'N'
+</select>
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|LIMIT|1. MySQL에서 LIMIT 구문은 데이터를 원하는 만큼 가져오고 싶을 때 사용</br>2. LIMIT의 첫 번째 파라미터는 시작위를 지정</br>3. 두 번째 파라미터는 시작 위치를 기준으로 가지고 올 데이터의 개수를 지정|
+|#{startPage}|1. 마이바티스에서 #{파라미터}는 여러 멤버를 가진 객체의 경우 Getter에 해당</br>2. startPage는 Criteria 클래스의 getStartPage 메서드의 리턴 값을 의미|
+|#{recordsPerPage}|페이지당 출력할 데이터의 개수를 의미|
+</br>
+
+**4) Service 영역의 변경**   
+ㆍ BoardMapper 인터페이스의 메서드가 변경되었기 때문에 서비스 영역도 수정 작업이 필요   
+ㆍ BoardService 인터페이스의 getBoardList 메서드를 아래 코드와 같이 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public interface BoardService {
+
+	public boolean registerBoard(BoardDTO params);
+
+	public BoardDTO getBoardDetail(Long idx);
+
+	public boolean deleteBoard(Long idx);
+
+	public List<BoardDTO> getBoardList(Criteria criteria);
+}
+```
+</details>
+
+ㆍ BoardServiceImpl 클래스의 getBoardList 메서드 또한 아래 코드와 같이 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Override
+public List<BoardDTO> getBoardList(Criteria criteria) {
+	List<BoardDTO> boardList = Collections.emptyList();
+
+	int boardTotalCount = boardMapper.selectBoardTotalCount(criteria);
+
+	if (boardTotalCount > 0) {
+		boardList = boardMapper.selectBoardList(criteria);
+	}
+
+	return boardList;
+}
+```
+</details>
+</br>
+
+**5) Controller 영역의 변경**   
+ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@GetMapping(value = "/board/list.do")
+public String openBoardList(@ModelAttribute("criteria") Criteria criteria, Model model) {
+	List<BoardDTO> boardList = boardService.getBoardList(criteria);
+	model.addAttribute("boardList", boardList);
+
+	return "board/list";
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|@ModelAttribute|해당 애너테이션을 사용하면 파라미터로 전달받은 객체를 자동으로 뷰 영역까지 전달 |
+</br>
+	
+**6) DBConfiguration 변경**   
+ㆍ 현재는 sqlSessionFactory 빈의 setTypeAliasesPackage가 "com.Board.domain" 으로 지정   
+ㆍ 따라서 BoardMapper XML 파일에서 파라미터 타입으로 지정한 Criteria를 인식하지 못하는 문제가 발생   
+ㆍ setTypeAliasesPackage를 아래 사진과 같이 "com.Board.*"로 변경   
+<img src="https://user-images.githubusercontent.com/61148914/126029263-ef03b35d-b6c0-4132-8493-c2fca750e0f3.png" width="60%">

@@ -1260,4 +1260,311 @@ public String openBoardList(@ModelAttribute("criteria") Criteria criteria, Model
 ㆍ 현재는 sqlSessionFactory 빈의 setTypeAliasesPackage가 "com.Board.domain" 으로 지정   
 ㆍ 따라서 BoardMapper XML 파일에서 파라미터 타입으로 지정한 Criteria를 인식하지 못하는 문제가 발생   
 ㆍ setTypeAliasesPackage를 아래 사진과 같이 "com.Board.*"로 변경   
-<img src="https://user-images.githubusercontent.com/61148914/126029263-ef03b35d-b6c0-4132-8493-c2fca750e0f3.png" width="60%">
+<img src="https://user-images.githubusercontent.com/61148914/126029263-ef03b35d-b6c0-4132-8493-c2fca750e0f3.png" width="60%">   
+</br>
+
+**7) 페이징 정보 계산용 클래스 생성**   
+ㆍ 전체 데이터의 개수를 기준으로 화면 하단에 페이지 개수를 계산하는 용도의 클래스 필요   
+ㆍ paging 패키지 안에 PaginationInfo 클래스를 추가하고, 아래의 코드를 작성
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class PaginationInfo {
+
+	private Criteria criteria;
+
+	private int totalRecordCount;
+
+	private int totalPageCount;
+
+	private int firstPage;
+
+	private int lastPage;
+
+	private int firstRecordIndex;
+
+	private int lastRecordIndex;
+
+	private boolean hasPreviousPage;
+
+	private boolean hasNextPage;
+
+	public PaginationInfo(Criteria criteria) {
+		if (criteria.getCurrentPageNo() < 1) {
+			criteria.setCurrentPageNo(1);
+		}
+		if (criteria.getRecordsPerPage() < 1 || criteria.getRecordsPerPage() > 100) {
+			criteria.setRecordsPerPage(10);
+		}
+		if (criteria.getPageSize() < 5 || criteria.getPageSize() > 20) {
+			criteria.setPageSize(10);
+		}
+
+		this.criteria = criteria;
+	}
+
+	public void setTotalRecordCount(int totalRecordCount) {
+		this.totalRecordCount = totalRecordCount;
+
+		if (totalRecordCount > 0) {
+			calculation();
+		}
+	}
+
+	private void calculation() {
+
+		totalPageCount = ((totalRecordCount - 1) / criteria.getRecordsPerPage()) + 1;
+		if (criteria.getCurrentPageNo() > totalPageCount) {
+			criteria.setCurrentPageNo(totalPageCount);
+		}
+	
+		firstPage = ((criteria.getCurrentPageNo() - 1) / criteria.getPageSize()) * criteria.getPageSize() + 1;
+
+		lastPage = firstPage + criteria.getPageSize() - 1;
+		if (lastPage > totalPageCount) {
+			lastPage = totalPageCount;
+		}
+
+		firstRecordIndex = (criteria.getCurrentPageNo() - 1) * criteria.getRecordsPerPage();
+
+		lastRecordIndex = criteria.getCurrentPageNo() * criteria.getRecordsPerPage();
+
+		hasPreviousPage = firstPage != 1;
+
+		hasNextPage = (lastPage * criteria.getRecordsPerPage()) < totalRecordCount;
+	}
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|criteria|페이지 번호 계산에 필요한 파라미터들이 담긴 클래스|
+|totalRecordCount|전체 데이터의 개수|
+|totalPageCount|전체 페이지 개수|
+|firstPage|페이지 리스트의 첫 페이지 번호|
+|lastPage|페이지 리스트의 마지막 페이지 번호|
+|firstRecordIndex|1. Criteria 클래스의 getStartPage 메서드를 대체해서 LIMIT 구문의 첫 번째 값에 사용되는 변수</br>2. Criteria 클래스의 getStartPage 메서드는  삭제|
+|lastRecordIndex|1. 오라클과 같이 LIMIT 구문이 존재하지 않고, 인라인 뷰를 사용해야 하는 데이터베이스에서 사용</br>2. 이번 프로젝트는 MySQL을 기반으로 진행하기 때문에 사용하지 않음|
+|hasPreviousPage|1. 이전 페이지가 존재하는 지를 구분하는 용도로 사용</br>2. 예를 들어, currentPageNo이 13이라면 이전 페이지에 해당하는 1\~10까지의 페이지가 존재하기 때문에 true가 됨</br>3. 만약, currentPageNo이 1\~10 사이라면 false가 됨|
+|hasNextPage|1. 다음 페이지가 존재하는 지를 구분하는 용도로 사용</br>2. 예를 들어, pageSize가 10일 때 lastPage가 25이고, currentPageNo이 13이라면, 11\~20 사이에 있기 때문에 true가 됨</br>3. 만약, currentPageNo이 21\~25 사이라면 false가 됨|
+|setTotalRecordCount( )|파라미터로 넘어온 전체 데이터 개수를 totalRecordCount 변수에 저장</br>2. totalRecordCount가 1 이상이면 calculation 메서드를 실행|
+|calcaulation( )|PaginationInfo 클래스의 각 멤버변수의 값을 구하고, 페이지 번호를 계산하는 메서드|
+</br>
+
+**8) 전체 영역의 변경**   
+ㆍ 이제까지, 게시글 리스트를 호출하는 모든 메서드를 Controller부터 Mapper 영역까지 모두 Criteria 클래스를 파라미터로 받도록 처리하였음   
+ㆍ 위 과정처럼 Controller 영역에서 페이징 정보와 같은 비즈니스 로직을 처리하는 것은 문제가 있음 (Controller 영역은 Service 영역에서 가공한 데이터를 View 영역으로 전달하는 작업만을 해야하기 때문)   
+ㆍ 따라서, Service 영역에서 페이징 정보를 계산할 수 있도록 처리해 줘야 함   
+ㆍ domain 패키지에 ComomDTO 클래스를 추가하고 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class CommonDTO extends Criteria {
+
+	private PaginationInfo paginationInfo;
+
+	private String deleteYn;
+
+	private LocalDateTime insertTime;
+
+	private LocalDateTime updateTime;
+
+	private LocalDateTime deleteTime;
+}
+```
+</details>
+
+ㆍ 다음으로 BoardDTO 클래스가 CommonDTO 클래스를 상속받도록 아래 코드와 같이 변경   
+ㆍ 공통 멤버 변수는 CommonDTO에 추가되었기 때문에 BoardDTO 클래스에서는 제거됨   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class BoardDTO extends CommonDTO {
+
+	private Long idx;
+
+	private String title;
+
+	private String content;
+
+	private String writer;
+
+	private int viewCnt;
+
+	private String noticeYn;
+
+	private String secretYn;
+}
+```
+</details>
+
+ㆍ BoardMapper 인터페이스에서 selectBoardList, selectBoardTotalCount 메서드가 BoardDTO 클래스를 파라미터로 받도록 아래 코드와 같이 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Mapper
+public interface BoardMapper {
+
+	public int insertBoard(BoardDTO params);
+
+	public BoardDTO selectBoardDetail(Long idx);
+
+	public int updateBoard(BoardDTO params);
+
+	public int deleteBoard(Long idx);
+
+	public List<BoardDTO> selectBoardList(BoardDTO params);
+
+	public int selectBoardTotalCount(BoardDTO params);
+}
+```
+</details>
+
+ㆍ BoardMapper XML의 selectBoardList와 selectBoardTotalCount 쿼리를 아래 코드와 같이 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<select id="selectBoardList" parameterType="BoardDTO" resultType="BoardDTO">
+	SELECT
+		<include refid="boardColumns" />
+	FROM
+		tb_board
+	WHERE
+		delete_yn = 'N'
+	ORDER BY
+		notice_yn ASC,
+		idx DESC,
+		insert_time DESC
+	LIMIT
+		#{paginationInfo.firstRecordIndex}, #{recordsPerPage}
+</select>
+
+<select id="selectBoardTotalCount" parameterType="BoardDTO" resultType="int">
+	SELECT
+		COUNT(*)
+	FROM
+		tb_board
+	WHERE
+		delete_yn = 'N'
+</select>
+```
+</details>
+	
+ㆍ BoardService 인터페이스 중 getBoardList 메서드의 파라미터를 BoardDTO 클래스로 아래 코드와 같이 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public interface BoardService {
+
+	public boolean registerBoard(BoardDTO params);
+
+	public BoardDTO getBoardDetail(Long idx);
+
+	public boolean deleteBoard(Long idx);
+
+	public List<BoardDTO> getBoardList(BoardDTO params);
+}
+```
+</details>
+	
+ㆍ BoardServiceImple 클래스의 getBoardList 메서드를 다음 코드와 같이 변경   
+ㆍ Controller 영역에서 PaginationInfo 객체를 처리하지 않고 Service 영역에서 처리하도록 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Override
+public List<BoardDTO> getBoardList(BoardDTO params) {
+	List<BoardDTO> boardList = Collections.emptyList();
+
+	int boardTotalCount = boardMapper.selectBoardTotalCount(params);
+
+	PaginationInfo paginationInfo = new PaginationInfo(params);
+	paginationInfo.setTotalRecordCount(boardTotalCount);
+
+	params.setPaginationInfo(paginationInfo);
+
+	if (boardTotalCount > 0) {
+		boardList = boardMapper.selectBoardList(params);
+	}
+
+	return boardList;
+}
+```
+</details>
+	
+ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경   
+ㆍ Controller 영역은 단순히 View 영역으로 데이터를 전달하는 역할만 하도록 설정   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@GetMapping(value = "/board/list.do")
+public String openBoardList(@ModelAttribute("params") BoardDTO params, Model model) {
+	List<BoardDTO> boardList = boardService.getBoardList(params);
+	model.addAttribute("boardList", boardList);
+
+	return "board/list";
+}
+```
+</details>
+	
+ㆍ 마지막으로 Criteria 클래스에 아래 코드와 같이 makeQueryString 메서드를 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class Criteria {
+
+	private int currentPageNo;
+
+	private int recordsPerPage;
+
+	private int pageSize;
+
+	private String searchKeyword;
+
+	private String searchType;
+
+	public Criteria() {
+		this.currentPageNo = 1;
+		this.recordsPerPage = 10;
+		this.pageSize = 10;
+	}
+
+	public String makeQueryString(int pageNo) {
+
+		UriComponents uriComponents = UriComponentsBuilder.newInstance()
+				.queryParam("currentPageNo", pageNo)
+				.queryParam("recordsPerPage", recordsPerPage)
+				.queryParam("pageSize", pageSize)
+				.queryParam("searchType", searchType)
+				.queryParam("searchKeyword", searchKeyword)
+				.build()
+				.encode();
+
+		return uriComponents.toUriString();
+	}
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|makeQueryString( )|1. Criteria 클래스의 멤버 변수들을 쿼리 스트링 형태로 반환해주는 역할</br>2. 스프링에서 제공해주는 UriCompoents 클래스를 이용하면 URI 효율적으로 처리할 수 있음|
+</br>

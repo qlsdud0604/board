@@ -5,7 +5,7 @@
 3. [기술 스택](#3-기술-스택)
 4. [프로젝트 구조](#4-프로젝트-구조)
 5. [MySQL 연동](#5-mysql-연동)
-6. [게시판 CRUD 처리](#6-게시판-crud-처리)
+6. [게시글 CRUD 처리](#6-게시-crud-처리)
 7. [게시글 등록 구현](#7-게시글-등록-구현)
 8. [게시글 리스트 구현](#8-게시글-리스트-구현)
 9. [게시글 조회 구현](#9-게시글-조회-구현)
@@ -25,15 +25,15 @@
 
 * **2021.02.22 :** MySQL 데이터베이스 연동 및 테스트
 
-* **2021.02.23 ~ 2021.02.24 :** 게시물 CRUD 관련 Mapper 영역 구현 및 테스트
+* **2021.02.23 ~ 2021.02.24 :** 게시글 CRUD 관련 Mapper 영역 구현 및 테스트
 
-* **2021.02.24 ~ 2021.02.26 :** 게시물 CRUD 관련 Service, Controller 영역 구현 및 테스트
+* **2021.02.24 ~ 2021.02.26 :** 게시글 CRUD 관련 Service, Controller 영역 구현 및 테스트
 
-* **2021.02.27 :** 게시물 CRUD 관련 View 영역 구현
+* **2021.02.27 :** 게시글 CRUD 관련 View 영역 구현
 
 * **2021.03.04 ~ 2021.03.05 :** Paging 처리
 
-* **2021.03.08 :** 게시물 검색 기능 구현
+* **2021.03.08 :** 게시 검색 기능 구현
 
 * **2021.03.09 ~ 2021.03.10 :** 댓글 관련 Mapper 영역 구현 및 테스트
 
@@ -75,7 +75,7 @@
 
 ---
 ### 4. 프로젝트 구조
-<img src="https://user-images.githubusercontent.com/61148914/124562382-ecc9f680-de79-11eb-8863-e4560bec3570.JPG" width="25%">
+<img src="https://user-images.githubusercontent.com/61148914/124562382-ecc9f680-de79-11eb-8863-e4560bec3570.JPG" width="35%">
 </br>
 
 **1) src/main/java 디렉터리**   
@@ -112,7 +112,7 @@
 ### 5. MySQL 연동
 **1) 데이터 소스 설정**   
 ㆍ 스프링 부트에서 데이터 소스 설정 방법은 두 가지가 존재   
-ㆍ "@Bean" 애너테이션 또는 "application.properties" 파일을 이용 가능 (이번 프로젝트에서는 후자의 방법을 사용)   
+ㆍ "@Bean" 애너테이션 또는 "application.properties" 파일 이용 가능 (이번 프로젝트에서는 후자의 방법을 사용)   
 ㆍ src/main/resources 디렉터리의 application.properties 파일에 아래 코드를 입력
 <details>
     <summary><b>코드 보기</b></summary>
@@ -129,8 +129,8 @@ spring.datasource.hikari.connection-test-query=SELECT NOW() FROM dual
 |구성 요소|설명|
 |---|---|
 |jdbc-url|데이터베이스의 주소를 의미하며, 포트 번호뒤의 board는 생성한 스키마의 이름|
-|username|MySQL의 아이디를 의미|
-|password|MySQL의 패스워드를 의미|
+|username|MySQL의 아이디|
+|password|MySQL의 패스워드|
 |connection-test-query|데이터베이스와의 연결이 정상적으로 이루어졌는지 확인하기 위한 SQL 쿼리문|
 </br>
 
@@ -182,22 +182,22 @@ public class DBConfiguration {
 |ApplicationContext|스프링 컨테이너 중 하나로써 빈의 생성과 사용, 관계, 생명 주기 등을 관리|
 |@Bean|해당 애너테이션으로 지정된 객체는 컨테이너에 의해 관리되는 빈으로 등록됨|
 |@ConfigurationProperties|@PropertySource에 지정된 파일에서 prefix에 해당하는 설정을 읽어들여 메서드에 매핑|
-|hikariConfig|커넥션 풀 라이브러리 중 하나인 히카리CP 객체를 생성|
-|dataSource|커넥션 풀을 지원하기 위한 인터페이스인 데이터 소스 객체를 생성|
-|sqlSessionFactory|데이터베이스 커넥션과 SQL 실행에 대한 중요한 역할을 하는 SqlSessionFactory 객체를 생성|
-|setMapperLocations|getResources 메서드의 인자로 지정된 패턴에 포함하는 XML Mapper를 인식하는 |
-|sqlSession|마이바티스와 스프링 연동 모듈의 핵심인 sqlSessionTemplate 객체를 생성|
+|hikariConfig( )|커넥션 풀 라이브러리 중 하나인 히카리CP 객체를 생성하는 메서드|
+|dataSource( )|커넥션 풀을 지원하기 위한 인터페이스인 데이터 소스 객체를 생성하는 메서드|
+|sqlSessionFactory( )|데이터베이스 커넥션과 SQL 실행에 대한 중요한 역할을 하는 SqlSessionFactory 객체를 생성하는 메서드|
+|setMapperLocations( )|getResources 메서드의 인자로 지정된 패턴에 포함하는 XML Mapper를 인식하는 메서드|
+|sqlSession( )|마이바티스와 스프링 연동 모듈의 핵심인 sqlSessionTemplate 객체를 생성하는 메서드|
 </br>
 
 ---
-### 6. 게시판 CRUD 처리
+### 6. 게시글 CRUD 처리
 **1) 게시판 테이블 생성**   
-ㆍ 게시판 테이블은 데이터베이스에 저장될 게시에 대한 정보를 정의한 것   
+ㆍ 게시 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것   
 ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행
 <details>
     <summary><b>코드 보기</b></summary>
 	
-```
+```sql
 CREATE TABLE tb_board (
     idx INT NOT NULL AUTO_INCREMENT COMMENT '번호 (PK)',
     title VARCHAR(100) NOT NULL COMMENT '제목',
@@ -218,7 +218,7 @@ CREATE TABLE tb_board (
 
 **2) 도메인 클래스 생성**   
 ㆍ 도메인 클래스는 위에서 생성한 게시판 테이블에 대한 구조화 역할을 함   
-ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송은 의미하는 xxxDTO로 네이밍을 함   
+ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송은 의미하는 xxxDTO로 이름을 지음   
 ㆍ domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성
 <details>
     <summary><b>코드 보기</b></summary>

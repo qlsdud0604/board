@@ -33,11 +33,11 @@
 
 * **2021.03.04 ~ 2021.03.05 :** Paging 처리
 
-* **2021.03.08 :** 게시 검색 기능 구현
+* **2021.03.08 :** 게시글 검색 기능 구현
 
 * **2021.03.09 ~ 2021.03.10 :** 댓글 관련 Mapper 영역 구현 및 테스트
 
-* **2021.03.11 ~ 2021.03.14:** 댓글 관련 Service, Controller 영역 구현 및 테스트
+* **2021.03.11 ~ 2021.03.14 :** 댓글 관련 Service, Controller 영역 구현 및 테스트
 
 * **2021.03.15 ~ 2021.03.17 :** 파일 처리 관련 Mapper 영역 구현 및 테스트
 
@@ -181,7 +181,7 @@ public class DBConfiguration {
 |@Autowired|빈으로 등록된 객체를 클래스에 주입하는 데 사용|
 |ApplicationContext|스프링 컨테이너 중 하나로써 빈의 생성과 사용, 관계, 생명 주기 등을 관리|
 |@Bean|해당 애너테이션으로 지정된 객체는 컨테이너에 의해 관리되는 빈으로 등록됨|
-|@ConfigurationProperties|@PropertySource에 지정된 파일에서 prefix에 해당하는 설정을 읽어들여 메서드에 매핑|
+|@ConfigurationProperties|@PropertySource에 지정된 파일에서 prefix에 해당하는 설정을 읽어들여 메서드에 매핑함|
 |hikariConfig( )|커넥션 풀 라이브러리 중 하나인 히카리CP 객체를 생성하는 메서드|
 |dataSource( )|커넥션 풀을 지원하기 위한 인터페이스인 데이터 소스 객체를 생성하는 메서드|
 |sqlSessionFactory( )|데이터베이스 커넥션과 SQL 실행에 대한 중요한 역할을 하는 SqlSessionFactory 객체를 생성하는 메서드|
@@ -192,7 +192,7 @@ public class DBConfiguration {
 ---
 ### 6. 게시글 CRUD 처리
 **1) 게시판 테이블 생성**   
-ㆍ 게시 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것   
+ㆍ 게시판 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것   
 ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행
 <details>
     <summary><b>코드 보기</b></summary>
@@ -217,8 +217,8 @@ CREATE TABLE tb_board (
 </br>
 
 **2) 도메인 클래스 생성**   
-ㆍ 도메인 클래스는 위에서 생성한 게시판 테이블에 대한 구조화 역할을 함   
-ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송은 의미하는 xxxDTO로 이름을 지음   
+ㆍ 도메인 클래스는 위에서 생성한 게시판 테이블에 대한 구조화 역할을 하는 클래스   
+ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송을 의미하는 xxxDTO로 이름을 지음   
 ㆍ domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성
 <details>
     <summary><b>코드 보기</b></summary>
@@ -281,7 +281,7 @@ public interface BoardMapper {
 	
 |구성 요소|설명|
 |---|---|
-|@Mapper|마이바티스는 인터페이스에 @Mapper만 지정을 해주면 XML Mapper에서 메서드의 이름과 일치하는 SQL 문을 찾아 실행해줌|
+|@Mapper|마이바티스는 인터페이스에 @Mapper만 지정을 해주면 XML Mapper에서 메서드의 이름과 일치하는 SQL 문을 찾아 실행해 줌|
 |insert|게시글을 생성하는 INSERT 쿼리를 호출하는 메서드|
 |selectBoardDetail|하나의 게시글을 조회하는 SELECT 쿼리를 호출하는 메서드|
 |updateBoard|게시글을 수정하는 UPDATE 쿼리를 호출하는 메서드|
@@ -291,7 +291,7 @@ public interface BoardMapper {
 </br>
 
 **4) 마이바티스 XML Mapper 생성**   
-ㆍ XML Mapper는 BoardMapper 인터페이스와 SQL문의 연결을 위한 역할이며, 실제 SQL 쿼리 문이 정의됨     
+ㆍ XML Mapper는 BoardMapper 인터페이스와 SQL문의 연결을 위한 역할을 하며, 실제 SQL 쿼리 문이 정의됨     
 ㆍ src/main/resources 디렉터리에 mappers 폴더 생성 후 BoardMapper.xml 파일을 추가   
 ㆍ BoardMapper.xml 파일에 아래에 소스코드를 작성
 <details>
@@ -301,7 +301,7 @@ public interface BoardMapper {
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.board.mapper.BoardMapper">
+<mapper namespace="com.Board.mapper.BoardMapper">
 
 	<sql id="boardColumns">
 		  idx
@@ -398,15 +398,15 @@ public interface BoardMapper {
 |---|---|
 |&lt;mapper&gt;|해당 태그 namespace 속성에는 SQL 쿼리문과 매핑을 위한 BoardMapper 인터페이스의 경로가 지정|
 |&lt;sql&gt;|공통으로 사용되거나 반복적으로 사용되는 테이블의 컬럼을 SQL 조각으로 정의하여 boardColumns라는 이름으로 사용|
-|&lt;include&gt;|<sql>태그엥 정의한 boardColumns의 참조를 위해 사용되는 태그|
+|&lt;include&gt;|<sql> 태그에 정의한 boardColumns의 참조를 위해 사용되는 태그|
 |parameterType|쿼리문 실행에 필요한 파라미터의 타입을 해당 속성에 지정|
-|resultType|쿼리문 실행 결과에 해당하는 타입을 지정|
+|resultType|쿼리문의 실행 결과에 해당하는 타입을 지정|
 |파라미터 표현식|전달받은 파라미터는 #{} 표현식을 사용해서 처리|
 </br>
 
 **5) 마이바티스 SELECT 컬럼과 DTO 멤버 변수의 매핑**   
 ㆍ BoardMapper.xml의 boardColumns SQL 조각은 스네이크 케이스를 사용하고 있고, BoardDTO 클래스의 멤버 변수는 카멜 케이스를 사용   
-ㆍ 서로 다른 표현식 사용은 추가 설정을 통해 자동으로 매칭이 되도록 처리가 가능   
+ㆍ 서로 다른 표현식의 사용은 추가 설정을 통해 자동으로 매칭이 되도록 처리가 가능   
 ㆍ application.properties 파일 하단에 아래 설정을 추가
 <details>
     <summary><b>코드 보기</b></summary>
@@ -468,9 +468,9 @@ public class DBConfiguration {
 
 |구성 요소|설명|
 |---|---|
-|setTypeAliasesPackage|BoardMapper XML의 parameterType과 resultTrpe은 클래스의 풀 패키지 경로가 포함이 되어야함, 해당메서드를 사용함으로써 풀 패키지 경로 생략 가능|
-|setConfiguration|마이바티스 설정과 관련된 빈을 설정 파일로 지정|
-|mybatisConfig|application.properties 파일에서 mybatis.configuration으로 시작하는 모든 설정을 읽어 들여 빈으로 등록|
+|setTypeAliasesPackage( )|BoardMapper XML의 parameterType과 resultType은 클래스의 풀 패키지 경로가 포함이 되어야함, 해당 메서드를 사용함으로써 풀 패키지 경로 생략 가능|
+|setConfiguration( )|마이바티스 설정과 관련된 빈을 설정 파일로 지정하는 메서드|
+|mybatisConfig( )|application.properties 파일에서 mybatis.configuration으로 시작하는 모든 설정을 읽어 들여 빈으로 등록하는 메서드|
 </br>
 
 ---
@@ -558,10 +558,10 @@ public class BoardServiceImpl implements BoardService {
 |구성 요소|설명|
 |---|---|
 |@Service|해당 클래스가 비즈니스 로직을 담당하는 서비스 클래스임을 지정|
-|registerBoard|1. params의 idx가 null이라면, insertBoard 메서드가 실행 </br>2. params의 idx가 null이 아니라면, updateBoard 메서드가 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
-|getBoardDetail|하나의 게시글을 조회하는 selectBoardDetail 메서드의 결과값을 반환|
-|deleteBoard|1. 파라미터로 입력받은 idx에 해당하는 게시물을 조회</br>2. 해당 게시물이 null이 아니거나, 이미 삭제된 게시물이 아니라면 deleteBoard 메서드 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
-|getBoardList|1. 비어있는 리스트를 선언</br>2. 삭제되지 않은 게시글들을 비어있는 리스트에 삽입</br>3. 해당 리스트를 반환|
+|registerBoard( )|1. params의 idx가 null이라면, insertBoard 메서드가 실행 </br>2. params의 idx가 null이 아니라면, updateBoard 메서드가 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
+|getBoardDetail( )|하나의 게시글을 조회하는 selectBoardDetail 메서드의 결과값을 반환|
+|deleteBoard( )|1. 파라미터로 입력받은 idx에 해당하는 게시물을 조회</br>2. 해당 게시물이 null이 아니거나, 이미 삭제된 게시물이 아니라면 deleteBoard 메서드 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
+|getBoardList( )|1. 비어있는 리스트를 선언</br>2. 삭제되지 않은 게시글들을 비어있는 리스트에 삽입</br>3. 해당 리스트를 반환|
 </br>
 
 **2) Controller 영역**   
@@ -617,7 +617,7 @@ public class BoardController {
 |@GetMapping|1. get 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. get 방식은 파라미터가 주소창에 노출이되며, 주로 데이터를 조회할 때 사용|
 |@RequestParam|1. 화면에서 전달받은 파라미터를 처리하는 데 사용</br>2. required 속성이 false라면 반드시 필요한 파라미터가 아니라는 의미|
 |Model|메서드의 파라미터로 지정된 Model 객체는 데이터를 뷰로 전달하는 데 사용|
-|리턴 타입|1. 컨트롤러 메서드의 리턴타입은 String으로 사용자에 보여줄 화면의 경로를 반환</br>2. 반환된 경로를 자동으로 연결하여 사용자에게 제공|
+|리턴 타입|1. 컨트롤러 메서드의 리턴타입은 String으로 사용자에게 보여줄 화면의 경로를 반환</br>2. 반환된 경로를 자동으로 연결하여 사용자에게 제공|
 |@PostMapping|1. post 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. post 방식은 파라미터가 주소창에 노출되지 않으며, 주로 데이터를 생성할 때 사용|
 |params|BoardDTO의 멤버 변수명과 사용자 입력 필드의 name 속성 값이 동일하면, params의 각 멤버 변수에 전달된 값들이 자동으로 매핑됨|
 </br>

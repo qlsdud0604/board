@@ -1092,7 +1092,7 @@ public class TransactionAspect {
 </br>
 
 **2) 공통 페이징 파라미터 치리용 클래스 생성**   
-ㆍ paging 패키지르 추가하고, Criteria 클래스를 생성한 후 아래 코드를 작성   
+ㆍ paging 패키지를 추가하고, Criteria 클래스를 생성한 후 아래 코드를 작성   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1128,7 +1128,7 @@ public class Criteria {
 |---|---|
 |currentPageNo|1. 현재 페이지 번호</br>2. 화면을 처리할 때 페이징 정보를 계산하는 용도로 사용|
 |recordsPerPage|1. 페이지마다 출력할 데이터의 개수</br>2. 화면을 처리할 때 페이징 정보를 계산하는 데 사용|
-|pageSize|1. 화면 하단에 출력할 페이지의 크기를 지정</br>2. 5로 지정하면 1부터 5까지의 페이지가 보임|
+|pageSize|1. 화면 하단에 출력할 페이지의 크기</br>2. 5로 지정하면 1부터 5까지의 페이지가 보임|
 |searchKeyword|검색 키워드를 의미|
 |searchType|1. 검색 유형을 의미</br>2. 제목, 내용, 작성자 등</br>3. searchKeyword와 함께 사용|
 </br>
@@ -1190,7 +1190,7 @@ public interface BoardMapper {
 	
 |구성 요소|설명|
 |---|---|
-|LIMIT|1. MySQL에서 LIMIT 구문은 데이터를 원하는 만큼 가져오고 싶을 때 사용</br>2. LIMIT의 첫 번째 파라미터는 시작위를 지정</br>3. 두 번째 파라미터는 시작 위치를 기준으로 가지고 올 데이터의 개수를 지정|
+|LIMIT|1. MySQL에서 LIMIT 구문은 데이터를 원하는 만큼 가져오고 싶을 때 사용</br>2. LIMIT의 첫 번째 파라미터는 시작 위치를 지정</br>3. 두 번째 파라미터는 시작 위치를 기준으로 가지고 올 데이터의 개수를 지정|
 |#{startPage}|1. 마이바티스에서 #{파라미터}는 여러 멤버를 가진 객체의 경우 Getter에 해당</br>2. startPage는 Criteria 클래스의 getStartPage 메서드의 리턴 값을 의미|
 |#{recordsPerPage}|페이지당 출력할 데이터의 개수를 의미|
 </br>
@@ -1345,12 +1345,12 @@ public class PaginationInfo {
 |---|---|
 |criteria|페이지 번호 계산에 필요한 파라미터들이 담긴 클래스|
 |totalRecordCount|전체 데이터의 개수|
-|totalPageCount|전체 페이지 개수|
+|totalPageCount|전체 페이지의 개수|
 |firstPage|페이지 리스트의 첫 페이지 번호|
 |lastPage|페이지 리스트의 마지막 페이지 번호|
 |firstRecordIndex|1. Criteria 클래스의 getStartPage 메서드를 대체해서 LIMIT 구문의 첫 번째 값에 사용되는 변수</br>2. Criteria 클래스의 getStartPage 메서드는  삭제|
 |lastRecordIndex|1. 오라클과 같이 LIMIT 구문이 존재하지 않고, 인라인 뷰를 사용해야 하는 데이터베이스에서 사용</br>2. 이번 프로젝트는 MySQL을 기반으로 진행하기 때문에 사용하지 않음|
-|hasPreviousPage|1. 이전 페이지가 존재하는 지를 구분하는 용도로 사용</br>2. 예를 들어, currentPageNo이 13이라면 이전 페이지에 해당하는 1\~10까지의 페이지가 존재하기 때문에 true가 됨</br>3. 만약, currentPageNo이 1\~10 사이라면 false가 됨|
+|hasPreviousPage|1. 이전 페이지가 존재하는 지를 구분하는 용도로 사용</br>2. 예를 들어, currentPageNo가 13이라면 이전 페이지에 해당하는 1\~10까지의 페이지가 존재하기 때문에 true가 됨</br>3. 만약, currentPageNo이 1\~10 사이라면 false가 됨|
 |hasNextPage|1. 다음 페이지가 존재하는 지를 구분하는 용도로 사용</br>2. 예를 들어, pageSize가 10일 때 lastPage가 25이고, currentPageNo이 13이라면, 11\~20 사이에 있기 때문에 true가 됨</br>3. 만약, currentPageNo이 21\~25 사이라면 false가 됨|
 |setTotalRecordCount( )|파라미터로 넘어온 전체 데이터 개수를 totalRecordCount 변수에 저장</br>2. totalRecordCount가 1 이상이면 calculation 메서드를 실행|
 |calcaulation( )|PaginationInfo 클래스의 각 멤버변수의 값을 구하고, 페이지 번호를 계산하는 메서드|
@@ -1360,7 +1360,7 @@ public class PaginationInfo {
 ㆍ 이제까지, 게시글 리스트를 호출하는 모든 메서드를 Controller부터 Mapper 영역까지 모두 Criteria 클래스를 파라미터로 받도록 처리하였음   
 ㆍ 위 과정처럼 Controller 영역에서 페이징 정보와 같은 비즈니스 로직을 처리하는 것은 문제가 있음 (Controller 영역은 Service 영역에서 가공한 데이터를 View 영역으로 전달하는 작업만을 해야하기 때문)   
 ㆍ 따라서, Service 영역에서 페이징 정보를 계산할 수 있도록 처리해 줘야 함   
-ㆍ domain 패키지에 ComomDTO 클래스를 추가하고 아래 코드를 작성   
+ㆍ domain 패키지에 CommonDTO 클래스를 추가하고 아래 코드를 작성   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1463,7 +1463,7 @@ public interface BoardMapper {
 ```
 </details>
 	
-ㆍ BoardService 인터페이스 중 getBoardList 메서드의 파라미터를 BoardDTO 클래스로 아래 코드와 같이 변경   
+ㆍ BoardService 인터페이스 중 getBoardList 메서드의 파라미터를 BoardDTO 클래스로 받을 수 있도록 아래 코드와 같이 변경   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1481,8 +1481,8 @@ public interface BoardService {
 ```
 </details>
 	
-ㆍ BoardServiceImple 클래스의 getBoardList 메서드를 다음 코드와 같이 변경   
-ㆍ Controller 영역에서 PaginationInfo 객체를 처리하지 않고 Service 영역에서 처리하도록 변경   
+ㆍ BoardServiceImpl 클래스의 getBoardList 메서드를 다음 코드와 같이 변경   
+ㆍ Controller 영역에서 PaginationInfo 객체를 처리하지 않고 Service 영역에서 처리하도록 하는 방식   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1567,5 +1567,5 @@ public class Criteria {
 	
 |구성 요소|설명|
 |---|---|
-|makeQueryString( )|1. Criteria 클래스의 멤버 변수들을 쿼리 스트링 형태로 반환해주는 역할</br>2. 스프링에서 제공해주는 UriCompoents 클래스를 이용하면 URI 효율적으로 처리할 수 있음|
+|makeQueryString( )|1. Criteria 클래스의 멤버 변수들을 쿼리 스트링 형태로 반환해주는 역할</br>2. 스프링에서 제공해주는 UriComponents 클래스를 이용하면 URI를 효율적으로 처리할 수 있음|
 </br>

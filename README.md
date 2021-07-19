@@ -865,7 +865,7 @@ public class BoardController extends UiUtils {
 ---
 ### 12. 인터셉터 적용
 **1) 인터셉터란?**   
-ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다."라는 의미가 있음   
+ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다." 라는 의미가 있음   
 ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용   
 ㆍ 예를 들어, 특정 페이지에 접근할 때 로그인이나 계정의 권한과 관련된 처리를 인터셉터를 통해 효율적으로 해결 가능   
 </br>
@@ -933,13 +933,13 @@ public class MvcConfiguration implements WebMvcConfigurer {
 ### 13. AOP 적용
 **1) AOP란?**   
 ㆍ AOP는 Aspect Oriented Programming의 약자   
-ㆍ 관점 지향 프로그램으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와줌   
+ㆍ 관점 지향 프로그래밍으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와줌   
 ㆍ 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 로그 출력, 보안 처리, 예외 처리와 같은 코드를 별도로 분리하는 모듈화의 개념   
 ㆍ AOP에서 관점을 핵심적인 관점과 부가적인 관점으로 나눌 수 있음   
 ㆍ 핵심적인 관점은 핵심 비즈니스 로직을 의미하고, 부가적인 관점은 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 부분을 의미   
 <img src="https://blog.kakaocdn.net/dn/pD57t/btqDLEZKQib/1KOdMZKJgFY06WMwxNydkk/img.png" width="50%">   
 ㆍ 위 사진은 일반적인 객체 지향 프로그래밍의 동작과정을 보여줌   
-ㆍ 각각의 화살표는 하나의 기능을 구현하는 게 필요한 작업을 의미   
+ㆍ 각각의 화살표는 하나의 기능을 구현하는 데 필요한 작업을 의미   
 ㆍ 로그 출력, 보안 처리와 같은 부가적인 기능들이 각각의 작업에 추가됨으로써 코드가 복잡해지고, 생산성이 낮아짐   
 <img src="https://blog.kakaocdn.net/dn/DWbbY/btqGfN6LnPh/DVVAcqmplI6UEqZVjkhnyK/img.png" width="50%">   
 ㆍ 위 사진은 관점 지향 프로그래밍의 동작과정을 보여줌   
@@ -1034,7 +1034,7 @@ public class LoggerAspect {
 |구성 요소|설명|
 |---|---|
 |@EnableTransactionManagement|1. 스프링에서 제공하는 애너테이션 기반 트랜잭션을 활성화</br>2. 이번 프로젝트에서는 애너테이션이 아닌 AOP를 이용한 트랜잭션을 사용할 예정|
-|transactionManager|스프링에서 제공해주는 트랜잭션 매니저를 빈으로 등록해주는 메서드|
+|transactionManager( )|스프링에서 제공해주는 트랜잭션 매니저를 빈으로 등록해주는 메서드|
 </br>
 
 **4) 트랜잭션 구현**   
@@ -1079,7 +1079,7 @@ public class TransactionAspect {
 |구성 요소|설명|
 |---|---|
 |transactionManager|DBConfiguration 클래스에 빈으로 등록한 PlatformTransactionManager 객체|
-|EXPRESSION|포인트컷으로써, 비즈니스 로직을 수행하는 모든 xxxImpl 클래스의 모든 메서드를 의미|
+|EXPRESSION|포인트컷으로써, 비즈니스 로직을 수행하는 xxxImpl 클래스의 모든 메서드를 의미|
 |rollbackRules|1. 트랜잭션에서 롤백을 수행하는 규칙</br>2. RollbackRuleAttibute 생성자의 인자로 Exception 클래스를 지정</br>3. 어떠한 예외가 발생하던 무조건 롤백이 수행되도록 설정|
 |pointcut|1. AOP의 포인트컷을 설정하기 위한 객체</br>2. EXPRESSION에 지정한 xxxImpl 클래스의 모든 메서드를 대상으로 설정|
 </br>

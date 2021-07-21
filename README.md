@@ -1569,3 +1569,100 @@ public class Criteria {
 |---|---|
 |makeQueryString( )|1. Criteria 클래스의 멤버 변수들을 쿼리 스트링 형태로 반환해주는 역할</br>2. 스프링에서 제공해주는 UriComponents 클래스를 이용하면 URI를 효율적으로 처리할 수 있음|
 </br>
+
+---
+### 16. 검색 처리
+**1) 공통 Mapper XML 생성**   
+ㆍ 검색 기능은 공통으로 사용되는 기능이기 때문에 하나의 Mapper XML에 검색을 처리하는 SQL 문을 선언하고 사용하는 것이 좋음   
+ㆍ src/main/resources 디렉터리의 mappers 폴더에 CommonMapper.xml 파일을 추가하고 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CommonMapper">
+
+	<!-- MySQL 페이징 -->
+	<sql id="paging">
+		LIMIT
+			#{paginationInfo.firstRecordIndex}, #{recordsPerPage}
+	</sql>
+
+	<!-- MySQL 검색 -->
+	<sql id="search">
+		<!-- 검색 키워드가 있을 때 -->
+		<if test="searchKeyword != null and searchKeyword != ''">
+			<choose>
+				<!-- 검색 유형이 있을 때 -->
+				<when test="searchType != null and searchType != ''">
+					<choose>
+						<when test="'title'.equals(searchType)">
+							AND title LIKE CONCAT('%', #{searchKeyword}, '%')
+						</when>
+						<when test="'content'.equals(searchType)">
+							AND content LIKE CONCAT('%', #{searchKeyword}, '%')
+						</when>
+						<when test="'writer'.equals(searchType)">
+							AND writer LIKE CONCAT('%', #{searchKeyword}, '%')
+						</when>
+					</choose>
+				</when>
+				<!-- 검색 유형이 없을 때 -->
+				<otherwise>
+					AND
+						(
+							   title LIKE CONCAT('%', #{searchKeyword}, '%')
+							OR content LIKE CONCAT('%', #{searchKeyword}, '%')
+							OR writer LIKE CONCAT('%', #{searchKeyword}, '%')
+						)
+				</otherwise>
+			</choose>
+		</if>
+	</sql>
+
+</mapper>
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|paging|공통으로 사용되는 기능인 페이징 기능을 SQL 조각으로 만들어 사용|
+|search|1. 조건문을 통해 검색 키워드가 파라미터로 넘어온 경우에만 쿼리를 실행하도록 설정</br>2. 검색 유형이 파라미터로 넘어오면 <choose> 태그 안에 있는 각각의 <when> 조건에 알맞은 검색 유형을 기준으로 LIKE 쿼리를 실행|
+</br>
+	
+**2) BoardMapper XML 변경**   
+ㆍ 기존의 BoardMapper XML 파일을 위에서 작성한 CommonMapper XML의 SQL 문을 인클루드 하는 형태로 변경할 필요가 있음   
+ㆍ BoardMapper XML의 selectBoardList, selectBoardTotalCount를 아래 코드와 같이 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<select id="selectBoardList" parameterType="BoardDTO" resultType="BoardDTO">
+	SELECT
+		<include refid="boardColumns" />
+	FROM
+		tb_board
+	WHERE
+		delete_yn = 'N'
+	<include refid="CommonMapper.search" />
+	ORDER BY
+		notice_yn ASC,
+		idx DESC,
+		insert_time DESC
+	<include refid="CommonMapper.paging" />
+</select>
+
+<select id="selectBoardTotalCount" parameterType="BoardDTO" resultType="int">
+	SELECT
+		COUNT(*)
+	FROM
+		tb_board
+	WHERE
+		delete_yn = 'N'
+	<include refid="CommonMapper.search" />
+</select>
+```
+</details>
+</br>

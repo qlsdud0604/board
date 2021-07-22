@@ -283,12 +283,12 @@ public interface BoardMapper {
 |구성 요소|설명|
 |---|---|
 |@Mapper|마이바티스는 인터페이스에 @Mapper만 지정을 해주면 XML Mapper에서 메서드의 이름과 일치하는 SQL 문을 찾아 실행해 줌|
-|insert|게시글을 생성하는 INSERT 쿼리를 호출하는 메서드|
-|selectBoardDetail|하나의 게시글을 조회하는 SELECT 쿼리를 호출하는 메서드|
-|updateBoard|게시글을 수정하는 UPDATE 쿼리를 호출하는 메서드|
-|deleteBoard|게시글을 삭제하는 DELETE 쿼리를 호출하는 메서드|
-|selectBoardList|게시글 목록을 조회하는 SELECT 쿼리를 호출하는 메서드|
-|selectBoardTotalCount|삭제 여부가 'N'으로 지정된 게시글의 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
+|insertBoard( )|게시글을 생성하는 INSERT 쿼리를 호출하는 메서드|
+|selectBoardDetail( )|하나의 게시글을 조회하는 SELECT 쿼리를 호출하는 메서드|
+|updateBoard( )|게시글을 수정하는 UPDATE 쿼리를 호출하는 메서드|
+|deleteBoard( )|UPDATE 쿼리를 호출하여, delete_yn 컬럼의 상태를 'Y'로 지정하는 메서드|
+|selectBoardList( )|게시글 목록을 조회하는 SELECT 쿼리를 호출하는 메서드|
+|selectBoardTotalCount( )|삭제 여부가 'N'으로 지정된 게시글의 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
 </br>
 
 **4) 마이바티스 XML Mapper 생성**   
@@ -1665,4 +1665,286 @@ public class Criteria {
 </select>
 ```
 </details>
+</br>
+
+---
+### 17. REST 방식으로 댓글 CRUD 처리   
+**1) REST란?**   
+ㆍ REST는 Representational State Tranfer의 약자이고, 하나의 URI는 하나의 고유한 리소스를 대표하도록 설계된다는 개념   
+ㆍ 디바이스의 종류에 상관없이 공통으로 데이터를 처리할 수 있도록 하는 방식을 뜻함   
+ㆍ 지금까지의 게시판 구현 방식은 Controller 영역에서 비즈니스 로직을 호출하고 필요한 결과를 View 영역으로 전달한 다음 HTML 파일을 리턴해주는 방식으로 진행   
+ㆍ REST API를 이용하면 HTML 파일을 리턴해주는 방식이 아닌, 사용자가 필요로 하는 데이터만을 리턴해주는 방식으로 구현이 가능   
+</br>
+
+**2) 댓글 테이블 생성**   
+ㆍ MySQL Workbench 내에서, 아래의 스크립트를 실행한 후 댓글 테이블을 생성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+CREATE TABLE tb_comment (
+    idx INT NOT NULL AUTO_INCREMENT COMMENT '번호 (PK)',
+    board_idx INT NOT NULL COMMENT '게시글 번호 (FK)',
+    content VARCHAR(3000) NOT NULL COMMENT '내용',
+    writer VARCHAR(20) NOT NULL COMMENT '작성자',
+    delete_yn ENUM('Y', 'N') NOT NULL DEFAULT 'N' COMMENT '삭제 여부',
+    insert_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일',
+    update_time DATETIME DEFAULT NULL COMMENT '수정일',
+    delete_time DATETIME DEFAULT NULL COMMENT '삭제일',
+    PRIMARY KEY (idx)
+) COMMENT '댓글';
+```
+</details>
+	
+ㆍ 특정 게시글에 댓글을 등록하거나, 등록된 댓글을 조회하기 위해서는 게시판 테이블의 게시글 번호(idx)와 댓글 테이블의 게시글 번호(board_idx)가 연결되어야 함   
+ㆍ MySQL Workbench 내에서, 아래의 스크립트를 실행한 후 게시판 테이블의 게시글 번호(idx)를 참조해서 댓글 테이블의 게시글 번호(board_idx)를 외래키로 지정하는 제약 조건을 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+alter table tb_comment add constraint fk_comment_board_idx foreign key (board_idx) references tb_board(idx);
+```
+</details>
+</br>
+
+**3) 도메인 클래스 생성**   
+ㆍ 위에서 생성한 댓글 테이블의 구조화 역할을 하는 도메인 클래스가 필요   
+ㆍ domain 패키지 내에 CommentDTO 클래스를 추가하고, 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class CommentDTO extends CommonDTO {
+
+	private Long idx;
+
+	private Long boardIdx;
+
+	private String content;
+
+	private String writer;
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|idx|댓글 번호|
+|boardIdx|댓글과 연결되는 게시글 번호|
+|content|댓글 내용|
+|writer|댓글 작성자|
+</br>
+
+**4) Mapper 인터페이스 생성**   
+ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스의 생성 필요   
+ㆍ mapper 패키지에 CommentMapper 인터페이스를 생성하고, 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Mapper
+public interface CommentMapper {
+
+	public int insertComment(CommentDTO params);
+
+	public CommentDTO selectCommentDetail(Long idx);
+
+	public int updateComment(CommentDTO params);
+
+	public int deleteComment(Long idx);
+
+	public List<CommentDTO> selectCommentList(CommentDTO params);
+
+	public int selectCommentTotalCount(CommentDTO params);
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|@Mapper|해당 인터페이스가 데이터베이스와 통신하는 인터페이스를 의미|
+|insertComment( )|댓글을 생성하는 INSERT 쿼리를 호출하는 메서드|
+|selectCommentDetail( )|특정 댓글의 상세 내용을 조회하는 SELECT 쿼리를 호출하는 메서드|
+|updateComment( )|UPDATE 쿼리를 호출하여, delete_yn 컬럼의 상태를 'Y'로 지정하는 메서드|
+|selectCommentList( )|특정 게시글에 포함된 댓글 목록을 조회하는 SELECT 쿼리를 호출하는 메서드|
+|selectCommentTotalCount( )|특정 게시글에 포함된 댓글 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
+</br>
+
+**5) 마이바티스 XML Mapper 생성**   
+ㆍ src/main/resources 디렉터리의 mappers 폴더에 CommentMapper XML을 추가하고, 아래에 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.Board.mapper.CommentMapper">
+
+	<sql id="commentColumns">
+		  idx
+		, board_idx
+		, content
+		, writer
+		, delete_yn
+		, insert_time
+		, update_time
+		, delete_time
+	</sql>
+
+	<insert id="insertComment" parameterType="CommentDTO">
+		INSERT INTO tb_comment (
+			<include refid="commentColumns" />
+		) VALUES (
+			  #{idx}
+			, #{boardIdx}
+			, #{content}
+			, #{writer}
+			, IFNULL(#{deleteYn}, 'N')
+			, NOW()
+			, NULL
+			, NULL
+		)
+	</insert>
+
+	<select id="selectCommentDetail" parameterType="long" resultType="CommentDTO">
+		SELECT
+			<include refid="commentColumns" />
+		FROM
+			tb_comment
+		WHERE
+			delete_yn = 'N'
+		AND
+			idx = #{idx}
+	</select>
+
+	<update id="updateComment" parameterType="CommentDTO">
+		UPDATE tb_comment
+		SET
+			  update_time = NOW()
+			, content = #{content}
+			, writer = #{writer}
+		WHERE
+			idx = #{idx}
+	</update>
+
+	<update id="deleteComment" parameterType="long">
+		UPDATE tb_comment
+		SET
+			  delete_yn = 'Y'
+			, delete_time = NOW()
+		WHERE
+			idx = #{idx}
+	</update>
+
+	<select id="selectCommentList" parameterType="CommentDTO" resultType="CommentDTO">
+		SELECT
+			<include refid="commentColumns" />
+		FROM
+			tb_comment
+		WHERE
+			delete_yn = 'N'
+		AND
+			board_idx = #{boardIdx}
+		ORDER BY
+			idx DESC,
+			insert_time DESC
+	</select>
+
+	<select id="selectCommentTotalCount" parameterType="CommentDTO" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			tb_comment
+		WHERE
+			delete_yn = 'N'
+		AND
+			board_idx = #{boardIdx}
+	</select>
+
+</mapper>
+```
+</details>
+</br>
+
+**6) Service 영역의 구현**   
+ㆍ service 패키지에 CommentService 인터페이스를 추가하고, 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public interface CommentService {
+
+	public boolean registerComment(CommentDTO params);
+
+	public boolean deleteComment(Long idx);
+
+	public List<CommentDTO> getCommentList(CommentDTO params);
+}
+```
+</details>
+	
+ㆍ CommentService 인터페이스에 대한 구현 클래스가 필요   
+ㆍ service 패키지에 CommentServiceImpl 클래스를 추가하고, 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Service
+public class CommentServiceImpl implements CommentService {
+
+	@Autowired
+	private CommentMapper commentMapper;
+
+	@Override
+	public boolean registerComment(CommentDTO params) {
+		int queryResult = 0;
+
+		if (params.getIdx() == null) {
+			queryResult = commentMapper.insertComment(params);
+		} else {
+			queryResult = commentMapper.updateComment(params);
+		}
+
+		return (queryResult == 1) ? true : false;
+	}
+
+	@Override
+	public boolean deleteComment(Long idx) {
+		int queryResult = 0;
+
+		CommentDTO comment = commentMapper.selectCommentDetail(idx);
+
+		if (comment != null && "N".equals(comment.getDeleteYn())) {
+			queryResult = commentMapper.deleteComment(idx);
+		}
+
+		return (queryResult == 1) ? true : false;
+	}
+
+	@Override
+	public List<CommentDTO> getCommentList(CommentDTO params) {
+		List<CommentDTO> commentList = Collections.emptyList();
+
+		int commentTotalCount = commentMapper.selectCommentTotalCount(params);
+		if (commentTotalCount > 0) {
+			commentList = commentMapper.selectCommentList(params);
+		}
+
+		return commentList;
+	}
+
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|@Service|해당 클래스가 비즈니스 로직을 수행하는 클래스임을 의미하는 애너테이션|
+|commentMapper|@Autowired 애너테이션을 사용해서 빈으로 등록된 CommentMapper 객체를 클래스에 주입|
+|registerComment( )|1. 댓글 번호가 파라미터에 포함되어 있지 않으면 댓글 생성 메서드를 실행</br>2. 댓글 번호가 파라미터에 포함되어 있으면 댓글 수정 메서드를 실행|
+|deleteComment( )|댓글의 상세 내용을 조회해서 정상적으로 사용 중인 댓글인 경우에 삭제 메서드 실행|
+|getCommentList( )|특정 게시글에 포함된 댓글이 1개 이상이면 댓글 목록 리스트를 반환|
 </br>

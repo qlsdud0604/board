@@ -444,7 +444,7 @@ public class DBConfiguration {
 </br>
 
 ---
-### 6. 게시글 등록 구현
+### 6. 게시글 등록(수정) 구현
 **1) Service 영역**   
 ㆍ Service 영역은 비즈니스 로직을 담당   
 ㆍ service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성   
@@ -1939,7 +1939,9 @@ spring.mvc.converters.preferred-json-mapper=gson
 </details>
 </br>
 
-**8) Controller 영역의 구현**   
+---
+### 18. 댓글 리스트 구현  
+**1) Controller 영역**   
 ㆍ controller 패키지에 CommentController 클래스를 추가하고, 아래의 코드를 작성   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1975,8 +1977,9 @@ public class CommentController {
 |@PathVariable|1. @RequestParam과 유사한 기능을 하며, REST 방식에서 리소스를 표현하는 데 사용</br>2. 호출된 URI에 파라미터로 전달받을 변수를 지정할 수 있음|
 </br>
 
-**9) JSON 날짜 데이터 형식 지정**   
-ㆍ CommentController의 getCommentList 메서드가 리턴하는 JSON 데이터를 확인해보면, inserTime 또한 JSON 형태로 이루어졌다는 것을 확인할 수 있음   
+**2) JSON 날짜 데이터 형식 지정**   
+ㆍ CommentController의 getCommentList 메서드가 리턴하는 JSON 데이터를 확인해보면, insertTime 또한 JSON 형태로 이루어졌다는 것을 확인할 수 있음   
+ㆍ View 영역에서의 원할한 처리를 위해 형식을 변환할 필요가 있음   
 ㆍ adapter 패키지를 추가하고, GsonLocalDateTimeAdapter 클래스를 생성한 후 아래 코드를 작성   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -2026,3 +2029,42 @@ public class CommentController {
 ```
 </details>
 </br>
+
+---
+### 19. 댓글 등록(수정) 구현   
+**1) Controller 영역**   
+ㆍ CommentController 클래스에 아래의 registerComment 메서드에 대한 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@RequestMapping(value = { "/comments", "/comments/{idx}" }, method = { RequestMethod.POST, RequestMethod.PATCH })
+public JsonObject registerComment(@PathVariable(value = "idx", required = false) Long idx, @RequestBody final CommentDTO params) {
+
+	JsonObject jsonObj = new JsonObject();
+
+	try {
+		if (idx != null) {
+			params.setIdx(idx);
+		}
+
+		boolean isRegistered = commentService.registerComment(params);
+		jsonObj.addProperty("result", isRegistered);
+
+	} catch (DataAccessException e) {
+		jsonObj.addProperty("message", "데이터베이스 처리 과정에 문제가 발생하였습니다.");
+
+	} catch (Exception e) {
+		jsonObj.addProperty("message", "시스템에 문제가 발생하였습니다.");
+	}
+
+	return jsonObj;
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|@RequestMapping|1. 게시글의 경우 하나의 URI로 생성과 수정 처리가 가능</br>2. REST API는 설계 규칙을 지켜야 하기 때문에 해당 애너테이션을 통해 URI를 구분되게 처리|
+|@RequestBody|1. REST 방식의 처리에 사용되는 애너테이션</br>2. 파라미터 앞에 해당 애너테이션이 지정되면, 파라미터로 전달받은 JSON 문자열이 객체로 변환됨|
+</>

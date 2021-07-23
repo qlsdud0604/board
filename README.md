@@ -1,57 +1,26 @@
 # Spring Boot를 활용한 게시판의 제작
 ### 목차
 1. [프로젝트 이름](#1-프로젝트-이름)
-2. [프로젝트 일정](#2-프로젝트-일정)
-3. [기술 스택](#3-기술-스택)
-4. [프로젝트 구조](#4-프로젝트-구조)
-5. [MySQL 연동](#5-mysql-연동)
-6. [게시글 CRUD 처리](#6-게시글-crud-처리)
-7. [게시글 등록 구현](#7-게시글-등록-구현)
-8. [게시글 리스트 구현](#8-게시글-리스트-구현)
-9. [게시글 조회 구현](#9-게시글-조회-구현)
-10. [게시글 삭제 구현](#10-게시글-삭제-구현)
-11. [경고 메시지 처리](#11-경고-메시지-처리)
-12. [인터셉터 적용](#12-인터셉터-적용)
-13. [AOP 적용](#13-aop-적용)
-14. [트랜잭션 적용](#14-트랜잭션-적용)
-15. [페이징 처리](#15-페이징-처리)
+2. [기술 스택](#2-기술-스택)
+3. [프로젝트 구조](#3-프로젝트-구조)
+4. [MySQL 연동](#4-mysql-연동)
+5. [게시글 CRUD 처리](#5-게시글-crud-처리)
+6. [게시글 등록 구현](#6-게시글-등록-구현)
+7. [게시글 리스트 구현](#7-게시글-리스트-구현)
+8. [게시글 조회 구현](#8-게시글-조회-구현)
+9. [게시글 삭제 구현](#9-게시글-삭제-구현)
+10. [경고 메시지 처리](#10-경고-메시지-처리)
+11. [인터셉터 적용](#11-인터셉터-적용)
+12. [AOP 적용](#12-aop-적용)
+13. [트랜잭션 적용](#13-트랜잭션-적용)
+14. [페이징 처리](#14-페이징-처리)
 
 ---
 ### 1. 프로젝트 이름
 * **게시글 등록, 조회, 수정, 삭제가 가능한 게시판**
 
 ---
-### 2. 프로젝트 일정
-* **2021.02.20 :** 프로젝트 생성 및 개발환경 설정
-
-* **2021.02.22 :** MySQL 데이터베이스 연동 및 테스트
-
-* **2021.02.23 ~ 2021.02.24 :** 게시글 CRUD 관련 Mapper 영역 구현 및 테스트
-
-* **2021.02.24 ~ 2021.02.26 :** 게시글 CRUD 관련 Service, Controller 영역 구현 및 테스트
-
-* **2021.02.27 :** 게시글 CRUD 관련 View 영역 구현
-
-* **2021.03.04 ~ 2021.03.05 :** Paging 처리
-
-* **2021.03.08 :** 게시글 검색 기능 구현
-
-* **2021.03.09 ~ 2021.03.10 :** 댓글 관련 Mapper 영역 구현 및 테스트
-
-* **2021.03.11 ~ 2021.03.14 :** 댓글 관련 Service, Controller 영역 구현 및 테스트
-
-* **2021.03.15 ~ 2021.03.17 :** 파일 처리 관련 Mapper 영역 구현 및 테스트
-
-* **2021.03.18 ~ 2021.03.22 :** 파일 업로드 관련 Service, Controller 영역 구현 및 테스트
-
-* **2021.03.23 ~ 2021.03.26 :** 파일 다운로드 관련 Service, Controller 영역 구현 및 테스트
-
-* **2021.03.26 ~ 2021.03.30 :** 파일 처리 관련 기존 코드 보완
-
-* **2021.04.02 :** 최종 테스트 및 시연
-
----
-### 3. 기술 스택
+### 2. 기술 스택
 * IDE
 ```
 - IntelliJ
@@ -75,9 +44,9 @@
 ```
 
 ---
-### 4. 프로젝트 구조
+### 3. 프로젝트 구조
 <img src="https://user-images.githubusercontent.com/61148914/124562382-ecc9f680-de79-11eb-8863-e4560bec3570.JPG" width="35%">
-</br>
+</br>1
 
 **1) src/main/java 디렉터리**   
 ㆍ 클래스, 인터페이스 등 자바 파일이 위치하는 디렉터리   
@@ -110,7 +79,7 @@
 </br>
 
 ---
-### 5. MySQL 연동
+### 4. MySQL 연동
 **1) 데이터 소스 설정**   
 ㆍ 스프링 부트에서 데이터 소스 설정 방법은 두 가지가 존재   
 ㆍ "@Bean" 애너테이션 또는 "application.properties" 파일 이용 가능 (이번 프로젝트에서는 후자의 방법을 사용)   
@@ -191,7 +160,7 @@ public class DBConfiguration {
 </br>
 
 ---
-### 6. 게시글 CRUD 처리
+### 5. 게시글 CRUD 처리
 **1) 게시판 테이블 생성**   
 ㆍ 게시판 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것   
 ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행
@@ -475,7 +444,7 @@ public class DBConfiguration {
 </br>
 
 ---
-### 7. 게시글 등록 구현
+### 6. 게시글 등록 구현
 **1) Service 영역**   
 ㆍ Service 영역은 비즈니스 로직을 담당   
 ㆍ service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성   
@@ -624,7 +593,7 @@ public class BoardController {
 </br>
 
 ---
-### 8. 게시글 리스트 구현
+### 7. 게시글 리스트 구현
 **1) Controller 영역**   
 ㆍ 게시글 목록을 보여줄 리스트 페이지에 대한 Controller 영역의 처리가 필요   
 ㆍ BoardController 클래스에 아래의 코드를 작성   
@@ -648,7 +617,7 @@ public String openBoardList(Model model) {
 </br>
 
 ---
-### 9. 게시글 조회 구현
+### 8. 게시글 조회 구현
 **1) Controller 영역**   
 ㆍ 특정 게시물을 조회해 출력해 주는 Controller 영역의 처리가 필요   
 ㆍ BoardController 클래스에 아래의 코드를 작성
@@ -681,7 +650,7 @@ public String openBoardDetail(@RequestParam(value = "idx", required = false) Lon
 </br>
 	
 ---
-### 10. 게시글 삭제 구현
+### 9. 게시글 삭제 구현
 **1) Controller 영역**   
 ㆍ 특정 게시물을 삭제해 주는 Controller 영역의 처리가 필요   
 ㆍ BoardController 클래스에 아래의 코드를 작성   
@@ -717,7 +686,7 @@ public String deleteBoard(@RequestParam(value = "idx", required = false) Long id
 </br>
 
 ---
-### 11. 경고 메시지 처리
+### 10. 경고 메시지 처리
 **1) Enum 클래스**   
 ㆍ constatnt 패키지를 추가한 후, Method라는 이름으로 다음의 Enum 클래스를 추가   
 ㆍ Enum 클래스는 상수를 처리하는 목적으로 사용  
@@ -864,7 +833,7 @@ public class BoardController extends UiUtils {
 </br>
 	
 ---
-### 12. 인터셉터 적용
+### 11. 인터셉터 적용
 **1) 인터셉터란?**   
 ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다." 라는 의미가 있음   
 ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용   
@@ -931,7 +900,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 </br>
 
 ---
-### 13. AOP 적용
+### 12. AOP 적용
 **1) AOP란?**   
 ㆍ AOP는 Aspect Oriented Programming의 약자   
 ㆍ 관점 지향 프로그래밍으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와줌   
@@ -1006,7 +975,7 @@ public class LoggerAspect {
 </br>
 
 ---
-### 14. 트랜잭션 적용
+### 13. 트랜잭션 적용
 **1) 트랜잭션이란?**   
 ㆍ 트랜잭션은 일련의 작업들이 모두 하나의 논리적 작업으로 취급되는 것을 말함   
 ㆍ 즉, 하나의 작업에 여러 개의 작업이 같이 묶여 있는 것   
@@ -1086,7 +1055,7 @@ public class TransactionAspect {
 </br>
 
 ---
-### 15. 페이징 처리
+### 14. 페이징 처리
 **1) 페이징이란?**   
 ㆍ 사용자가 어떠한 데이터를 필요로 할 때 전체 데이터 중 일부를 보여주는 방식   
 </br>
@@ -1571,7 +1540,7 @@ public class Criteria {
 </br>
 
 ---
-### 16. 검색 처리
+### 15. 검색 처리
 **1) 공통 Mapper XML 생성**   
 ㆍ 검색 기능은 공통으로 사용되는 기능이기 때문에 하나의 Mapper XML에 검색을 처리하는 SQL 문을 선언하고 사용하는 것이 좋음   
 ㆍ src/main/resources 디렉터리의 mappers 폴더에 CommonMapper.xml 파일을 추가하고 아래의 코드를 작성   
@@ -1668,7 +1637,7 @@ public class Criteria {
 </br>
 
 ---
-### 17. REST 방식으로 댓글 CRUD 처리   
+### 16. REST 방식으로 댓글 CRUD 처리   
 **1) REST란?**   
 ㆍ REST는 Representational State Tranfer의 약자이고, 하나의 URI는 하나의 고유한 리소스를 대표하도록 설계된다는 개념   
 ㆍ 디바이스의 종류에 상관없이 공통으로 데이터를 처리할 수 있도록 하는 방식을 뜻함   
@@ -1947,4 +1916,113 @@ public class CommentServiceImpl implements CommentService {
 |registerComment( )|1. 댓글 번호가 파라미터에 포함되어 있지 않으면 댓글 생성 메서드를 실행</br>2. 댓글 번호가 파라미터에 포함되어 있으면 댓글 수정 메서드를 실행|
 |deleteComment( )|댓글의 상세 내용을 조회해서 정상적으로 사용 중인 댓글인 경우에 삭제 메서드 실행|
 |getCommentList( )|특정 게시글에 포함된 댓글이 1개 이상이면 댓글 목록 리스트를 반환|
+</br>
+
+**7) Gson 라이브러리 추가**   
+ㆍ 컨트롤러 영역을 구현하기 전에 JSON과 자바 객체의 직렬화(자바 객체 → JSON), 역질렬화(JSON → 자바 객체)를 처리해주는 오픈 소스 자바 라이브러리인 Gson의 추가가 필요   
+ㆍ build.gradle에서 dependencis의 가장 하단에 아래 코드를 입력해 Gson 라이브러리를 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```
+compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+```
+</details>
+	
+ㆍ 리프레쉬가 완료되면 application.properties에 아래의 코드를 추가하여, Gson 라이브러리에 대한 추가 설정을 완료   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```
+spring.mvc.converters.preferred-json-mapper=gson
+```
+</details>
+</br>
+
+**8) Controller 영역의 구현**   
+ㆍ controller 패키지에 CommentController 클래스를 추가하고, 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@RestController
+public class CommentController {
+
+	@Autowired
+	private CommentService commentService;
+
+	@GetMapping(value = "/comments/{boardIdx}")
+	public JsonObject getCommentList(@PathVariable("boardIdx") Long boardIdx, @ModelAttribute("params") CommentDTO params) {
+
+		JsonObject jsonObj = new JsonObject();
+
+		List<CommentDTO> commentList = commentService.getCommentList(params);
+	
+		if (CollectionUtils.isEmpty(commentList) == false) {
+			JsonArray jsonArr = new Gson().toJsonTree(commentList).getAsJsonArray();
+			jsonObj.add("commentList", jsonArr);
+		}
+
+		return jsonObj;
+	}
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|@RestController|해당 애너테이션이 선언된 클래스 내의 모든 메서드는 화면이 아닌, 리턴 타입에 해당하는 데이터 자체를 리턴|
+|@PathVariable|1. @RequestParam과 유사한 기능을 하며, REST 방식에서 리소스를 표현하는 데 사용</br>2. 호출된 URI에 파라미터로 전달받을 변수를 지정할 수 있음|
+</br>
+
+**9) JSON 날짜 데이터 형식 지정**   
+ㆍ CommentController의 getCommentList 메서드가 리턴하는 JSON 데이터를 확인해보면, inserTime 또한 JSON 형태로 이루어졌다는 것을 확인할 수 있음   
+ㆍ adapter 패키지를 추가하고, GsonLocalDateTimeAdapter 클래스를 생성한 후 아래 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public class GsonLocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+
+	@Override
+	public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
+		return new JsonPrimitive(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(src));
+	}
+
+	@Override
+	public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+		return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+	}
+}
+```
+</details>
+	
+ㆍ CommentController의 getCommentList 메서드를 아래 코드와 같이 어댑터 클래스를 포함하여 객체를 생성하는 형태로 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@RestController
+public class CommentController {
+
+	@Autowired
+	private CommentService commentService;
+
+	@GetMapping(value = "/comments/{boardIdx}")
+	public JsonObject getCommentList(@PathVariable("boardIdx") Long boardIdx, @ModelAttribute("params") CommentDTO params) {
+
+		JsonObject jsonObj = new JsonObject();
+
+		List<CommentDTO> commentList = commentService.getCommentList(params);
+		if (CollectionUtils.isEmpty(commentList) == false) {
+			Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new GsonLocalDateTimeAdapter()).create();
+			JsonArray jsonArr = gson.toJsonTree(commentList).getAsJsonArray();
+			jsonObj.add("commentList", jsonArr);
+		}
+
+		return jsonObj;
+	}
+}
+```
+</details>
 </br>

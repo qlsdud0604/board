@@ -2103,3 +2103,232 @@ public JsonObject deleteComment(@PathVariable("idx") final Long idx) {
 |@DeleteMapping|1. HTTP 요청 메서드 중 DELETE를 의미</br>2. 이번 프로젝트에서는 실제로 댓글을 삭제하지는 않지만, URI의 구분을 위해 해당 애너테이션을 선언|
 |@PathVariable|1. @RequestParam과 유사한 기능을 하며, REST 방식에서 리소스를 표현하는 데 사용</br>2. 호출된 URI에 파라미터로 전달받을 변수를 지정할 수 있음|
 </br>
+
+---
+### 21. 파일 업로드 & 다운로드  
+**1) 파일 테이블 생성**   
+ㆍ MySQL Workbench를 실행하고, 아래의 스크립트를 실행하여 파일 테이블을 생성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+CREATE TABLE tb_file (
+    idx INT NOT NULL AUTO_INCREMENT COMMENT '파일 번호 (PK)',
+    board_idx INT NOT NULL COMMENT '게시글 번호 (FK)',
+    original_name VARCHAR(260) NOT NULL COMMENT '원본 파일명',
+    save_name VARCHAR(40) NOT NULL COMMENT '저장 파일명',
+    size INT NOT NULL COMMENT '파일 크기',
+    delete_yn ENUM('Y', 'N') NOT NULL DEFAULT 'N' COMMENT '삭제 여부',
+    insert_time DATETIME NOT NULL DEFAULT NOW() COMMENT '등록일',
+    delete_time DATETIME NULL COMMENT '삭제일',
+    PRIMARY KEY (idx)
+) comment '첨부 파일';
+```
+</details>
+
+ㆍ 댓글과 마찬가지로 특정 게시글에 파일을 등록하거나 등록된 파일을 조회하려면, 게시판 테이블의 게시글 번호(idx)와 파일 테이블의 게시글 번호(board_idx)가 연결되어야 함   
+ㆍ 아래의 스크립트를 실행해 게시판 테이블의 게시글 번호(idx)를 참조해서 첨부 파일 테이블의 게시글 번호(board_idx)를 FK로 지정하는 제약 조건을 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+alter table tb_attach add constraint fk_attach_board_idx foreign key (board_idx) references tb_board(idx);
+```
+</details>
+</br>
+
+**2) 라이브러리 추가**   
+ㆍ 파일 처리와 관련된 여러 가지 기능을 제공해 주는 라이브러리를 추가   
+ㆍ build.gradle의 compile group에 아래의 코드를 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```
+compile group: 'commons-io', name: 'commons-io', version: '2.6'
+compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
+```
+</details>
+</br>
+
+**3) 파일 처리용 빈 설정**   
+ㆍ 스프링에는 파일 업로드 처리를 위한 MultipartResolver 인터페이스가 정의되어 있음   
+ㆍ 구현 클래스로 아파치의 CommonsMultipartResolver와 서블릿 3.0 이상의 API를 이용한 StandardServletMultipartResolver가 있음   
+ㆍ 이번 프로젝트에서는 CommonsMultipartResolver를 이용해서 파일 업로드를 구현   
+ㆍ MvcConfiguration 클래스에 아래 코드와 같이 CommonsMultipartResolver 빈을 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Configuration
+public class MvcConfiguration implements WebMvcConfigurer {
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new LoggerInterceptor())
+		.excludePathPatterns("/css/**", "/fonts/**", "/plugin/**", "/scripts/**");
+	}
+
+	@Bean
+	public CommonsMultipartResolver multipartResolver() {
+		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+		multipartResolver.setDefaultEncoding("UTF-8");   // 파일 인코딩 설정
+		multipartResolver.setMaxUploadSizePerFile(5 * 1024 * 1024);   // 파일당 업로드 크기 제한 (5MB)
+		return multipartResolver;
+	}
+}
+```
+</details>
+</br>
+
+**4) 도메인 클래스 생성**   
+ㆍ 파일 테이블의 구조화 역할을 하는 도메인 클래스를 생성할 필요가 있음   
+ㆍ domain 패키지에 AttachDTO 클래스를 추가하고, 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class FileDTO extends CommonDTO {
+
+	private Long idx;
+
+	private Long boardIdx;
+
+	private String originalName;
+
+	private String saveName;
+
+	private long size;
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|idx|파일 번호|
+|boardIdx|게시글 번호|
+|originalName|원본 파일명|
+|saveName|저장 파일명|
+|size|파일 크기|
+</br>
+
+**5) Mapper 인터페이스 생성**   
+ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스를 생성할 필요가 있음   
+ㆍ mapper 패키지에 FileMapper 인터페이스를 생성하고 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Mapper
+public interface FileMapper {
+
+	public int insertFile(List<FileDTO> fileList);
+
+	public FileDTO selectFileDetail(Long idx);
+
+	public int deleteFile(Long boardIdx);
+
+	public List<FileDTO> selectFileList(Long boardIdx);
+
+	public int selectFileTotalCount(Long boardIdx);
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|insertFile( )|파일 정보를 저장하는 INSERT 쿼리를 호출하는 메서드|
+|selectFileDetail( )|파라미터로 전달받은 파일 번호에 해당하는 파일의 상세 정보를 조회하는 메서드|
+|deleteFile( )|특정 게시글에 포함된 모든 파일의 삭제 여부 상태 값을 'N'으로 변경하는 메서드|
+|selectFileList( )|특정 게시글에 포함된 파일 목록으 조회하는 SELECT 쿼리를 호출하는 메서드|
+|selectFileTotalCount( )|특정 게시글에 포함된 파일 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
+</br>
+	
+**6) 마이바티스 XML Mapper 생성**   
+ㆍ src/main/resources 디렉터리의 mappers 폴더에 AttachMapper XML을 생성하고 아래의 쿼리를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.board.mapper.AttachMapper">
+
+	<sql id="fileColumns">
+		  idx
+		, board_idx
+		, original_name
+		, save_name
+		, size
+		, delete_yn
+		, insert_time
+		, delete_time
+	</sql>
+
+	<insert id="insertFile" parameterType="list">
+		INSERT INTO tb_file (
+			<include refid="fileColumns" />
+		) VALUES
+		<foreach collection="list" item="item" separator=",">
+		(
+			  #{item.idx}
+			, #{item.boardIdx}
+			, #{item.originalName}
+			, #{item.saveName}
+			, #{item.size}
+			, 'N'
+			, NOW()
+			, NULL
+		)
+		</foreach>
+	</insert>
+
+	<select id="selectFileDetail" parameterType="long" resultType="FileDTO">
+		SELECT
+			<include refid="FileColumns" />
+		FROM
+			tb_file
+		WHERE
+			delete_yn = 'N'
+		AND
+			idx = #{idx}
+	</select>
+
+	<update id="deleteFile" parameterType="long">
+		UPDATE tb_file
+		SET
+			  delete_yn = 'Y'
+			, delete_time = NOW()
+		WHERE
+			board_idx = #{boardIdx}
+	</update>
+
+	<select id="selectFileList" parameterType="long" resultType="FileDTO">
+		SELECT
+			<include refid="fileColumns" />
+		FROM
+			tb_file
+		WHERE
+			delete_yn = 'N'
+		AND
+			board_idx = #{boardIdx}
+	</select>
+
+	<select id="selectFileTotalCount" parameterType="long" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			tb_file
+		WHERE
+			delete_yn = 'N'
+		AND
+			board_idx = #{boardIdx}
+	</select>
+</mapper>
+```
+</details>
+</br>
+
+**7) 공통 파일 처리용 클래스 생성**   

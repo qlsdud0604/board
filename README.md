@@ -2332,3 +2332,210 @@ public interface FileMapper {
 </br>
 
 **7) 공통 파일 처리용 클래스 생성**   
+ㆍ 파일 업로드와 다운로드 처리는 여러 곳에서 동통으로 사용되는 기능   
+ㆍ 따라서, 페이징 구현과 마찬가지로 공통 클래스를 추가해서 구현하는 것이 바람직함   
+ㆍ util 패키지에 FileUtils 클래스를 추가하고 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Component
+public class FileUtils {
+
+	private final String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+
+	private final String uploadPath = Paths.get("C:", "develop", "upload", today).toString();
+
+	private final String getRandomString() {
+		return UUID.randomUUID().toString().replaceAll("-", "");
+	}
+
+	public List<AttachDTO> uploadFiles(MultipartFile[] files, Long boardIdx) {
+
+		if (files[0].getSize() < 1) {
+			return Collections.emptyList();
+		}
+
+		List<AttachDTO> attachList = new ArrayList<>();
+
+		File dir = new File(uploadPath);
+		if (dir.exists() == false) {
+			dir.mkdirs();
+		}
+	
+		for (MultipartFile file : files) {
+			try {
+				final String extension = FilenameUtils.getExtension(file.getOriginalFilename());   // 파일 확장자
+				final String saveName = getRandomString() + "." + extension;   // 서버에 저장할 파일명 (랜덤 문자열 + 확장자)
+
+				File target = new File(uploadPath, saveName);   // 업로드 경로에 saveName과 동일한 이름을 가진 파일 생성
+				file.transferTo(target);
+
+				/* 파일 정보 저장 */
+				AttachDTO attach = new AttachDTO();
+				attach.setBoardIdx(boardIdx);
+				attach.setOriginalName(file.getOriginalFilename());
+				attach.setSaveName(saveName);
+				attach.setSize(file.getSize());
+
+				/* 파일 목록 추가 */
+				attachList.add(attach);
+
+			} catch (IOException e) {
+				throw new AttachFileException("[" + file.getOriginalFilename() + "] failed to save file...");
+
+			} catch (Exception e) {
+				throw new AttachFileException("[" + file.getOriginalFilename() + "] failed to save file...");
+			}
+		}
+
+		return attachList;
+	}
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|@Component|개발자가 직접 작성한 클래스를 스프링 컨테이너에 등록하는 데 사용되는 애너테이션|
+|today|업로드 경로에 포함되는 오늘 날짜|
+|uploadPath|1. 최종적으로 파일이 업로드되는 경로</br>2. 윈도우 환경에서 07월 24일을 기준으로 "C:\develop\upload\210724"와 같은 패턴의 디렉터리가 생성됨</br>3. Paths.get 메서드를 사용하면 파라미터로 전달한 여러 개의 문자열을 하나로 연결해서 OS에 해당하는 패턴으로 경로를 리턴해 줌|
+|getRandomString( )|서버에 생성할 파일명을 처리할 랜덤 문자열 반환하는 메서드|
+|uploadFiles( )|1. 사용자가 등록한 첨부 파일을 서버에 업로드하고 파일 목록을 반환하는 메서드</br>2. files에는 업로드할 파일의 정보가 담겨 있고, boardIdx에는 파일을 등록할 게시글 번호가 담겨 있음|
+|transferTo( )|서버에 물리적으로 파일을 생성하는 메서드|
+</br>
+
+**8) 첨부 파일 예외 클래스 생성**   
+ㆍ src/main/java 디렉터리에 exception 패키지를 추가하고, AttachFileException 클래스를 생성   
+ㆍ AttachFileException 클래스에 아래의 코드를 작성   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@SuppressWarnings("serial")
+public class AttachFileException extends RuntimeException {
+
+	public AttachFileException(String message) {
+		super(message);
+	}
+
+	public AttachFileException(String message, Throwable cause) {
+		super(message, cause);
+	}
+}
+```
+</details>
+
+**9) Service 영역의 변경**   
+ㆍ FileUtils 클래스의 uploardFiles 메서드를 호출하기 위해서는 MultipartFile[ ] 타입의 객체가 필요   
+ㆍ BoardService의 registerBoard 메서드가 MultipartFile[ ]을 파라미터로 전달받도록 변경할 필요가 있음   
+ㆍ 아래 코드와 같이 BoardService 인터페이스에 MultipartFile[ ]을 파라미터로 전달받는 registerBoard 메서드 추가   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public interface BoardService {
+
+	public boolean registerBoard(BoardDTO params);
+
+	public boolean registerBoard(BoardDTO params, MultipartFile[] files);
+
+	public BoardDTO getBoardDetail(Long idx);
+
+	public boolean deleteBoard(Long idx);
+
+	public List<BoardDTO> getBoardList(BoardDTO params);
+}
+```
+</details>
+	
+ㆍ BoardServiceImpl 클래스에 FileMapper와 FileUtils 빈을 주입하고, registerBoard 메서드를 구현해야 함   
+ㆍ 아래 코드와 같이 BoardServiceImpl 클래스를 변경   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Service
+public class BoardServiceImpl implements BoardService {
+
+	@Autowired
+	private BoardMapper boardMapper;
+
+	@Autowired
+	private FileMapper fileMapper;
+
+	@Autowired
+	private FileUtils fileUtils;
+
+	@Override
+	public boolean registerBoard(BoardDTO params) {
+		int queryResult = 0;
+
+		if (params.getIdx() == null) {
+			queryResult = boardMapper.insertBoard(params);
+		} else {
+			queryResult = boardMapper.updateBoard(params);
+		}
+
+		return (queryResult == 1) ? true : false;
+	}
+
+	@Override
+	public boolean registerBoard(BoardDTO params, MultipartFile[] files) {
+		int queryResult = 1;
+
+		if (registerBoard(params) == false) {
+			return false;
+		}
+
+		List<AttachDTO> fileList = fileUtils.uploadFiles(files, params.getIdx());
+	
+		if (CollectionUtils.isEmpty(fileList) == false) {
+			queryResult = fileMapper.insertFile(fileList);
+	
+			if (queryResult < 1) {
+				queryResult = 0;
+			}
+		}
+
+		return (queryResult > 0);
+	}
+
+	@Override
+	public BoardDTO getBoardDetail(Long idx) {
+		return boardMapper.selectBoardDetail(idx);
+	}
+
+	@Override
+	public boolean deleteBoard(Long idx) {
+		int queryResult = 0;
+
+		BoardDTO board = boardMapper.selectBoardDetail(idx);
+
+		if (board != null && "N".equals(board.getDeleteYn())) {
+			queryResult = boardMapper.deleteBoard(idx);
+		}
+
+		return (queryResult == 1) ? true : false;
+	}
+
+	@Override
+	public List<BoardDTO> getBoardList(BoardDTO params) {
+		List<BoardDTO> boardList = Collections.emptyList();
+
+		int boardTotalCount = boardMapper.selectBoardTotalCount(params);
+
+		PaginationInfo paginationInfo = new PaginationInfo(params);
+		paginationInfo.setTotalRecordCount(boardTotalCount);
+
+		params.setPaginationInfo(paginationInfo);
+
+		if (boardTotalCount > 0) {
+			boardList = boardMapper.selectBoardList(params);
+		}
+
+		return boardList;
+	}
+}
+```
+</details>

@@ -2105,7 +2105,7 @@ public JsonObject deleteComment(@PathVariable("idx") final Long idx) {
 </br>
 
 ---
-### 21. 파일 업로드 & 다운로드  
+### 21. 파일 업로드 구현
 **1) 파일 테이블 생성**   
 ㆍ MySQL Workbench를 실행하고, 아래의 스크립트를 실행하여 파일 테이블을 생성   
 <details>
@@ -2332,7 +2332,7 @@ public interface FileMapper {
 </br>
 
 **7) 공통 파일 처리용 클래스 생성**   
-ㆍ 파일 업로드와 다운로드 처리는 여러 곳에서 동통으로 사용되는 기능   
+ㆍ 파일 업로드와 다운로드 처리는 여러 곳에서 통으로 사용되는 기능   
 ㆍ 따라서, 페이징 구현과 마찬가지로 공통 클래스를 추가해서 구현하는 것이 바람직함   
 ㆍ util 패키지에 FileUtils 클래스를 추가하고 아래의 코드를 작성   
 <details>
@@ -2350,13 +2350,9 @@ public class FileUtils {
 		return UUID.randomUUID().toString().replaceAll("-", "");
 	}
 
-	public List<AttachDTO> uploadFiles(MultipartFile[] files, Long boardIdx) {
+	public List<FileDTO> uploadFiles(MultipartFile[] files, Long boardIdx) {
 
-		if (files[0].getSize() < 1) {
-			return Collections.emptyList();
-		}
-
-		List<AttachDTO> attachList = new ArrayList<>();
+		List<FileDTO> fileList = new ArrayList<>();
 
 		File dir = new File(uploadPath);
 		if (dir.exists() == false) {
@@ -2364,6 +2360,10 @@ public class FileUtils {
 		}
 	
 		for (MultipartFile file : files) {
+			if (file.getSize() < 1) {
+				continue;
+			}
+	
 			try {
 				final String extension = FilenameUtils.getExtension(file.getOriginalFilename());   // 파일 확장자
 				final String saveName = getRandomString() + "." + extension;   // 서버에 저장할 파일명 (랜덤 문자열 + 확장자)
@@ -2372,14 +2372,14 @@ public class FileUtils {
 				file.transferTo(target);
 
 				/* 파일 정보 저장 */
-				AttachDTO attach = new AttachDTO();
-				attach.setBoardIdx(boardIdx);
-				attach.setOriginalName(file.getOriginalFilename());
-				attach.setSaveName(saveName);
-				attach.setSize(file.getSize());
+				FileDTO file = new FileDTO();
+				file.setBoardIdx(boardIdx);
+				file.setOriginalName(file.getOriginalFilename());
+				file.setSaveName(saveName);
+				file.setSize(file.getSize());
 
 				/* 파일 목록 추가 */
-				attachList.add(attach);
+				fileList.add(file);
 
 			} catch (IOException e) {
 				throw new AttachFileException("[" + file.getOriginalFilename() + "] failed to save file...");
@@ -2389,7 +2389,7 @@ public class FileUtils {
 			}
 		}
 
-		return attachList;
+		return fileList;
 	}
 }
 ```
@@ -2425,9 +2425,10 @@ public class AttachFileException extends RuntimeException {
 }
 ```
 </details>
+</br>
 
 **9) Service 영역의 변경**   
-ㆍ FileUtils 클래스의 uploardFiles 메서드를 호출하기 위해서는 MultipartFile[ ] 타입의 객체가 필요   
+ㆍ FileUtils 클래스의 uploadFiles 메서드를 호출하기 위해서는 MultipartFile[ ] 타입의 객체가 필요   
 ㆍ BoardService의 registerBoard 메서드가 MultipartFile[ ]을 파라미터로 전달받도록 변경할 필요가 있음   
 ㆍ 아래 코드와 같이 BoardService 인터페이스에 MultipartFile[ ]을 파라미터로 전달받는 registerBoard 메서드 추가   
 <details>
@@ -2539,3 +2540,214 @@ public class BoardServiceImpl implements BoardService {
 }
 ```
 </details>
+</br>
+	
+**10) BoardMapper XML 수정**   
+ㆍ uploadFiles 메서드로 전달되는 params의 idx 값은 게시글이 생성된 이후에도 NULL 값이 담기게 된다.   
+ㆍ 따라서, 마이바티스의 useGeneratedKeys, keyProperty 속성을 이용할 필요가 있다.   
+ㆍ BoardMapper.xml의 insertBoard 부분을 아래 코드와 같이 변경을 시킨다면, INSERT 쿼리의 실행과 동시에 생성된 PK가 파라미터로 전달된 객체인 BoardDTO의 게시글 번호(idx)에 담기게 된다.  
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<insert id="insertBoard" parameterType="BoardDTO" useGeneratedKeys="true" keyProperty="idx">
+```
+</details>
+</br>
+	
+**11) Controller 영역의 변경**   
+ㆍ 파일 정보를 전달 받기 위해서는 BoardController의 registerBoard 메서드 또한 변경할 필요가 있다.   
+ㆍ BoardController의 registerBoard 메소드를 아래의 코드와 같이 변경한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@PostMapping(value = "/board/register.do")
+public String registerBoard(final BoardDTO params, final MultipartFile[] files, Model model) {
+	Map<String, Object> pagingParams = getPagingParams(params);
+	
+	try {
+		boolean isRegistered = boardService.registerBoard(params, files);
+	
+		if (isRegistered == false) {
+			return showMessageWithRedirect("게시글 등록에 실패하였습니다.", "/board/list.do", Method.GET, pagingParams, model);
+		}
+	} catch (DataAccessException e) {
+		return showMessageWithRedirect("데이터베이스 처리 과정에 문제가 발생하였습니다.", "/board/list.do", Method.GET, pagingParams, model);
+
+	} catch (Exception e) {
+		return showMessageWithRedirect("시스템에 문제가 발생하였습니다.", "/board/list.do", Method.GET, pagingParams, model);
+	}
+
+	return showMessageWithRedirect("게시글 등록이 완료되었습니다.", "/board/list.do", Method.GET, pagingParams, model);
+}
+```
+</details>
+</br>
+	
+---
+### 22. 파일이 포함되어 있는 게시글 수정
+**1) Service 영역의 변경**   
+ㆍ 데이터베이스에 등록된 파일 목록을 View 영역으로 전달해야 하기 때문에 파일 리스트를 조회하는 메서드 추가가 필요하다.   
+ㆍ BoardService 인터페이스에 아래 코드와 같이 getFileList 메서드를 추가한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public List<FileDTO> getFileList(Long boardIdx);
+```
+</details>
+	
+ㆍ 다음으로, BoardServiceImpl 클래스에 아래 코드와 같이 getFileList 메소드를 구현한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Override
+public List<AttachDTO> getAttachFileList(Long boardIdx) {
+
+	int fileTotalCount = attachMapper.selectAttachTotalCount(boardIdx);
+	
+	if (fileTotalCount < 1) {
+		return Collections.emptyList();
+	}
+	return attachMapper.selectAttachList(boardIdx);
+}
+```
+</details>
+</br>	
+
+**2) Controller 영역의 변경**   
+ㆍ 앞서 BoardService에 추가한 getFileList 메서드의 호출 결과를 View 영역으로 전달하기 위해 컨트롤러 영역의 변경이 필요하다.   
+ㆍ BoardController의 openBoardWrite 메서드를 다음과 같이 변경한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@GetMapping(value = "/board/write.do")
+public String openBoardWrite(@ModelAttribute("params") BoardDTO params, @RequestParam(value = "idx", required = false) Long idx, Model model) {
+	
+	if (idx == null) {
+		model.addAttribute("board", new BoardDTO());
+	} else {
+		BoardDTO board = boardService.getBoardDetail(idx);
+	
+		if (board == null || "Y".equals(board.getDeleteYn())) {
+			return showMessageWithRedirect("없는 게시글이거나 이미 삭제된 게시글입니다.", "/board/list.do", Method.GET, null, model);
+		}
+	
+		model.addAttribute("board", board);
+
+		List<FileDTO> fileList = boardService.getFileList(idx);
+		model.addAttribute("fileList", fileList);
+	}
+
+	return "board/write";
+}
+```
+</details>
+	
+**3) DTO 수정**   
+ㆍ BoardDTO 클래스에 아래 코드와 같이 changeYn과 fileIdxs 멤버 변수를 추가한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Getter
+@Setter
+public class BoardDTO extends CommonDTO {
+
+	private Long idx;
+
+	private String title;
+
+	private String content;
+
+	private String writer;
+
+	private int viewCnt;
+
+	private String noticeYn;
+
+	private String secretYn;
+
+	private String changeYn;
+
+	private List<Long> fileIdxs;
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|changeYn|파일의 추가, 삭제, 변경이 일어났을 때 특정 로직을 실행하기 위한 변수|
+|fileIdxs|파일의 추가, 삭제, 변경이 일어났을 때 기존에 등록되어 있던 파일의 번호(PK)를 의미|
+</br>
+
+**3) Mapper 영역의 변경**   
+ㆍ 게시글을 삭제 취소 처리하는 메서드와 SQL 문을 정의할 필요가 있다.   
+ㆍ FileMapper 인터페이스에 아래의 메서드를 추가한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public int undeleteFile(List<Long> idxs);
+```
+</details>
+	
+ㆍ FileMapper XML에 아래의 SQL 문을 추가한다.   
+ㆍ 아래의 SQL 문은 IN 쿼리에 포함된 파일 번호를 가진 파일의 삭제를 취소하는 SQL 문이다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```sql
+<update id="undeleteFile" parameterType="list">
+	UPDATE tb_file
+	SET
+		delete_yn = 'N'
+	WHERE
+		idx IN
+	<foreach collection="list" item="item" separator="," open="(" close=")">
+		#{item}
+	</foreach>
+</update>
+```
+</details>
+</br>
+	
+**4) Service 영역의 변경**   
+ㆍ BoardServiceImpl 클래스의 registerBoard 메서드를 아래의 코드와 같이 변경해준다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Override
+public boolean registerBoard(BoardDTO params) {
+
+	int queryResult = 0;
+
+	if (params.getIdx() == null) {
+		queryResult = boardMapper.insertBoard(params);
+	} else {
+		queryResult = boardMapper.updateBoard(params);
+
+		if ("Y".equals(params.getChangeYn())) {
+			fileMapper.deleteFile(params.getIdx());
+
+			if (CollectionUtils.isEmpty(params.getFileIdxs()) == false) {
+				fileMapper.undeleteFile(params.getFileIdxs());
+			}
+		}
+	}
+
+	return (queryResult > 0);
+}
+```
+</details>
+
+|구성 요소|설명|
+|---|---|
+|"Y".equals(params.getChangeYn( ))|게시글이 수정되는 시점에서 파일이 추가, 삭제 변경되었으면 기존의 파일을 모두 삭제 처리한다.|
+|CollectionUtils.isEmpty(params.getFileIdxs( )) == false|1. 기존에 특정 게시글에 포함되어 있던 파일이 유지되는 경우를 의미한다.</br>2. 예를 들어, 특정 게시글에 A, B, C 3개의 파일이 등록 되어 있던 상태에서, B와 C를 삭제한다고 가정한다. 이때, 3개의 파일을 모두 삭제한 후 삭제하지 않은 파일인 A 파일만 삭제 취소 처리한다.|
+</br>
+	

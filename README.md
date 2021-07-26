@@ -5,15 +5,23 @@
 3. [프로젝트 구조](#3-프로젝트-구조)
 4. [MySQL 연동](#4-mysql-연동)
 5. [게시글 CRUD 처리](#5-게시글-crud-처리)
-6. [게시글 등록(수정) 구현](#6-게시글-등록수정-구현)
-7. [게시글 리스트 구현](#7-게시글-리스트-구현)
-8. [게시글 조회 구현](#8-게시글-조회-구현)
-9. [게시글 삭제 구현](#9-게시글-삭제-구현)
+6. [게시글 등록(수정)](#6-게시글-등록수정)
+7. [게시글 리스트 조회](#7-게시글-리스트-조회)
+8. [특정 게시글 조회](#8-특정-게시글-조회)
+9. [특정 게시글 삭제](#9-특정-게시글-삭제)
 10. [경고 메시지 처리](#10-경고-메시지-처리)
 11. [인터셉터 적용](#11-인터셉터-적용)
 12. [AOP 적용](#12-aop-적용)
 13. [트랜잭션 적용](#13-트랜잭션-적용)
 14. [페이징 처리](#14-페이징-처리)
+15. [검색 처리](#15-검색-처리)
+16. [REST 방식을 이용한 댓글 CRUD 처리](#16-rest-방식을-이용한-댓글-crud-처리)
+17. [댓글 리스트 조회](#17-댓글-리스트-조회)
+18. [댓글 등록(수정)](#18-댓글-등록수정)
+19. [특정 댓글 삭제](#19-특정-댓글-삭제)
+20. [파일 업로드](#20-파일-업로드)
+21. [파일을 포함한 특정 게시글의 수정](#21-파일을-포함한-특정-게시글의-수정)
+22. [파일 다운로드](#22-파일-다운로드)
 
 ---
 ### 1. 프로젝트 이름
@@ -49,12 +57,12 @@
 </br>
 
 **1) src/main/java 디렉터리**   
-ㆍ 클래스, 인터페이스 등 자바 파일이 위치하는 디렉터리   
+ㆍ 클래스, 인터페이스 등 자바 파일이 위치하는 디렉터리이다.   
 </br>
 
 **2) BoardApplication 클래스**   
-ㆍ 해당 클래스 내의 main 메서드는 SpringApplication.run 메서드를 호출해서 웹 애플리케이션을 실행하는 역할을 함   
-ㆍ "@SpringBootApplication"은 다음 3가지 애너테이션으로 구성   
+ㆍ 해당 클래스 내의 main 메서드는 SpringApplication.run 메서드를 호출해서 웹 애플리케이션을 실행하는 역할을 한다.   
+ㆍ "@SpringBootApplication"은 다음 3가지 애너테이션으로 구성된다.   
 |구성 요소|설명|
 |---|---|
 |@EnableAutoConfiguration|다양한 설정들의 일부가 자동으로 완료됨|
@@ -71,19 +79,19 @@
 </br>
 
 **4) src/test/java 디렉터리**   
-ㆍ BoardApplicationTest 클래스를 이용해서 개발 단계에 따라 테스트를 진행할 수 있음   
+ㆍ BoardApplicationTest 클래스를 이용해서 개발 단계에 따라 테스트를 진행할 수 있다.   
 </br>
 
 **5) build.gradle 파일**   
-ㆍ 빌드에 사용이 될 애플리케이션의 버전, 각종 라이브러리 등 다양한 항목을 설정하고 관리할 수 있는 파일   
+ㆍ 빌드에 사용이 될 애플리케이션의 버전, 각종 라이브러리 등 다양한 항목을 설정하고 관리할 수 있는 파일이다.   
 </br>
 
 ---
 ### 4. MySQL 연동
 **1) 데이터 소스 설정**   
-ㆍ 스프링 부트에서 데이터 소스 설정 방법은 두 가지가 존재   
-ㆍ "@Bean" 애너테이션 또는 "application.properties" 파일 이용 가능 (이번 프로젝트에서는 후자의 방법을 사용)   
-ㆍ src/main/resources 디렉터리의 application.properties 파일에 아래 코드를 입력
+ㆍ 스프링 부트에서는 데이터 소스 설정 방법이 두 가지가 존재한다.   
+ㆍ "@Bean" 애너테이션 또는 "application.properties" 파일을 이용한 방법이 존재한다.(이번 프로젝트에서는 후자의 방법을 사용)   
+ㆍ src/main/resources 경로의 application.properties 파일에 아래 코드를 입력한다.   
 <details>
     <summary><b>코드 보기</b></summary>
 
@@ -105,7 +113,7 @@ spring.datasource.hikari.connection-test-query=SELECT NOW() FROM dual
 </br>
 
 **2) 데이터베이스 설정**   
-ㆍ configuration 패키지 내 DBConfiguration 클래스를 통해 데이터베이스 설정 완료
+ㆍ src/main/java 경로의 configuration 패키지 내 DBConfiguration 클래스를 통해 데이터베이스 설정을 완료한다.   
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -162,8 +170,8 @@ public class DBConfiguration {
 ---
 ### 5. 게시글 CRUD 처리
 **1) 게시판 테이블 생성**   
-ㆍ 게시판 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것   
-ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행
+ㆍ 게시판 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것이다.   
+ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행한다.
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -187,9 +195,9 @@ CREATE TABLE tb_board (
 </br>
 
 **2) 도메인 클래스 생성**   
-ㆍ 도메인 클래스는 위에서 생성한 게시판 테이블에 대한 구조화 역할을 하는 클래스   
-ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송을 의미하는 xxxDTO로 이름을 지음   
-ㆍ domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성
+ㆍ 도메인 클래스는 위에서 생성한 게시판 테이블에 대한 구조화 역할을 하는 클래스이다.   
+ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송을 의미하는 xxxDTO로 이름을 작성한다.   
+ㆍ domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성한다.
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -225,8 +233,8 @@ public class BoardDTO {
 </br>
 
 **3) Mapper 인터페이스 생성**      
-ㆍ Mapper 인터페이스는 데이터베이스와 통신 역할을 함   
-ㆍ mapper 패키지에 BoardMapper 인터페이스를 생성하고 아래 코드를 작성
+ㆍ Mapper 인터페이스는 데이터베이스와 통신 역할을 한다.   
+ㆍ src/main/java 경로의 mapper 패키지에 BoardMapper 인터페이스를 생성하고 아래 코드를 작성한다.
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -261,9 +269,9 @@ public interface BoardMapper {
 </br>
 
 **4) 마이바티스 XML Mapper 생성**   
-ㆍ XML Mapper는 BoardMapper 인터페이스와 SQL문의 연결을 위한 역할을 하며, 실제 SQL 쿼리 문이 정의됨     
-ㆍ src/main/resources 디렉터리에 mappers 폴더 생성 후 BoardMapper.xml 파일을 추가   
-ㆍ BoardMapper.xml 파일에 아래에 소스코드를 작성
+ㆍ XML Mapper는 BoardMapper 인터페이스와 SQL문의 연결을 위한 역할을 하며, 실제 SQL 쿼리 문이 정의된다.   
+ㆍ src/main/resources 디렉터리에 mappers 폴더 생성 후 BoardMapper.xml 파일을 추가한다.   
+ㆍ BoardMapper.xml 파일에 아래에 소스코드를 작성한다.
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -375,9 +383,9 @@ public interface BoardMapper {
 </br>
 
 **5) 마이바티스 SELECT 컬럼과 DTO 멤버 변수의 매핑**   
-ㆍ BoardMapper.xml의 boardColumns SQL 조각은 스네이크 케이스를 사용하고 있고, BoardDTO 클래스의 멤버 변수는 카멜 케이스를 사용   
-ㆍ 서로 다른 표현식의 사용은 추가 설정을 통해 자동으로 매칭이 되도록 처리가 가능   
-ㆍ application.properties 파일 하단에 아래 설정을 추가
+ㆍ BoardMapper.xml의 boardColumns SQL 조각은 스네이크 케이스를 사용하고 있고, BoardDTO 클래스의 멤버 변수는 카멜 케이스를 사용하고 있다.   
+ㆍ 서로 다른 표현식의 사용은 추가 설정을 통해 자동으로 매칭이 되도록 처리가 가능하다.   
+ㆍ application.properties 파일 하단에 아래 설정을 추가한다.
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -388,8 +396,8 @@ mybatis.configuration.map-underscore-to-camel-case=true
 </br>
 
 **6) DBConfiguration 클래스 처리**   
-ㆍ application.properies 파일에 마이바티스 설정을 추가하였으니, 해당 설정을 처리할 빈을 정의해야 함   
-ㆍ DBConfiguration 클래스에 아래 코드를 추가
+ㆍ application.properies 파일에 마이바티스 설정을 추가하였으니, 해당 설정을 처리할 빈을 정의해야 한다.   
+ㆍ DBConfiguration 클래스에 아래 코드를 추가한다.
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -444,10 +452,10 @@ public class DBConfiguration {
 </br>
 
 ---
-### 6. 게시글 등록(수정) 구현
+### 6. 게시글 등록(수정)
 **1) Service 영역**   
-ㆍ Service 영역은 비즈니스 로직을 담당   
-ㆍ service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성   
+ㆍ Service 영역은 비즈니스 로직을 담당한다.   
+ㆍ src/main/java 경로의 service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -465,9 +473,9 @@ public interface BoardService {
 ```
 </details>
 	
-ㆍ service 패키지에 BoardServiceImpl 클래스 생성   
-ㆍ BoardServiceImpl 클래스는 BoardService 인터페이스의 구현 클래스 역할을 함   
-ㆍ BoardServiceImpl 클래스에 아래 코드를 작성   
+ㆍ src/main/java 경로의 service 패키지에 BoardServiceImpl 클래스 생성한다.   
+ㆍ BoardServiceImpl 클래스는 BoardService 인터페이스의 구현 클래스 역할을 한다.   
+ㆍ BoardServiceImpl 클래스에 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -535,8 +543,8 @@ public class BoardServiceImpl implements BoardService {
 </br>
 
 **2) Controller 영역**   
-ㆍ Controller 영역은 Model 영역과 View 영역을 연결해주고, 사용자의 요청과 응답을 처리해 줌   
-ㆍ controller 패키지에 BoardController 클래스를 생성하고 아래에 코드를 작성
+ㆍ Controller 영역은 Model 영역과 View 영역을 연결해주고, 사용자의 요청과 응답을 처리해 준다.   
+ㆍ src/main/java 경로의 controller 패키지에 BoardController 클래스를 생성하고 아래에 코드를 작성한다.
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -593,10 +601,10 @@ public class BoardController {
 </br>
 
 ---
-### 7. 게시글 리스트 구현
+### 7. 게시글 리스트 조회
 **1) Controller 영역**   
-ㆍ 게시글 목록을 보여줄 리스트 페이지에 대한 Controller 영역의 처리가 필요   
-ㆍ BoardController 클래스에 아래의 코드를 작성   
+ㆍ 게시글 목록을 보여줄 리스트 페이지에 대한 Controller 영역의 처리가 필요하다.   
+ㆍ BoardController 클래스에 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -617,10 +625,10 @@ public String openBoardList(Model model) {
 </br>
 
 ---
-### 8. 게시글 조회 구현
+### 8. 특정 게시글 조회
 **1) Controller 영역**   
-ㆍ 특정 게시물을 조회해 출력해 주는 Controller 영역의 처리가 필요   
-ㆍ BoardController 클래스에 아래의 코드를 작성
+ㆍ 특정 게시물을 조회해 출력해 주는 Controller 영역의 처리가 필요하다.   
+ㆍ BoardController 클래스에 아래의 코드를 작성한다.
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -650,10 +658,10 @@ public String openBoardDetail(@RequestParam(value = "idx", required = false) Lon
 </br>
 	
 ---
-### 9. 게시글 삭제 구현
+### 9. 특정 게시글 삭제
 **1) Controller 영역**   
-ㆍ 특정 게시물을 삭제해 주는 Controller 영역의 처리가 필요   
-ㆍ BoardController 클래스에 아래의 코드를 작성   
+ㆍ 특정 게시물을 삭제해 주는 Controller 영역의 처리가 필요하다.   
+ㆍ BoardController 클래스에 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -688,8 +696,8 @@ public String deleteBoard(@RequestParam(value = "idx", required = false) Long id
 ---
 ### 10. 경고 메시지 처리
 **1) Enum 클래스**   
-ㆍ constatnt 패키지를 추가한 후, Method라는 이름으로 다음의 Enum 클래스를 추가   
-ㆍ Enum 클래스는 상수를 처리하는 목적으로 사용  
+ㆍ src/main/java 경로에 constatnt 패키지를 추가한 후, Method라는 이름으로 다음의 Enum 클래스를 추가한다.   
+ㆍ Enum 클래스는 상수를 처리하는 목적으로 사용된다.  
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -702,8 +710,8 @@ public enum Method {
 </br>
 
 **2) 공통 컨트롤러 생성**   
-ㆍ util 패키지를 생성한 후 UiUtils 클래스를 추가   
-ㆍ UiUtils 클래스에 아래 코드를 작성   
+ㆍ src/main/java 경로의 util 패키지를 생성한 후 UiUtils 클래스를 추가한다.   
+ㆍ UiUtils 클래스에 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -737,9 +745,9 @@ public class UiUtils {
 </br>
 
 **3) BoardController 변경**   
-ㆍ BoardController에 사용자에게 출력할 메시지에 대한 처리 필요   
-ㆍ BoardController는 UiUtils 클래스를 상속 받음   
-ㆍ 경고 메시지에 대한 주석 처리 부분에 아래 코드 추가   
+ㆍ BoardController 클래스에 사용자에게 출력할 메시지에 대한 처리 필요하다.   
+ㆍ BoardController 클래스는 UiUtils 클래스를 상속 받는다.   
+ㆍ 경고 메시지에 대한 주석 처리 부분에 아래 코드 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -835,15 +843,15 @@ public class BoardController extends UiUtils {
 ---
 ### 11. 인터셉터 적용
 **1) 인터셉터란?**   
-ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다." 라는 의미가 있음   
-ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용   
-ㆍ 예를 들어, 특정 페이지에 접근할 때 로그인이나 계정의 권한과 관련된 처리를 인터셉터를 통해 효율적으로 해결 가능   
+ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다." 라는 의미가 있다.   
+ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용한다.   
+ㆍ 예를 들어, 특정 페이지에 접근할 때 로그인이나 계정의 권한과 관련된 처리를 인터셉터를 통해 효율적으로 해결 가능하다.   
 </br>
 
 **2) 인터셉터 구현**   
-ㆍ 스프링에서 인터셉터는 "HandlerInterceptor" 인터페이스를 상속받아 구현할 수 있음   
-ㆍ 해당 인터페이스는 preHandle, postHandle, afterCompletion, afterConcurrentHandlingStarted 총 네 개의 메서드를 포함   
-ㆍ interceptor 패키지에 LoggerInterceptor 클래스를 추가한 후 다음의 코드를 작성   
+ㆍ 스프링에서 인터셉터는 "HandlerInterceptor" 인터페이스를 상속받아 구현할 수 있다.   
+ㆍ 해당 인터페이스는 preHandle, postHandle, afterCompletion, afterConcurrentHandlingStarted 총 네 개의 메서드를 포함하고 있다.   
+ㆍ src/main/java 경로의 interceptor 패키지에 LoggerInterceptor 클래스를 추가한 후 다음의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -876,7 +884,7 @@ public class LoggerInterceptor implements HandlerInterceptor {
 </br>
 
 **3)LoggerInterceptor 클래스를 빈으로 등록**   
-ㆍ configuration 패키지에 MvcConfiguration 클래스를 생성 후, 아래 코드를 작성   
+ㆍ src/main/java 경로의 configuration 패키지에 MvcConfiguration 클래스를 생성 후, 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -902,19 +910,19 @@ public class MvcConfiguration implements WebMvcConfigurer {
 ---
 ### 12. AOP 적용
 **1) AOP란?**   
-ㆍ AOP는 Aspect Oriented Programming의 약자   
-ㆍ 관점 지향 프로그래밍으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와줌   
-ㆍ 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 로그 출력, 보안 처리, 예외 처리와 같은 코드를 별도로 분리하는 모듈화의 개념   
-ㆍ AOP에서 관점을 핵심적인 관점과 부가적인 관점으로 나눌 수 있음   
-ㆍ 핵심적인 관점은 핵심 비즈니스 로직을 의미하고, 부가적인 관점은 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 부분을 의미   
+ㆍ AOP는 Aspect Oriented Programming의 약자이다.   
+ㆍ 관점 지향 프로그래밍으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와준다.   
+ㆍ 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 로그 출력, 보안 처리, 예외 처리와 같은 코드를 별도로 분리하는 모듈화의 개념이다.   
+ㆍ AOP에서 관점을 핵심적인 관점과 부가적인 관점으로 나눌 수 있다.   
+ㆍ 핵심적인 관점은 핵심 비즈니스 로직을 의미하고, 부가적인 관점은 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 부분을 의미한다.   
 <img src="https://blog.kakaocdn.net/dn/pD57t/btqDLEZKQib/1KOdMZKJgFY06WMwxNydkk/img.png" width="50%">   
-ㆍ 위 사진은 일반적인 객체 지향 프로그래밍의 동작과정을 보여줌   
-ㆍ 각각의 화살표는 하나의 기능을 구현하는 데 필요한 작업을 의미   
-ㆍ 로그 출력, 보안 처리와 같은 부가적인 기능들이 각각의 작업에 추가됨으로써 코드가 복잡해지고, 생산성이 낮아짐   
+ㆍ 위 사진은 일반적인 객체 지향 프로그래밍의 동작과정을 보여준다.   
+ㆍ 각각의 화살표는 하나의 기능을 구현하는 데 필요한 작업을 의미한다.   
+ㆍ 로그 출력, 보안 처리와 같은 부가적인 기능들이 각각의 작업에 추가됨으로써 코드가 복잡해지고, 생산성이 낮아진다.   
 <img src="https://blog.kakaocdn.net/dn/DWbbY/btqGfN6LnPh/DVVAcqmplI6UEqZVjkhnyK/img.png" width="50%">   
-ㆍ 위 사진은 관점 지향 프로그래밍의 동작과정을 보여줌   
-ㆍ 객체 지향 프로그래밍과 달리 부가적인 기능들이 핵심 비즈니스 로직 바깥에서 동작   
-ㆍ 이와 같이 공통으로 처리해야하는 기능들을 별도로 분리하여 중복되는 코드를 제거하고, 재사용성을 극대화 할 수 있음   
+ㆍ 위 사진은 관점 지향 프로그래밍의 동작과정을 보여준다.   
+ㆍ 객체 지향 프로그래밍과 달리 부가적인 기능들이 핵심 비즈니스 로직 바깥에서 동작한다.   
+ㆍ 이와 같이 공통으로 처리해야하는 기능들을 별도로 분리하여 중복되는 코드를 제거하고, 재사용성을 극대화 할 수 있다.   
 </br>
 
 **2) AOP 용어**   
@@ -931,7 +939,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 </br>
 
 **3) AOP 구현**   
-ㆍ aop 패키지를 추가하고 LoggerAspect 클래스 생성 후 아래 코드를 작성   
+ㆍ src/main/java 경로에 aop 패키지를 추가하고 LoggerAspect 클래스 생성 후 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -977,10 +985,10 @@ public class LoggerAspect {
 ---
 ### 13. 트랜잭션 적용
 **1) 트랜잭션이란?**   
-ㆍ 트랜잭션은 일련의 작업들이 모두 하나의 논리적 작업으로 취급되는 것을 말함   
-ㆍ 즉, 하나의 작업에 여러 개의 작업이 같이 묶여 있는 것   
-ㆍ 논리적 작업을 취소하게 되면, 내부에 포함된 일련의 작업들이 모두 취소됨   
-ㆍ 이렇게 함으로써 데이터의 무결성을 보장할 수 있음   
+ㆍ 트랜잭션은 일련의 작업들이 모두 하나의 논리적 작업으로 취급되는 것을 말한다.   
+ㆍ 즉, 하나의 작업에 여러 개의 작업이 같이 묶여 있는 것이다.   
+ㆍ 논리적 작업을 취소하게 되면, 내부에 포함된 일련의 작업들이 모두 취소된다.   
+ㆍ 이렇게 함으로써 데이터의 무결성을 보장할 수 있다.   
 </br>
 
 **2) 트랜잭션의 기본 원칙**   
@@ -993,9 +1001,9 @@ public class LoggerAspect {
 </br>
 
 **3) 트랜잭션 설정**   
-ㆍ 트랜잭션 설정 방법은 XML 설정, 애너테이션 설정, AOP 설정으로 나눌 수 있음   
-ㆍ 이번 프로젝트에서는 AOP 설정을 사용   
-ㆍ DBConfiguration 클래스에 아래 사진에 표시된 코드를 작성   
+ㆍ 트랜잭션 설정 방법은 XML 설정, 애너테이션 설정, AOP 설정으로 나눌 수 있다.   
+ㆍ 이번 프로젝트에서는 AOP 설정을 사용한다.   
+ㆍ DBConfiguration 클래스에 아래 사진에 표시된 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	<img src="https://user-images.githubusercontent.com/61148914/125553148-f61516e3-564b-4cd8-8fa0-a4a9f993016a.png" width="60%">
@@ -1008,7 +1016,7 @@ public class LoggerAspect {
 </br>
 
 **4) 트랜잭션 구현**   
-ㆍ aop 패키지에 TransactionAspect 클래스를 추가하고 아래 코드를 작성   
+ㆍ src/main/java 경로의 aop 패키지에 TransactionAspect 클래스를 추가하고 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1057,11 +1065,11 @@ public class TransactionAspect {
 ---
 ### 14. 페이징 처리
 **1) 페이징이란?**   
-ㆍ 사용자가 어떠한 데이터를 필요로 할 때 전체 데이터 중 일부를 보여주는 방식   
+ㆍ 사용자가 어떠한 데이터를 필요로 할 때 전체 데이터 중 일부를 보여주는 방식이다.   
 </br>
 
 **2) 공통 페이징 파라미터 치리용 클래스 생성**   
-ㆍ paging 패키지를 추가하고, Criteria 클래스를 생성한 후 아래 코드를 작성   
+ㆍ src/main/java 경로에 paging 패키지를 추가하고, Criteria 클래스를 생성한 후 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1103,7 +1111,7 @@ public class Criteria {
 </br>
 
 **3) Mapper 인터페이스와 XML의 변경**   
-ㆍ BoardMapper 인터페이스의 selectBoardList와 selectBoardTotalCount 메서드를 아래에 코드처럼 변경   
+ㆍ BoardMapper 인터페이스의 selectBoardList와 selectBoardTotalCount 메서드를 아래에 코드처럼 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1126,7 +1134,7 @@ public interface BoardMapper {
 ```
 </details>
 	
-ㆍ BoardMapper XML 파일의 selectBoardList와 selectBoardTotalCount 쿼리를 아래 코드처럼 변경   
+ㆍ BoardMapper XML 파일의 selectBoardList와 selectBoardTotalCount 쿼리를 아래 코드처럼 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1165,8 +1173,8 @@ public interface BoardMapper {
 </br>
 
 **4) Service 영역의 변경**   
-ㆍ BoardMapper 인터페이스의 메서드가 변경되었기 때문에 서비스 영역도 수정 작업이 필요   
-ㆍ BoardService 인터페이스의 getBoardList 메서드를 아래 코드와 같이 변경   
+ㆍ BoardMapper 인터페이스의 메서드가 변경되었기 때문에 서비스 영역도 수정 작업이 필요하다.   
+ㆍ BoardService 인터페이스의 getBoardList 메서드를 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1184,7 +1192,7 @@ public interface BoardService {
 ```
 </details>
 
-ㆍ BoardServiceImpl 클래스의 getBoardList 메서드 또한 아래 코드와 같이 변경   
+ㆍ BoardServiceImpl 클래스의 getBoardList 메서드 또한 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1206,7 +1214,7 @@ public List<BoardDTO> getBoardList(Criteria criteria) {
 </br>
 
 **5) Controller 영역의 변경**   
-ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경   
+ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1227,15 +1235,15 @@ public String openBoardList(@ModelAttribute("criteria") Criteria criteria, Model
 </br>
 	
 **6) DBConfiguration 변경**   
-ㆍ 현재는 sqlSessionFactory 빈의 setTypeAliasesPackage가 "com.Board.domain" 으로 지정   
-ㆍ 따라서 BoardMapper XML 파일에서 파라미터 타입으로 지정한 Criteria를 인식하지 못하는 문제가 발생   
-ㆍ setTypeAliasesPackage를 아래 사진과 같이 "com.Board.*"로 변경   
+ㆍ 현재는 sqlSessionFactory 빈의 setTypeAliasesPackage가 "com.Board.domain" 으로 지정되어 있다.   
+ㆍ 따라서 BoardMapper XML 파일에서 파라미터 타입으로 지정한 Criteria를 인식하지 못하는 문제가 발생한다.   
+ㆍ setTypeAliasesPackage를 아래 사진과 같이 "com.Board.*"로 변경한다.   
 <img src="https://user-images.githubusercontent.com/61148914/126029263-ef03b35d-b6c0-4132-8493-c2fca750e0f3.png" width="60%">   
 </br>
 
 **7) 페이징 정보 계산용 클래스 생성**   
-ㆍ 전체 데이터의 개수를 기준으로 화면 하단에 페이지 개수를 계산하는 용도의 클래스 필요   
-ㆍ paging 패키지 안에 PaginationInfo 클래스를 추가하고, 아래의 코드를 작성
+ㆍ 전체 데이터의 개수를 기준으로 화면 하단에 페이지 개수를 계산하는 용도의 클래스 필요하다.   
+ㆍ paging 패키지 안에 PaginationInfo 클래스를 추가하고, 아래의 코드를 작성한다.
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1326,10 +1334,10 @@ public class PaginationInfo {
 </br>
 
 **8) 전체 영역의 변경**   
-ㆍ 이제까지, 게시글 리스트를 호출하는 모든 메서드를 Controller부터 Mapper 영역까지 모두 Criteria 클래스를 파라미터로 받도록 처리하였음   
-ㆍ 위 과정처럼 Controller 영역에서 페이징 정보와 같은 비즈니스 로직을 처리하는 것은 문제가 있음 (Controller 영역은 Service 영역에서 가공한 데이터를 View 영역으로 전달하는 작업만을 해야하기 때문)   
-ㆍ 따라서, Service 영역에서 페이징 정보를 계산할 수 있도록 처리해 줘야 함   
-ㆍ domain 패키지에 CommonDTO 클래스를 추가하고 아래 코드를 작성   
+ㆍ 이제까지, 게시글 리스트를 호출하는 모든 메서드를 Controller부터 Mapper 영역까지 모두 Criteria 클래스를 파라미터로 받도록 처리하였다.   
+ㆍ 위 과정처럼 Controller 영역에서 페이징 정보와 같은 비즈니스 로직을 처리하는 것은 문제가 있다. (Controller 영역은 Service 영역에서 가공한 데이터를 View 영역으로 전달하는 작업만을 해야하기 때문)   
+ㆍ 따라서, Service 영역에서 페이징 정보를 계산할 수 있도록 처리해 줘야 한다.   
+ㆍ domain 패키지에 CommonDTO 클래스를 추가하고 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1351,8 +1359,8 @@ public class CommonDTO extends Criteria {
 ```
 </details>
 
-ㆍ 다음으로 BoardDTO 클래스가 CommonDTO 클래스를 상속받도록 아래 코드와 같이 변경   
-ㆍ 공통 멤버 변수는 CommonDTO에 추가되었기 때문에 BoardDTO 클래스에서는 제거됨   
+ㆍ 다음으로 BoardDTO 클래스가 CommonDTO 클래스를 상속받도록 아래 코드와 같이 변경한다.   
+ㆍ 공통 멤버 변수는 CommonDTO에 추가되었기 때문에 BoardDTO 클래스에서는 제거된다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1378,7 +1386,7 @@ public class BoardDTO extends CommonDTO {
 ```
 </details>
 
-ㆍ BoardMapper 인터페이스에서 selectBoardList, selectBoardTotalCount 메서드가 BoardDTO 클래스를 파라미터로 받도록 아래 코드와 같이 변경   
+ㆍ BoardMapper 인터페이스에서 selectBoardList, selectBoardTotalCount 메서드가 BoardDTO 클래스를 파라미터로 받도록 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1401,7 +1409,7 @@ public interface BoardMapper {
 ```
 </details>
 
-ㆍ BoardMapper XML의 selectBoardList와 selectBoardTotalCount 쿼리를 아래 코드와 같이 변경   
+ㆍ BoardMapper XML의 selectBoardList와 selectBoardTotalCount 쿼리를 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1432,7 +1440,7 @@ public interface BoardMapper {
 ```
 </details>
 	
-ㆍ BoardService 인터페이스 중 getBoardList 메서드의 파라미터를 BoardDTO 클래스로 받을 수 있도록 아래 코드와 같이 변경   
+ㆍ BoardService 인터페이스 중 getBoardList 메서드의 파라미터를 BoardDTO 클래스로 받을 수 있도록 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1450,8 +1458,8 @@ public interface BoardService {
 ```
 </details>
 	
-ㆍ BoardServiceImpl 클래스의 getBoardList 메서드를 다음 코드와 같이 변경   
-ㆍ Controller 영역에서 PaginationInfo 객체를 처리하지 않고 Service 영역에서 처리하도록 하는 방식   
+ㆍ BoardServiceImpl 클래스의 getBoardList 메서드를 다음 코드와 같이 변경한다.   
+ㆍ Controller 영역에서 PaginationInfo 객체를 처리하지 않고 Service 영역에서 처리하도록 하는 방식이다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1476,8 +1484,8 @@ public List<BoardDTO> getBoardList(BoardDTO params) {
 ```
 </details>
 	
-ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경   
-ㆍ Controller 영역은 단순히 View 영역으로 데이터를 전달하는 역할만 하도록 설정   
+ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경한다.   
+ㆍ Controller 영역은 단순히 View 영역으로 데이터를 전달하는 역할만 하도록 설정한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1492,7 +1500,7 @@ public String openBoardList(@ModelAttribute("params") BoardDTO params, Model mod
 ```
 </details>
 	
-ㆍ 마지막으로 Criteria 클래스에 아래 코드와 같이 makeQueryString 메서드를 추가   
+ㆍ 마지막으로 Criteria 클래스에 아래 코드와 같이 makeQueryString 메서드를 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1542,8 +1550,8 @@ public class Criteria {
 ---
 ### 15. 검색 처리
 **1) 공통 Mapper XML 생성**   
-ㆍ 검색 기능은 공통으로 사용되는 기능이기 때문에 하나의 Mapper XML에 검색을 처리하는 SQL 문을 선언하고 사용하는 것이 좋음   
-ㆍ src/main/resources 디렉터리의 mappers 폴더에 CommonMapper.xml 파일을 추가하고 아래의 코드를 작성   
+ㆍ 검색 기능은 공통으로 사용되는 기능이기 때문에 하나의 Mapper XML에 검색을 처리하는 SQL 문을 선언하고 사용하는 것이 좋다.   
+ㆍ src/main/resources 경로의 mappers 폴더에 CommonMapper.xml 파일을 추가하고 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1561,10 +1569,10 @@ public class Criteria {
 
 	<!-- MySQL 검색 -->
 	<sql id="search">
-		<!-- 검색 키워드가 있을 때 -->
+		<!-- 검색 키워드가 있을 경우 -->
 		<if test="searchKeyword != null and searchKeyword != ''">
 			<choose>
-				<!-- 검색 유형이 있을 때 -->
+				<!-- 검색 유형이 있을 경우 -->
 				<when test="searchType != null and searchType != ''">
 					<choose>
 						<when test="'title'.equals(searchType)">
@@ -1578,7 +1586,7 @@ public class Criteria {
 						</when>
 					</choose>
 				</when>
-				<!-- 검색 유형이 없을 때 -->
+				<!-- 검색 유형이 없을 경우 -->
 				<otherwise>
 					AND
 						(
@@ -1602,8 +1610,8 @@ public class Criteria {
 </br>
 	
 **2) BoardMapper XML 변경**   
-ㆍ 기존의 BoardMapper XML 파일을 위에서 작성한 CommonMapper XML의 SQL 문을 인클루드 하는 형태로 변경할 필요가 있음   
-ㆍ BoardMapper XML의 selectBoardList, selectBoardTotalCount를 아래 코드와 같이 변경   
+ㆍ 기존의 BoardMapper XML 파일을 위에서 작성한 CommonMapper XML의 SQL 문을 인클루드 하는 형태로 변경할 필요가 있다.   
+ㆍ BoardMapper XML의 selectBoardList, selectBoardTotalCount를 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1637,16 +1645,16 @@ public class Criteria {
 </br>
 
 ---
-### 16. REST 방식으로 댓글 CRUD 처리   
+### 16. REST 방식을 이용한 댓글 CRUD 처리   
 **1) REST란?**   
-ㆍ REST는 Representational State Tranfer의 약자이고, 하나의 URI는 하나의 고유한 리소스를 대표하도록 설계된다는 개념   
-ㆍ 디바이스의 종류에 상관없이 공통으로 데이터를 처리할 수 있도록 하는 방식을 뜻함   
-ㆍ 지금까지의 게시판 구현 방식은 Controller 영역에서 비즈니스 로직을 호출하고 필요한 결과를 View 영역으로 전달한 다음 HTML 파일을 리턴해주는 방식으로 진행   
-ㆍ REST API를 이용하면 HTML 파일을 리턴해주는 방식이 아닌, 사용자가 필요로 하는 데이터만을 리턴해주는 방식으로 구현이 가능   
+ㆍ REST는 Representational State Tranfer의 약자이고, 하나의 URI는 하나의 고유한 리소스를 대표하도록 설계된다는 개념이다.   
+ㆍ 디바이스의 종류에 상관없이 공통으로 데이터를 처리할 수 있도록 하는 방식을 뜻한다.   
+ㆍ 지금까지의 게시판 구현 방식은 Controller 영역에서 비즈니스 로직을 호출하고 필요한 결과를 View 영역으로 전달한 다음 HTML 파일을 리턴해주는 방식으로 진행하였다.   
+ㆍ REST API를 이용하면 HTML 파일을 리턴해주는 방식이 아닌, 사용자가 필요로 하는 데이터만을 리턴해주는 방식으로 구현이 가능하다.   
 </br>
 
 **2) 댓글 테이블 생성**   
-ㆍ MySQL Workbench 내에서, 아래의 스크립트를 실행한 후 댓글 테이블을 생성   
+ㆍ MySQL Workbench 내에서, 아래의 스크립트를 실행한 후 댓글 테이블을 생성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1665,8 +1673,8 @@ CREATE TABLE tb_comment (
 ```
 </details>
 	
-ㆍ 특정 게시글에 댓글을 등록하거나, 등록된 댓글을 조회하기 위해서는 게시판 테이블의 게시글 번호(idx)와 댓글 테이블의 게시글 번호(board_idx)가 연결되어야 함   
-ㆍ MySQL Workbench 내에서, 아래의 스크립트를 실행한 후 게시판 테이블의 게시글 번호(idx)를 참조해서 댓글 테이블의 게시글 번호(board_idx)를 외래키로 지정하는 제약 조건을 추가   
+ㆍ 특정 게시글에 댓글을 등록하거나, 등록된 댓글을 조회하기 위해서는 게시판 테이블의 게시글 번호(idx)와 댓글 테이블의 게시글 번호(board_idx)가 연결되어야 한다.   
+ㆍ MySQL Workbench 내에서, 아래의 스크립트를 실행한 후 게시판 테이블의 게시글 번호(idx)를 참조해서 댓글 테이블의 게시글 번호(board_idx)를 외래키로 지정하는 제약 조건을 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1677,8 +1685,8 @@ alter table tb_comment add constraint fk_comment_board_idx foreign key (board_id
 </br>
 
 **3) 도메인 클래스 생성**   
-ㆍ 위에서 생성한 댓글 테이블의 구조화 역할을 하는 도메인 클래스가 필요   
-ㆍ domain 패키지 내에 CommentDTO 클래스를 추가하고, 아래의 코드를 작성   
+ㆍ 위에서 생성한 댓글 테이블의 구조화 역할을 하는 도메인 클래스가 필요하다.   
+ㆍ src/main/java 경로의 domain 패키지 내에 CommentDTO 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1707,8 +1715,8 @@ public class CommentDTO extends CommonDTO {
 </br>
 
 **4) Mapper 인터페이스 생성**   
-ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스의 생성 필요   
-ㆍ mapper 패키지에 CommentMapper 인터페이스를 생성하고, 아래의 코드를 작성   
+ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스의 생성이 필요하다.   
+ㆍ src/main/java 경로의 mapper 패키지에 CommentMapper 인터페이스를 생성하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1742,7 +1750,7 @@ public interface CommentMapper {
 </br>
 
 **5) 마이바티스 XML Mapper 생성**   
-ㆍ src/main/resources 디렉터리의 mappers 폴더에 CommentMapper XML을 추가하고, 아래에 코드를 작성   
+ㆍ src/main/resources 디렉터리의 mappers 폴더에 CommentMapper XML을 추가하고, 아래에 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1839,7 +1847,7 @@ public interface CommentMapper {
 </br>
 
 **6) Service 영역의 구현**   
-ㆍ service 패키지에 CommentService 인터페이스를 추가하고, 아래의 코드를 작성   
+ㆍ src/main/java 경로의 service 패키지에 CommentService 인터페이스를 추가하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1855,8 +1863,8 @@ public interface CommentService {
 ```
 </details>
 	
-ㆍ CommentService 인터페이스에 대한 구현 클래스가 필요   
-ㆍ service 패키지에 CommentServiceImpl 클래스를 추가하고, 아래의 코드를 작성   
+ㆍ CommentService 인터페이스에 대한 구현 클래스가 필요하다.   
+ㆍ src/main/java 경로의 service 패키지에 CommentServiceImpl 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1919,8 +1927,8 @@ public class CommentServiceImpl implements CommentService {
 </br>
 
 **7) Gson 라이브러리 추가**   
-ㆍ 컨트롤러 영역을 구현하기 전에 JSON과 자바 객체의 직렬화(자바 객체 → JSON), 역질렬화(JSON → 자바 객체)를 처리해주는 오픈 소스 자바 라이브러리인 Gson의 추가가 필요   
-ㆍ build.gradle에서 dependencis의 가장 하단에 아래 코드를 입력해 Gson 라이브러리를 추가   
+ㆍ Controller 영역을 구현하기 전에 JSON과 자바 객체의 직렬화(자바 객체 → JSON), 역직렬화(JSON → 자바 객체)를 처리해주는 오픈 소스 자바 라이브러리인 Gson의 추가가 필요하다.   
+ㆍ build.gradle에서 dependencies의 가장 하단에 아래 코드를 입력해 Gson 라이브러리를 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1929,7 +1937,7 @@ compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
 ```
 </details>
 	
-ㆍ 리프레쉬가 완료되면 application.properties에 아래의 코드를 추가하여, Gson 라이브러리에 대한 추가 설정을 완료   
+ㆍ 리프레쉬가 완료되면 application.properties에 아래의 코드를 추가하여, Gson 라이브러리에 대한 추가 설정을 완료한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1940,9 +1948,9 @@ spring.mvc.converters.preferred-json-mapper=gson
 </br>
 
 ---
-### 18. 댓글 리스트 구현  
+### 17. 댓글 리스트 조회
 **1) Controller 영역**   
-ㆍ controller 패키지에 CommentController 클래스를 추가하고, 아래의 코드를 작성   
+ㆍ src/main/java 경로의 controller 패키지에 CommentController 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1973,14 +1981,14 @@ public class CommentController {
 
 |구성 요소|설명|
 |---|---|
-|@RestController|해당 애너테이션이 선언된 클래스 내의 모든 메서드는 화면이 아닌, 리턴 타입에 해당하는 데이터 자체를 리턴|
+|@RestController|해당 애너테이션이 선언된 클래스 내의 모든 메서드는 화면이 아닌, 리턴 타입에 해당하는 데이터 자체를 리턴하도록 설정|
 |@PathVariable|1. @RequestParam과 유사한 기능을 하며, REST 방식에서 리소스를 표현하는 데 사용</br>2. 호출된 URI에 파라미터로 전달받을 변수를 지정할 수 있음|
 </br>
 
 **2) JSON 날짜 데이터 형식 지정**   
-ㆍ CommentController의 getCommentList 메서드가 리턴하는 JSON 데이터를 확인해보면, insertTime 또한 JSON 형태로 이루어졌다는 것을 확인할 수 있음   
-ㆍ View 영역에서의 원할한 처리를 위해 형식을 변환할 필요가 있음   
-ㆍ adapter 패키지를 추가하고, GsonLocalDateTimeAdapter 클래스를 생성한 후 아래 코드를 작성   
+ㆍ CommentController 클래스의 getCommentList 메서드가 리턴하는 JSON 데이터를 확인해보면, insertTime 또한 JSON 형태로 이루어졌다는 것을 확인할 수 있다.   
+ㆍ View 영역에서의 원할한 처리를 위해 형식을 변환할 필요가 있다.   
+ㆍ src/main/java 경로에 adapter 패키지를 추가하고, GsonLocalDateTimeAdapter 클래스를 생성한 후 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2000,7 +2008,7 @@ public class GsonLocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, 
 ```
 </details>
 	
-ㆍ CommentController의 getCommentList 메서드를 아래 코드와 같이 어댑터 클래스를 포함하여 객체를 생성하는 형태로 변경   
+ㆍ CommentController 클래스의 getCommentList 메서드를 아래 코드와 같이 어댑터 클래스를 포함하여 객체를 생성하는 형태로 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2031,9 +2039,9 @@ public class CommentController {
 </br>
 
 ---
-### 19. 댓글 등록(수정) 구현   
+### 18. 댓글 등록(수정)
 **1) Controller 영역**   
-ㆍ CommentController 클래스에 아래의 registerComment 메서드에 대한 코드를 작성   
+ㆍ CommentController 클래스에 아래의 registerComment 메서드에 대한 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2065,14 +2073,14 @@ public JsonObject registerComment(@PathVariable(value = "idx", required = false)
 	
 |구성 요소|설명|
 |---|---|
-|@RequestMapping|1. 게시글의 경우 하나의 URI로 생성과 수정 처리가 가능</br>2. REST API는 설계 규칙을 지켜야 하기 때문에 해당 애너테이션을 통해 URI를 구분되게 처리|
+|@RequestMapping|1. 게시글의 경우는 하나의 URI로 생성과 수정 처리가 가능</br>2. REST API는 설계 규칙을 지켜야 하기 때문에 해당 애너테이션을 통해 URI를 구분되게 처리|
 |@RequestBody|1. REST 방식의 처리에 사용되는 애너테이션</br>2. 파라미터 앞에 해당 애너테이션이 지정되면, 파라미터로 전달받은 JSON 문자열이 객체로 변환됨|
 </br>
 
 ---
-### 20. 댓글 삭제 구현   
+### 19. 특정 댓글 삭제   
 **1) Controller 영역**   
-ㆍ CommentController 클래스에 아래 deleteComment 메서드에 대한 코드를 작성   
+ㆍ CommentController 클래스에 아래 deleteComment 메서드에 대한 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2105,9 +2113,9 @@ public JsonObject deleteComment(@PathVariable("idx") final Long idx) {
 </br>
 
 ---
-### 21. 파일 업로드 구현
+### 20. 파일 업로드
 **1) 파일 테이블 생성**   
-ㆍ MySQL Workbench를 실행하고, 아래의 스크립트를 실행하여 파일 테이블을 생성   
+ㆍ MySQL Workbench를 실행하고, 아래의 스크립트를 실행하여 파일 테이블을 생성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2126,8 +2134,8 @@ CREATE TABLE tb_file (
 ```
 </details>
 
-ㆍ 댓글과 마찬가지로 특정 게시글에 파일을 등록하거나 등록된 파일을 조회하려면, 게시판 테이블의 게시글 번호(idx)와 파일 테이블의 게시글 번호(board_idx)가 연결되어야 함   
-ㆍ 아래의 스크립트를 실행해 게시판 테이블의 게시글 번호(idx)를 참조해서 첨부 파일 테이블의 게시글 번호(board_idx)를 FK로 지정하는 제약 조건을 추가   
+ㆍ 댓글과 마찬가지로 특정 게시글에 파일을 등록하거나 등록된 파일을 조회하려면, 게시판 테이블의 게시글 번호(idx)와 파일 테이블의 게시글 번호(board_idx)가 연결되어야 한다.   
+ㆍ 아래의 스크립트를 실행해 게시판 테이블의 게시글 번호(idx)를 참조해서 첨부 파일 테이블의 게시글 번호(board_idx)를 FK로 지정하는 제약 조건을 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2138,8 +2146,8 @@ alter table tb_attach add constraint fk_attach_board_idx foreign key (board_idx)
 </br>
 
 **2) 라이브러리 추가**   
-ㆍ 파일 처리와 관련된 여러 가지 기능을 제공해 주는 라이브러리를 추가   
-ㆍ build.gradle의 compile group에 아래의 코드를 추가   
+ㆍ 파일 처리와 관련된 여러 가지 기능을 제공해 주는 라이브러리를 추가한다.   
+ㆍ build.gradle의 compile group에 아래의 코드를 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2151,10 +2159,10 @@ compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3
 </br>
 
 **3) 파일 처리용 빈 설정**   
-ㆍ 스프링에는 파일 업로드 처리를 위한 MultipartResolver 인터페이스가 정의되어 있음   
-ㆍ 구현 클래스로 아파치의 CommonsMultipartResolver와 서블릿 3.0 이상의 API를 이용한 StandardServletMultipartResolver가 있음   
-ㆍ 이번 프로젝트에서는 CommonsMultipartResolver를 이용해서 파일 업로드를 구현   
-ㆍ MvcConfiguration 클래스에 아래 코드와 같이 CommonsMultipartResolver 빈을 추가   
+ㆍ 스프링에는 파일 업로드 처리를 위한 MultipartResolver 인터페이스가 정의되어 있다.   
+ㆍ 구현 클래스로 아파치의 CommonsMultipartResolver와 서블릿 3.0 이상의 API를 이용한 StandardServletMultipartResolver가 있다.   
+ㆍ 이번 프로젝트에서는 CommonsMultipartResolver를 이용해서 파일 업로드를 구현한다.   
+ㆍ configuration 패키지의 MvcConfiguration 클래스에 아래 코드와 같이 CommonsMultipartResolver 빈을 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2181,8 +2189,8 @@ public class MvcConfiguration implements WebMvcConfigurer {
 </br>
 
 **4) 도메인 클래스 생성**   
-ㆍ 파일 테이블의 구조화 역할을 하는 도메인 클래스를 생성할 필요가 있음   
-ㆍ domain 패키지에 AttachDTO 클래스를 추가하고, 아래의 코드를 작성   
+ㆍ 첨부 파일 테이블의 구조화 역할을 하는 도메인 클래스를 생성할 필요가 있다.   
+ㆍ src/main/java 경로의 domain 패키지에 FileDTO 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2214,8 +2222,8 @@ public class FileDTO extends CommonDTO {
 </br>
 
 **5) Mapper 인터페이스 생성**   
-ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스를 생성할 필요가 있음   
-ㆍ mapper 패키지에 FileMapper 인터페이스를 생성하고 아래의 코드를 작성   
+ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스를 생성할 필요가 있다.   
+ㆍ src/main/java 경로의 mapper 패키지에 FileMapper 인터페이스를 생성하고 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2241,12 +2249,12 @@ public interface FileMapper {
 |insertFile( )|파일 정보를 저장하는 INSERT 쿼리를 호출하는 메서드|
 |selectFileDetail( )|파라미터로 전달받은 파일 번호에 해당하는 파일의 상세 정보를 조회하는 메서드|
 |deleteFile( )|특정 게시글에 포함된 모든 파일의 삭제 여부 상태 값을 'N'으로 변경하는 메서드|
-|selectFileList( )|특정 게시글에 포함된 파일 목록으 조회하는 SELECT 쿼리를 호출하는 메서드|
+|selectFileList( )|특정 게시글에 포함된 파일 목록을 조회하는 SELECT 쿼리를 호출하는 메서드|
 |selectFileTotalCount( )|특정 게시글에 포함된 파일 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
 </br>
 	
 **6) 마이바티스 XML Mapper 생성**   
-ㆍ src/main/resources 디렉터리의 mappers 폴더에 AttachMapper XML을 생성하고 아래의 쿼리를 작성   
+ㆍ src/main/resources 경로의 mappers 폴더에 FileMapper XML을 생성하고 아래의 쿼리를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2254,7 +2262,7 @@ public interface FileMapper {
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.board.mapper.AttachMapper">
+<mapper namespace="com.Board.mapper.FileMapper">
 
 	<sql id="fileColumns">
 		  idx
@@ -2332,9 +2340,9 @@ public interface FileMapper {
 </br>
 
 **7) 공통 파일 처리용 클래스 생성**   
-ㆍ 파일 업로드와 다운로드 처리는 여러 곳에서 통으로 사용되는 기능   
-ㆍ 따라서, 페이징 구현과 마찬가지로 공통 클래스를 추가해서 구현하는 것이 바람직함   
-ㆍ util 패키지에 FileUtils 클래스를 추가하고 아래의 코드를 작성   
+ㆍ 파일 업로드 처리는 여러 곳에서 공통으로 사용되는 기능이다.   
+ㆍ 따라서, 페이징 구현과 마찬가지로 공통 클래스를 추가해서 구현하는 것이 바람직하다.   
+ㆍ src/main/java 경로의 util 패키지에 FileUtils 클래스를 추가하고 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2399,15 +2407,15 @@ public class FileUtils {
 |---|---|
 |@Component|개발자가 직접 작성한 클래스를 스프링 컨테이너에 등록하는 데 사용되는 애너테이션|
 |today|업로드 경로에 포함되는 오늘 날짜|
-|uploadPath|1. 최종적으로 파일이 업로드되는 경로</br>2. 윈도우 환경에서 07월 24일을 기준으로 "C:\develop\upload\210724"와 같은 패턴의 디렉터리가 생성됨</br>3. Paths.get 메서드를 사용하면 파라미터로 전달한 여러 개의 문자열을 하나로 연결해서 OS에 해당하는 패턴으로 경로를 리턴해 줌|
-|getRandomString( )|서버에 생성할 파일명을 처리할 랜덤 문자열 반환하는 메서드|
+|uploadPath|1. 최종적으로 파일이 업로드되는 경로</br>2. 윈도우 환경에서 07월 24일을 기준으로 "C:\develop\upload\210724"와 같은 패턴의 디렉터리가 생성됨</br>3. Paths.get( ) 메서드를 사용하면 파라미터로 전달한 여러 개의 문자열을 하나로 연결해서 OS에 해당하는 패턴으로 경로를 리턴해 줌|
+|getRandomString( )|서버에 생성할 파일명을 처리할 랜덤 문자열을 반환하는 메서드|
 |uploadFiles( )|1. 사용자가 등록한 첨부 파일을 서버에 업로드하고 파일 목록을 반환하는 메서드</br>2. files에는 업로드할 파일의 정보가 담겨 있고, boardIdx에는 파일을 등록할 게시글 번호가 담겨 있음|
 |transferTo( )|서버에 물리적으로 파일을 생성하는 메서드|
 </br>
 
 **8) 첨부 파일 예외 클래스 생성**   
-ㆍ src/main/java 디렉터리에 exception 패키지를 추가하고, AttachFileException 클래스를 생성   
-ㆍ AttachFileException 클래스에 아래의 코드를 작성   
+ㆍ src/main/java 디렉터리에 exception 패키지를 추가하고, AttachFileException 클래스를 생성한다.   
+ㆍ AttachFileException 클래스에 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2428,9 +2436,9 @@ public class AttachFileException extends RuntimeException {
 </br>
 
 **9) Service 영역의 변경**   
-ㆍ FileUtils 클래스의 uploadFiles 메서드를 호출하기 위해서는 MultipartFile[ ] 타입의 객체가 필요   
-ㆍ BoardService의 registerBoard 메서드가 MultipartFile[ ]을 파라미터로 전달받도록 변경할 필요가 있음   
-ㆍ 아래 코드와 같이 BoardService 인터페이스에 MultipartFile[ ]을 파라미터로 전달받는 registerBoard 메서드 추가   
+ㆍ FileUtils 클래스의 uploadFiles 메서드를 호출하기 위해서는 MultipartFile[ ] 타입의 객체가 필요하다.   
+ㆍ BoardService 인터페이스의 registerBoard 메서드가 MultipartFile[ ]을 파라미터로 전달받도록 변경할 필요가 있다.   
+ㆍ 아래 코드와 같이 BoardService 인터페이스에 MultipartFile[ ]을 파라미터로 전달받는 registerBoard 메서드 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2450,8 +2458,8 @@ public interface BoardService {
 ```
 </details>
 	
-ㆍ BoardServiceImpl 클래스에 FileMapper와 FileUtils 빈을 주입하고, registerBoard 메서드를 구현해야 함   
-ㆍ 아래 코드와 같이 BoardServiceImpl 클래스를 변경   
+ㆍ BoardServiceImpl 클래스에 FileMapper와 FileUtils 빈을 주입하고, registerBoard 메서드를 구현해야 한다.   
+ㆍ 아래 코드와 같이 BoardServiceImpl 클래스를 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2556,8 +2564,8 @@ public class BoardServiceImpl implements BoardService {
 </br>
 	
 **11) Controller 영역의 변경**   
-ㆍ 파일 정보를 전달 받기 위해서는 BoardController의 registerBoard 메서드 또한 변경할 필요가 있다.   
-ㆍ BoardController의 registerBoard 메소드를 아래의 코드와 같이 변경한다.   
+ㆍ 파일 정보를 전달 받기 위해서는 BoardController 클래스의 registerBoard 메서드 또한 변경할 필요가 있다.   
+ㆍ BoardController의 registerBoard 메서드를 아래의 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2586,7 +2594,7 @@ public String registerBoard(final BoardDTO params, final MultipartFile[] files, 
 </br>
 	
 ---
-### 22. 파일이 포함되어 있는 게시글 수정
+### 21. 파일을 포함한 특정 게시글의 수정
 **1) Service 영역의 변경**   
 ㆍ 데이터베이스에 등록된 파일 목록을 View 영역으로 전달해야 하기 때문에 파일 리스트를 조회하는 메서드 추가가 필요하다.   
 ㆍ BoardService 인터페이스에 아래 코드와 같이 getFileList 메서드를 추가한다.   
@@ -2752,7 +2760,7 @@ public boolean registerBoard(BoardDTO params) {
 </br>
 	
 ---
-### 23. 파일 다운로드
+### 22. 파일 다운로드
 **1) Controller 영역의 변경**   
 ㆍ 파일이 포함되어 있는 게시글 상세 페이지에서 파일 목록을 볼 수 있도록 수정이 필요하다.   
 ㆍ BoardController 클래스의 openBoardDetail 메서드를 아래 코드와 같이 변경한다.   

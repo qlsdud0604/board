@@ -2751,3 +2751,131 @@ public boolean registerBoard(BoardDTO params) {
 |CollectionUtils.isEmpty(params.getFileIdxs( )) == false|1. 기존에 특정 게시글에 포함되어 있던 파일이 유지되는 경우를 의미한다.</br>2. 예를 들어, 특정 게시글에 A, B, C 3개의 파일이 등록 되어 있던 상태에서, B와 C를 삭제한다고 가정한다. 이때, 3개의 파일을 모두 삭제한 후 삭제하지 않은 파일인 A 파일만 삭제 취소 처리한다.|
 </br>
 	
+---
+### 23. 파일 다운로드
+**1) Controller 영역의 변경**   
+ㆍ 파일이 포함되어 있는 게시글 상세 페이지에서 파일 목록을 볼 수 있도록 수정이 필요하다.   
+ㆍ BoardController 클래스의 openBoardDetail 메서드를 아래 코드와 같이 변경한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@GetMapping(value = "/board/view.do")
+public String openBoardDetail(@ModelAttribute("params") BoardDTO params, @RequestParam(value = "idx", required = false) Long idx, Model model) {
+	if (idx == null) {
+		return showMessageWithRedirect("올바르지 않은 접근입니다.", "/board/list.do", Method.GET, null, model);
+	}
+
+	BoardDTO board = boardService.getBoardDetail(idx);
+	
+	if (board == null || "Y".equals(board.getDeleteYn())) {
+		return showMessageWithRedirect("없는 게시글이거나 이미 삭제된 게시글입니다.", "/board/list.do", Method.GET, null, model);
+	}
+	
+	model.addAttribute("board", board);
+
+	List<FileDTO> fileList = boardService.getFileList(idx);
+	model.addAttribute("fileList", fileList);
+
+	return "board/view";
+}
+```
+</details>
+</br>
+	
+**2) Service 영역의 변경**   
+ㆍ 파일 다운로드를 처리해야할 메서드를 구성해야한다.   
+ㆍ 먼저, 아래 코드와 같이 BoardService에 파일의 상세 정보를 조회하는 getFileDetail 메서드를 추가한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+public interface BoardService {
+
+    public boolean registerBoard(BoardDTO params);
+
+    public boolean registerBoard(BoardDTO params, MultipartFile[] files);
+
+    public BoardDTO getBoardDetail(Long idx);
+
+    public boolean deleteBoard(Long idx);
+
+    public List<BoardDTO> getBoardList(BoardDTO params);
+
+    public boolean cntPlus(Long idx);
+
+    public List<FileDTO> getFileList(Long boardIdx);
+
+    public FileDTO getFileDetail(Long idx);
+}
+```
+</details>
+	
+ㆍ 다음으로 BoardServiceImpl 클래스에 아래 코드와 같이 getFileDetail 메서드를 작성한다.   
+ㆍ 해당 메서드는 파라미터로 전달받은 파일 번호에 해당하는 파일의 상세 정보를 조회하는 메서드이다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@Override
+public FileDTO getFileDetail(Long idx) {
+	return fileMapper.selectFileDetail(idx);
+}
+```
+</details>
+</br>
+	
+**3) Controller 영역의 변경**   
+ㆍ BoardController 클래스에 파일 다운로드 처리를 하는 메서드가 필요하다.   
+ㆍ BoardController 클래스에 아래 코드의 메서드를 추가한다.   
+<details>
+	<summary><b>코드 보기</b></summary>
+	
+```java
+@GetMapping("/board/download.do")
+public void downloadFile(@RequestParam(value = "idx", required = false) final Long idx, Model model, HttpServletResponse response) {
+
+	if (idx == null) throw new RuntimeException("올바르지 않은 접근입니다.");
+
+	FileDTO fileInfo = boardService.getAttachDetail(idx);
+	
+	if (fileInfo == null || "Y".equals(fileInfo.getDeleteYn())) {
+		throw new RuntimeException("파일 정보를 찾을 수 없습니다.");
+	}
+
+	String uploadDate = fileInfo.getInsertTime().format(DateTimeFormatter.ofPattern("yyMMdd"));
+	String uploadPath = Paths.get("C:", "develop", "upload", uploadDate).toString();
+
+	String filename = fileInfo.getOriginalName();
+	File file = new File(uploadPath, fileInfo.getSaveName());
+
+	try {
+		byte[] data = FileUtils.readFileToByteArray(file);
+		response.setContentType("application/octet-stream");
+		response.setContentLength(data.length);
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		response.setHeader("Content-Disposition", "attachment; fileName=\"" + URLEncoder.encode(filename, "UTF-8") + "\";");
+
+		response.getOutputStream().write(data);
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
+
+	} catch (IOException e) {
+		throw new RuntimeException("파일 다운로드에 실패하였습니다.");
+
+	} catch (Exception e) {
+		throw new RuntimeException("시스템에 문제가 발생하였습니다.");
+	}
+}
+```
+</details>
+	
+|구성 요소|설명|
+|---|---|
+|HttpServletResponse|1. 파라미터로 선언된 해당 객체는 사용자로부터 들어오는 모든 요청에 대한 응답을 처리하는 객체이다.</br>2. 해당 객체를 이용해서 파일 다운로드를 처리한다.|
+|file|업로드 경로(uploadPath)에 저장된 파일 객체를 의미한다.|
+|FileUtils.readFileToByteArray( )|1. 해당 메서드는 업로드된 파일 정보를 파라미터로 전달받아서 실제 파일 데이터를 byte[ ] 형태로 반환하는 역할을 한다.</br>2. 이 메서드를 사용하는 FileUtils 클래스는 우리가 생성한 클래스가 아닌, org.apache.commons.io 패키지의 FileUtils 클래스이다.|
+|response.getOutputStream( ).write( )|byte[ ] 형태의 파일 정보를 이용해서 파일 다운로드를 수행하는 메서드이다.|
+|response.getOutputStream( ).flush( )|파일 다운로드가 완료되는 메서드이다.|
+|response.getOutputStream( ).close( )|버퍼를 정리하고 닫아주는 메서드이다.|
+</br>

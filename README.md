@@ -455,8 +455,8 @@ public class DBConfiguration {
 </br>
 
 ---
-### 6. 게시글 등록(수정)
-**1) Service 영역**   
+### :pushpin: 게시글 등록(수정)
+**✔️ Service 영역**   
 ㆍ Service 영역은 비즈니스 로직을 담당한다.   
 ㆍ src/main/java 경로의 service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성한다.   
 <details>
@@ -539,13 +539,13 @@ public class BoardServiceImpl implements BoardService {
 |구성 요소|설명|
 |---|---|
 |@Service|해당 클래스가 비즈니스 로직을 담당하는 서비스 클래스임을 지정|
-|registerBoard( )|1. params의 idx가 null이라면, insertBoard 메서드가 실행 </br>2. params의 idx가 null이 아니라면, updateBoard 메서드가 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
-|getBoardDetail( )|하나의 게시글을 조회하는 selectBoardDetail 메서드의 결과값을 반환|
-|deleteBoard( )|1. 파라미터로 입력받은 idx에 해당하는 게시물을 조회</br>2. 해당 게시물이 null이 아니거나, 이미 삭제된 게시물이 아니라면 deleteBoard 메서드 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
+|registerBoard( )|1. params의 idx가 null이라면, insertBoard( ) 메서드가 실행 </br>2. params의 idx가 null이 아니라면, updateBoard( ) 메서드가 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
+|getBoardDetail( )|하나의 게시글을 조회하는 selectBoardDetail( ) 메서드의 결과값을 반환|
+|deleteBoard( )|1. 파라미터로 입력받은 idx에 해당하는 게시물을 조회</br>2. 해당 게시물이 null이 아니거나, 이미 삭제된 게시물이 아니라면 deleteBoard( ) 메서드 실행</br>3. queryResult 변수에는 쿼리를 실행한 횟수 1이 저장</br>4. 쿼리의 실행 결과를 판단해 true 또는 false를 반환|
 |getBoardList( )|1. 비어있는 리스트를 선언</br>2. 삭제되지 않은 게시글들을 비어있는 리스트에 삽입</br>3. 해당 리스트를 반환|
 </br>
 
-**2) Controller 영역**   
+**✔️ Controller 영역**   
 ㆍ Controller 영역은 Model 영역과 View 영역을 연결해주고, 사용자의 요청과 응답을 처리해 준다.   
 ㆍ src/main/java 경로의 controller 패키지에 BoardController 클래스를 생성하고 아래에 코드를 작성한다.
 <details>
@@ -595,17 +595,17 @@ public class BoardController {
 |구성 요소|설명|
 |---|---|
 |@Controller|해당 클래스가 컨트롤러 클래스임을 지정|
-|@GetMapping|1. get 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. get 방식은 파라미터가 주소창에 노출이되며, 주로 데이터를 조회할 때 사용|
+|@GetMapping|1. get 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. get 방식은 파라미터가 주소창에 노출되며, 주로 데이터를 조회할 때 사용|
 |@RequestParam|1. 화면에서 전달받은 파라미터를 처리하는 데 사용</br>2. required 속성이 false라면 반드시 필요한 파라미터가 아니라는 의미|
-|Model|메서드의 파라미터로 지정된 Model 객체는 데이터를 뷰로 전달하는 데 사용|
+|Model|메서드의 파라미터로 지정된 Model 객체는 데이터를 View 영역으로 전달하는 데 사용|
 |리턴 타입|1. 컨트롤러 메서드의 리턴타입은 String으로 사용자에게 보여줄 화면의 경로를 반환</br>2. 반환된 경로를 자동으로 연결하여 사용자에게 제공|
 |@PostMapping|1. post 방식으로 매핑을 처리할 수 있는 애너테이션</br>2. post 방식은 파라미터가 주소창에 노출되지 않으며, 주로 데이터를 생성할 때 사용|
 |params|BoardDTO의 멤버 변수명과 사용자 입력 필드의 name 속성 값이 동일하면, params의 각 멤버 변수에 전달된 값들이 자동으로 매핑됨|
 </br>
 
 ---
-### 7. 게시글 리스트 조회
-**1) Controller 영역**   
+### :pushpin: 게시글 리스트 조회
+**✔️ Controller 영역**   
 ㆍ 게시글 목록을 보여줄 리스트 페이지에 대한 Controller 영역의 처리가 필요하다.   
 ㆍ BoardController 클래스에 아래의 코드를 작성한다.   
 <details>
@@ -624,12 +624,12 @@ public String openBoardList(Model model) {
 	
 |구성 요소|설명|
 |---|---|
-|boardList|BoardService에서 호출한 getBoardList 메서드의 실행 결과를 담아 View 영역으로 전달하는데 사용|
+|boardList|BoardService에서 호출한 getBoardList( ) 메서드의 실행 결과를 담아 View 영역으로 전달하는데 사용|
 </br>
 
 ---
-### 8. 특정 게시글 조회
-**1) Controller 영역**   
+### :pushpin: 특정 게시글 조회
+**✔️ Controller 영역**   
 ㆍ 특정 게시물을 조회해 출력해 주는 Controller 영역의 처리가 필요하다.   
 ㆍ BoardController 클래스에 아래의 코드를 작성한다.
 <details>
@@ -657,12 +657,12 @@ public String openBoardDetail(@RequestParam(value = "idx", required = false) Lon
 	
 |구성 요소|설명|
 |---|---|
-|board|getBoardDetail 메서드의 인자로 idx를 전달해서 게시글 정보를 담아 View 영역으로 전달|
+|board|getBoardDetail( ) 메서드의 인자로 idx를 전달해서 게시글 정보를 담아 View 영역으로 전달|
 </br>
 	
 ---
-### 9. 특정 게시글 삭제
-**1) Controller 영역**   
+### :pushpin: 특정 게시글 삭제
+**✔️ Controller 영역**   
 ㆍ 특정 게시물을 삭제해 주는 Controller 영역의 처리가 필요하다.   
 ㆍ BoardController 클래스에 아래의 코드를 작성한다.   
 <details>
@@ -693,7 +693,7 @@ public String deleteBoard(@RequestParam(value = "idx", required = false) Long id
 
 |구성 요소|설명|
 |---|---|
-|isDeleted|deletedBoard 메서드의 인자로 idx를 전달해서 해당 게시글을 삭제 후 true 또는 false 값을 저장|
+|isDeleted|deletedBoard( ) 메서드의 인자로 idx를 전달해서 해당 게시글을 삭제 후 true 또는 false 값을 저장|
 </br>
 
 ---

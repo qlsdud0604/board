@@ -1,34 +1,36 @@
 # Spring Boot를 활용한 게시판의 제작
-### 목차
-1. [프로젝트 이름](#1-프로젝트-이름)
-2. [기술 스택](#2-기술-스택)
-3. [프로젝트 구조](#3-프로젝트-구조)
-4. [MySQL 연동](#4-mysql-연동)
-5. [게시글 CRUD 처리](#5-게시글-crud-처리)
-6. [게시글 등록(수정)](#6-게시글-등록수정)
-7. [게시글 리스트 조회](#7-게시글-리스트-조회)
-8. [특정 게시글 조회](#8-특정-게시글-조회)
-9. [특정 게시글 삭제](#9-특정-게시글-삭제)
-10. [경고 메시지 처리](#10-경고-메시지-처리)
-11. [인터셉터 적용](#11-인터셉터-적용)
-12. [AOP 적용](#12-aop-적용)
-13. [트랜잭션 적용](#13-트랜잭션-적용)
-14. [페이징 처리](#14-페이징-처리)
-15. [검색 처리](#15-검색-처리)
-16. [REST 방식을 이용한 댓글 CRUD 처리](#16-rest-방식을-이용한-댓글-crud-처리)
-17. [댓글 리스트 조회](#17-댓글-리스트-조회)
-18. [댓글 등록(수정)](#18-댓글-등록수정)
-19. [특정 댓글 삭제](#19-특정-댓글-삭제)
-20. [파일 업로드](#20-파일-업로드)
-21. [파일을 포함한 특정 게시글의 수정](#21-파일을-포함한-특정-게시글의-수정)
-22. [파일 다운로드](#22-파일-다운로드)
+### :pushpin: 목차
+* [프로젝트 이름](#1-프로젝트-이름)
+* [기술 스택](#2-기술-스택)
+* [프로젝트 구조](#3-프로젝트-구조)
+* [MySQL 연동](#4-mysql-연동)
+* [게시글 CRUD 처리](#5-게시글-crud-처리)
+* [게시글 등록(수정)](#6-게시글-등록수정)
+* [게시글 리스트 조회](#7-게시글-리스트-조회)
+* [특정 게시글 조회](#8-특정-게시글-조회)
+* [특정 게시글 삭제](#9-특정-게시글-삭제)
+* [경고 메시지 처리](#10-경고-메시지-처리)
+* [인터셉터 적용](#11-인터셉터-적용)
+* [AOP 적용](#12-aop-적용)
+* [트랜잭션 적용](#13-트랜잭션-적용)
+* [페이징 처리](#14-페이징-처리)
+* [검색 처리](#15-검색-처리)
+* [REST 방식을 이용한 댓글 CRUD 처리](#16-rest-방식을-이용한-댓글-crud-처리)
+* [댓글 리스트 조회](#17-댓글-리스트-조회)
+* [댓글 등록(수정)](#18-댓글-등록수정)
+* [특정 댓글 삭제](#19-특정-댓글-삭제)
+* [파일 업로드](#20-파일-업로드)
+* [파일을 포함한 특정 게시글의 수정](#21-파일을-포함한-특정-게시글의-수정)
+* [파일 다운로드](#22-파일-다운로드)
+</br>
 
 ---
-### 1. 프로젝트 이름
+### :pushpin: 프로젝트 이름
 * **게시글 등록, 조회, 수정, 삭제가 가능한 게시판**
+</br>
 
 ---
-### 2. 기술 스택
+### :pushpin: 기술 스택
 * IDE
 ```
 - IntelliJ
@@ -50,18 +52,19 @@
 ```
 - MySQL
 ```
+</br>
 
 ---
-### 3. 프로젝트 구조
+### :pushpin: 프로젝트 구조
 <img src="https://user-images.githubusercontent.com/61148914/124562382-ecc9f680-de79-11eb-8863-e4560bec3570.JPG" width="35%">
 </br>
 
-**1) src/main/java 디렉터리**   
+**✔️ src/main/java 디렉터리**   
 ㆍ 클래스, 인터페이스 등 자바 파일이 위치하는 디렉터리이다.   
 </br>
 
-**2) BoardApplication 클래스**   
-ㆍ 해당 클래스 내의 main 메서드는 SpringApplication.run 메서드를 호출해서 웹 애플리케이션을 실행하는 역할을 한다.   
+**✔️ BoardApplication 클래스**   
+ㆍ 해당 클래스 내의 main 메서드는 SpringApplication.run( ) 메서드를 호출해서 웹 애플리케이션을 실행하는 역할을 한다.   
 ㆍ "@SpringBootApplication"은 다음 3가지 애너테이션으로 구성된다.   
 |구성 요소|설명|
 |---|---|
@@ -70,7 +73,7 @@
 |@Configuration|해당 애너테이션이 선언된 클래스는 자바 기반의 설정 파일로 인식함|
 </br>
 
-**3) src/main/resources 디렉터리**   
+**✔️ src/main/resources 디렉터리**   
 |구성 요소|설명|
 |---|---|
 |templates|템플릿 엔진을 활용한 동적 리소스 파일이 위치|
@@ -78,19 +81,19 @@
 |application.properties|WAS의 설정이나, 데이터베이스 관련 설정 등을 지정해서 처리 가능|
 </br>
 
-**4) src/test/java 디렉터리**   
+**✔️ src/test/java 디렉터리**   
 ㆍ BoardApplicationTest 클래스를 이용해서 개발 단계에 따라 테스트를 진행할 수 있다.   
 </br>
 
-**5) build.gradle 파일**   
+**✔️ build.gradle 파일**   
 ㆍ 빌드에 사용이 될 애플리케이션의 버전, 각종 라이브러리 등 다양한 항목을 설정하고 관리할 수 있는 파일이다.   
 </br>
 
 ---
-### 4. MySQL 연동
-**1) 데이터 소스 설정**   
+### :pushpin: MySQL 연동
+**✔️ 데이터 소스 설정**   
 ㆍ 스프링 부트에서는 데이터 소스 설정 방법이 두 가지가 존재한다.   
-ㆍ "@Bean" 애너테이션 또는 "application.properties" 파일을 이용한 방법이 존재한다.(이번 프로젝트에서는 후자의 방법을 사용)   
+ㆍ @Bean 애너테이션 또는 application.properties 파일을 이용한 방법이 존재한다.(이번 프로젝트에서는 후자의 방법을 사용)   
 ㆍ src/main/resources 경로의 application.properties 파일에 아래 코드를 입력한다.   
 <details>
     <summary><b>코드 보기</b></summary>
@@ -106,13 +109,13 @@ spring.datasource.hikari.connection-test-query=SELECT NOW() FROM dual
 
 |구성 요소|설명|
 |---|---|
-|jdbc-url|데이터베이스의 주소를 의미하며, 포트 번호뒤의 board는 생성한 스키마의 이름|
+|jdbc-url|데이터베이스의 주소를 의미하며, 포트 번호 뒤에 board는 생성한 스키마의 이름|
 |username|MySQL의 아이디|
 |password|MySQL의 패스워드|
 |connection-test-query|데이터베이스와의 연결이 정상적으로 이루어졌는지 확인하기 위한 SQL 쿼리문|
 </br>
 
-**2) 데이터베이스 설정**   
+**✔️ 데이터베이스 설정**   
 ㆍ src/main/java 경로의 configuration 패키지 내 DBConfiguration 클래스를 통해 데이터베이스 설정을 완료한다.   
 <details>
     <summary><b>코드 보기</b></summary>
@@ -168,8 +171,8 @@ public class DBConfiguration {
 </br>
 
 ---
-### 5. 게시글 CRUD 처리
-**1) 게시판 테이블 생성**   
+### :pushpin: 게시글 CRUD 처리
+**✔️ 게시판 테이블 생성**   
 ㆍ 게시판 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것이다.   
 ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행한다.
 <details>
@@ -194,10 +197,10 @@ CREATE TABLE tb_board (
 </details>
 </br>
 
-**2) 도메인 클래스 생성**   
+**✔️ 도메인 클래스 생성**   
 ㆍ 도메인 클래스는 위에서 생성한 게시판 테이블에 대한 구조화 역할을 하는 클래스이다.   
 ㆍ 보통 도메인 클래스는 읽기 전용을 의미하는 xxxVO와 데이터의 저장 및 전송을 의미하는 xxxDTO로 이름을 작성한다.   
-ㆍ domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성한다.
+ㆍ src/main/java 경로의 domain 패키지에 BoardDTO 클래스를 추가하고 아래에 코드를 작성한다.
 <details>
     <summary><b>코드 보기</b></summary>
 	
@@ -232,7 +235,7 @@ public class BoardDTO {
 </details>
 </br>
 
-**3) Mapper 인터페이스 생성**      
+**✔️ Mapper 인터페이스 생성**      
 ㆍ Mapper 인터페이스는 데이터베이스와 통신 역할을 한다.   
 ㆍ src/main/java 경로의 mapper 패키지에 BoardMapper 인터페이스를 생성하고 아래 코드를 작성한다.
 <details>
@@ -268,9 +271,9 @@ public interface BoardMapper {
 |selectBoardTotalCount( )|삭제 여부가 'N'으로 지정된 게시글의 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
 </br>
 
-**4) 마이바티스 XML Mapper 생성**   
-ㆍ XML Mapper는 BoardMapper 인터페이스와 SQL문의 연결을 위한 역할을 하며, 실제 SQL 쿼리 문이 정의된다.   
-ㆍ src/main/resources 디렉터리에 mappers 폴더 생성 후 BoardMapper.xml 파일을 추가한다.   
+**✔️ 마이바티스 XML Mapper 생성**   
+ㆍ XML Mapper는 BoardMapper 인터페이스와 SQL문의 연결을 위한 역할을 하며, 실제 SQL 쿼리문이 정의된다.   
+ㆍ src/main/resources 경로에 mappers 폴더 생성 후 BoardMapper.xml 파일을 추가한다.   
 ㆍ BoardMapper.xml 파일에 아래에 소스코드를 작성한다.
 <details>
     <summary><b>코드 보기</b></summary>
@@ -379,10 +382,10 @@ public interface BoardMapper {
 |&lt;include&gt;|<sql> 태그에 정의한 boardColumns의 참조를 위해 사용되는 태그|
 |parameterType|쿼리문 실행에 필요한 파라미터의 타입을 해당 속성에 지정|
 |resultType|쿼리문의 실행 결과에 해당하는 타입을 지정|
-|파라미터 표현식|전달받은 파라미터는 #{} 표현식을 사용해서 처리|
+|파라미터 표현식|전달받은 파라미터는 #{ } 표현식을 사용해서 처리|
 </br>
 
-**5) 마이바티스 SELECT 컬럼과 DTO 멤버 변수의 매핑**   
+**✔️ 마이바티스 SELECT 컬럼과 DTO 멤버 변수의 매핑**   
 ㆍ BoardMapper.xml의 boardColumns SQL 조각은 스네이크 케이스를 사용하고 있고, BoardDTO 클래스의 멤버 변수는 카멜 케이스를 사용하고 있다.   
 ㆍ 서로 다른 표현식의 사용은 추가 설정을 통해 자동으로 매칭이 되도록 처리가 가능하다.   
 ㆍ application.properties 파일 하단에 아래 설정을 추가한다.
@@ -395,7 +398,7 @@ mybatis.configuration.map-underscore-to-camel-case=true
 </details>
 </br>
 
-**6) DBConfiguration 클래스 처리**   
+**✔️ DBConfiguration 클래스 처리**   
 ㆍ application.properies 파일에 마이바티스 설정을 추가하였으니, 해당 설정을 처리할 빈을 정의해야 한다.   
 ㆍ DBConfiguration 클래스에 아래 코드를 추가한다.
 <details>

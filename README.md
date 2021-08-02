@@ -1,27 +1,27 @@
 # Spring Boot를 활용한 게시판의 제작
 ### :pushpin: 목차
-* [프로젝트 이름](#1-프로젝트-이름)
-* [기술 스택](#2-기술-스택)
-* [프로젝트 구조](#3-프로젝트-구조)
-* [MySQL 연동](#4-mysql-연동)
-* [게시글 CRUD 처리](#5-게시글-crud-처리)
-* [게시글 등록(수정)](#6-게시글-등록수정)
-* [게시글 리스트 조회](#7-게시글-리스트-조회)
-* [특정 게시글 조회](#8-특정-게시글-조회)
-* [특정 게시글 삭제](#9-특정-게시글-삭제)
-* [경고 메시지 처리](#10-경고-메시지-처리)
-* [인터셉터 적용](#11-인터셉터-적용)
-* [AOP 적용](#12-aop-적용)
-* [트랜잭션 적용](#13-트랜잭션-적용)
-* [페이징 처리](#14-페이징-처리)
-* [검색 처리](#15-검색-처리)
-* [REST 방식을 이용한 댓글 CRUD 처리](#16-rest-방식을-이용한-댓글-crud-처리)
-* [댓글 리스트 조회](#17-댓글-리스트-조회)
-* [댓글 등록(수정)](#18-댓글-등록수정)
-* [특정 댓글 삭제](#19-특정-댓글-삭제)
-* [파일 업로드](#20-파일-업로드)
-* [파일을 포함한 특정 게시글의 수정](#21-파일을-포함한-특정-게시글의-수정)
-* [파일 다운로드](#22-파일-다운로드)
+* [프로젝트 이름](#pushpin-프로젝트-이름)
+* [기술 스택](#pushpin-기술-스택)
+* [프로젝트 구조](#pushpin-프로젝트-구조)
+* [MySQL 연동](#pushpin-mysql-연동)
+* [게시글 CRUD 처리](#pushpin-게시글-crud-처리)
+* [게시글 등록(수정)](#pushpin-게시글-등록수정)
+* [게시글 리스트 조회](#pushpin-게시글-리스트-조회)
+* [특정 게시글 조회](#pushpin-특정-게시글-조회)
+* [특정 게시글 삭제](#pushpin-특정-게시글-삭제)
+* [경고 메시지 처리](#pushpin-경고-메시지-처리)
+* [인터셉터 적용](#pushpin-인터셉터-적용)
+* [AOP 적용](#pushpin-aop-적용)
+* [트랜잭션 적용](#pushpin-트랜잭션-적용)
+* [페이징 처리](#pushpin-페이징-처리)
+* [검색 처리](#pushpin-검색-처리)
+* [REST 방식을 이용한 댓글 CRUD 처리](#pushpin-rest-방식을-이용한-댓글-crud-처리)
+* [댓글 리스트 조회](#pushpin-댓글-리스트-조회)
+* [댓글 등록(수정)](#pushpin-댓글-등록수정)
+* [특정 댓글 삭제](#pushpin-특정-댓글-삭제)
+* [파일 업로드](#pushpin-파일-업로드)
+* [파일을 포함한 특정 게시글의 수정](#pushpin-파일을-포함한-특정-게시글의-수정)
+* [파일 다운로드](#pushpin-파일-다운로드)
 </br>
 
 ---
@@ -697,8 +697,8 @@ public String deleteBoard(@RequestParam(value = "idx", required = false) Long id
 </br>
 
 ---
-### 10. 경고 메시지 처리
-**1) Enum 클래스**   
+### :pushpin: 경고 메시지 처리
+**✔️ Enum 클래스**   
 ㆍ src/main/java 경로에 constatnt 패키지를 추가한 후, Method라는 이름으로 다음의 Enum 클래스를 추가한다.   
 ㆍ Enum 클래스는 상수를 처리하는 목적으로 사용된다.  
 <details>
@@ -712,8 +712,8 @@ public enum Method {
 </details>
 </br>
 
-**2) 공통 컨트롤러 생성**   
-ㆍ src/main/java 경로의 util 패키지를 생성한 후 UiUtils 클래스를 추가한다.   
+**✔️ 공통 컨트롤러 생성**   
+ㆍ src/main/java 경로에 util 패키지를 생성한 후 UiUtils 클래스를 추가한다.   
 ㆍ UiUtils 클래스에 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -747,8 +747,8 @@ public class UiUtils {
 |params|View 영역으로 전달할 파라미터|
 </br>
 
-**3) BoardController 변경**   
-ㆍ BoardController 클래스에 사용자에게 출력할 메시지에 대한 처리 필요하다.   
+**✔️ BoardController 변경**   
+ㆍ BoardController 클래스에 사용자에게 출력할 메시지에 대한 처리가 필요하다.   
 ㆍ BoardController 클래스는 UiUtils 클래스를 상속 받는다.   
 ㆍ 경고 메시지에 대한 주석 처리 부분에 아래 코드 추가한다.   
 <details>
@@ -844,14 +844,14 @@ public class BoardController extends UiUtils {
 </br>
 	
 ---
-### 11. 인터셉터 적용
-**1) 인터셉터란?**   
+### :pushpin: 인터셉터 적용
+**✔️ 인터셉터란?**   
 ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다." 라는 의미가 있다.   
-ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용한다.   
+ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용된다.   
 ㆍ 예를 들어, 특정 페이지에 접근할 때 로그인이나 계정의 권한과 관련된 처리를 인터셉터를 통해 효율적으로 해결 가능하다.   
 </br>
 
-**2) 인터셉터 구현**   
+**✔️ 인터셉터 구현**   
 ㆍ 스프링에서 인터셉터는 "HandlerInterceptor" 인터페이스를 상속받아 구현할 수 있다.   
 ㆍ 해당 인터페이스는 preHandle, postHandle, afterCompletion, afterConcurrentHandlingStarted 총 네 개의 메서드를 포함하고 있다.   
 ㆍ src/main/java 경로의 interceptor 패키지에 LoggerInterceptor 클래스를 추가한 후 다음의 코드를 작성한다.   
@@ -886,7 +886,7 @@ public class LoggerInterceptor implements HandlerInterceptor {
 |postHandle|컨트롤러를 경유한 다음 화면으로 결과를 전달하기 전에 실행되는 메서드|
 </br>
 
-**3)LoggerInterceptor 클래스를 빈으로 등록**   
+**✔️ LoggerInterceptor 클래스를 빈으로 등록**   
 ㆍ src/main/java 경로의 configuration 패키지에 MvcConfiguration 클래스를 생성 후, 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -911,8 +911,8 @@ public class MvcConfiguration implements WebMvcConfigurer {
 </br>
 
 ---
-### 12. AOP 적용
-**1) AOP란?**   
+### :pushpin: AOP 적용
+**✔️ AOP란?**   
 ㆍ AOP는 Aspect Oriented Programming의 약자이다.   
 ㆍ 관점 지향 프로그래밍으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와준다.   
 ㆍ 핵심 비즈니스 로직 외에 공통으로 처리해야 하는 로그 출력, 보안 처리, 예외 처리와 같은 코드를 별도로 분리하는 모듈화의 개념이다.   
@@ -928,7 +928,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 ㆍ 이와 같이 공통으로 처리해야하는 기능들을 별도로 분리하여 중복되는 코드를 제거하고, 재사용성을 극대화 할 수 있다.   
 </br>
 
-**2) AOP 용어**   
+**✔️ AOP 용어**   
 |구성 요소|설명|
 |---|---|
 |Aspect|1. 공통으로 적용될 기능</br>2. 부가적인 기능을 정의한 코드인 Advice와 Advice를 어느 곳에 적용할지 결정하는 Pointcut의 조합으로 만들어짐|
@@ -941,7 +941,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 |Weaving|Pointcut에 의해 결정된 Target의 JoinPoint에 Advice를 적용하는 것|
 </br>
 
-**3) AOP 구현**   
+**✔️ AOP 구현**   
 ㆍ src/main/java 경로에 aop 패키지를 추가하고 LoggerAspect 클래스 생성 후 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -980,21 +980,21 @@ public class LoggerAspect {
 |---|---|
 |@Component|1. 스프링 컨테이너에 빈으로 등록하기 위한 애너테이션</br>2. @Bean은 개발자가 제어할 수 없는 외부 라이브러리를 빈으로 등록할 때 사용</br>3. @Component는 개발자가 직접 정의한 클래스를 빈으로 등록할 때 사용|
 |@Aspect|AOP 기능을 하는 클래스에 지정하는 애너테이션|
-|@Around|Advice의 종류 중 한 가지로 Target 메서드 호출 이전과 이후에 모두 적용됨을 의미|
+|@Around|Advice의 종류 중 한 가지로, Target 메서드 호출 이전과 이후에 모두 적용됨을 의미|
 |execution|1. Pointcut을 지정하는 문법</br>2. 즉, 어떤 위치에 공통 기능을 적용할 것인지 정의|
 |getSignature( )|실행되는 대상 객체 메서드에 대한 정보를 가지고 옴|
 </br>
 
 ---
-### 13. 트랜잭션 적용
-**1) 트랜잭션이란?**   
+### :pushpin: 트랜잭션 적용
+**✔️ 트랜잭션이란?**   
 ㆍ 트랜잭션은 일련의 작업들이 모두 하나의 논리적 작업으로 취급되는 것을 말한다.   
 ㆍ 즉, 하나의 작업에 여러 개의 작업이 같이 묶여 있는 것이다.   
 ㆍ 논리적 작업을 취소하게 되면, 내부에 포함된 일련의 작업들이 모두 취소된다.   
 ㆍ 이렇게 함으로써 데이터의 무결성을 보장할 수 있다.   
 </br>
 
-**2) 트랜잭션의 기본 원칙**   
+**✔️ 트랜잭션의 기본 원칙**   
 |특성|설명|
 |---|---|
 |원자성(Atomicity)|1. 하나의 트랜잭션은 모두 하나의 작업 단위로 처리되어야 하는 특성</br>2. 트랜잭션이 A, B, C로 구성된다면 A, B, C의 처리 결과는 모두 동일해야 함</br>3. 또한 A, B, C의 처리 중 하나라도 실패했다면 세 가지 모두 처음 상태로 되돌아가야 함|
@@ -1003,7 +1003,7 @@ public class LoggerAspect {
 |지속성(Durability)|트랜잭션의 실행 결과는 지속적으로 유지되어야 함|
 </br>
 
-**3) 트랜잭션 설정**   
+**✔️ 트랜잭션 설정**   
 ㆍ 트랜잭션 설정 방법은 XML 설정, 애너테이션 설정, AOP 설정으로 나눌 수 있다.   
 ㆍ 이번 프로젝트에서는 AOP 설정을 사용한다.   
 ㆍ DBConfiguration 클래스에 아래 사진에 표시된 코드를 작성한다.   
@@ -1018,7 +1018,7 @@ public class LoggerAspect {
 |transactionManager( )|스프링에서 제공해주는 트랜잭션 매니저를 빈으로 등록해주는 메서드|
 </br>
 
-**4) 트랜잭션 구현**   
+**✔️ 트랜잭션 구현**   
 ㆍ src/main/java 경로의 aop 패키지에 TransactionAspect 클래스를 추가하고 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>

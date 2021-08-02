@@ -1,4 +1,6 @@
-# Spring Boot를 활용한 게시판의 제작
+# Spring Boot를 이용한 게시판의 제작
+
+---
 ### :pushpin: 목차
 * [프로젝트 이름](#pushpin-프로젝트-이름)
 * [기술 스택](#pushpin-기술-스택)
@@ -1171,7 +1173,7 @@ public interface BoardMapper {
 |구성 요소|설명|
 |---|---|
 |LIMIT|1. MySQL에서 LIMIT 구문은 데이터를 원하는 만큼 가져오고 싶을 때 사용</br>2. LIMIT의 첫 번째 파라미터는 시작 위치를 지정</br>3. 두 번째 파라미터는 시작 위치를 기준으로 가지고 올 데이터의 개수를 지정|
-|#{startPage}|1. 마이바티스에서 #{파라미터}는 여러 멤버를 가진 객체의 경우 Getter에 해당</br>2. startPage는 Criteria 클래스의 getStartPage 메서드의 리턴 값을 의미|
+|#{startPage}|1. 마이바티스에서 #{파라미터}는 여러 멤버를 가진 객체의 경우 Getter에 해당</br>2. startPage는 Criteria 클래스의 getStartPage( ) 메서드의 리턴 값을 의미|
 |#{recordsPerPage}|페이지당 출력할 데이터의 개수를 의미|
 </br>
 

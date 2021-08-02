@@ -2116,8 +2116,8 @@ public JsonObject deleteComment(@PathVariable("idx") final Long idx) {
 </br>
 
 ---
-### 20. 파일 업로드
-**1) 파일 테이블 생성**   
+### :pushpin: 파일 업로드
+**✔️ 파일 테이블 생성**   
 ㆍ MySQL Workbench를 실행하고, 아래의 스크립트를 실행하여 파일 테이블을 생성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -2148,7 +2148,7 @@ alter table tb_attach add constraint fk_attach_board_idx foreign key (board_idx)
 </details>
 </br>
 
-**2) 라이브러리 추가**   
+**✔️ 라이브러리 추가**   
 ㆍ 파일 처리와 관련된 여러 가지 기능을 제공해 주는 라이브러리를 추가한다.   
 ㆍ build.gradle의 compile group에 아래의 코드를 추가한다.   
 <details>
@@ -2161,7 +2161,7 @@ compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3
 </details>
 </br>
 
-**3) 파일 처리용 빈 설정**   
+**✔️ 파일 처리용 빈 설정**   
 ㆍ 스프링에는 파일 업로드 처리를 위한 MultipartResolver 인터페이스가 정의되어 있다.   
 ㆍ 구현 클래스로 아파치의 CommonsMultipartResolver와 서블릿 3.0 이상의 API를 이용한 StandardServletMultipartResolver가 있다.   
 ㆍ 이번 프로젝트에서는 CommonsMultipartResolver를 이용해서 파일 업로드를 구현한다.   
@@ -2191,7 +2191,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 </details>
 </br>
 
-**4) 도메인 클래스 생성**   
+**✔️ 도메인 클래스 생성**   
 ㆍ 첨부 파일 테이블의 구조화 역할을 하는 도메인 클래스를 생성할 필요가 있다.   
 ㆍ src/main/java 경로의 domain 패키지에 FileDTO 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
@@ -2224,7 +2224,7 @@ public class FileDTO extends CommonDTO {
 |size|파일 크기|
 </br>
 
-**5) Mapper 인터페이스 생성**   
+**✔️ Mapper 인터페이스 생성**   
 ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스를 생성할 필요가 있다.   
 ㆍ src/main/java 경로의 mapper 패키지에 FileMapper 인터페이스를 생성하고 아래의 코드를 작성한다.   
 <details>
@@ -2256,7 +2256,7 @@ public interface FileMapper {
 |selectFileTotalCount( )|특정 게시글에 포함된 파일 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
 </br>
 	
-**6) 마이바티스 XML Mapper 생성**   
+**✔️ 마이바티스 XML Mapper 생성**   
 ㆍ src/main/resources 경로의 mappers 폴더에 FileMapper XML을 생성하고 아래의 쿼리를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -2342,7 +2342,7 @@ public interface FileMapper {
 </details>
 </br>
 
-**7) 공통 파일 처리용 클래스 생성**   
+**✔️ 공통 파일 처리용 클래스 생성**   
 ㆍ 파일 업로드 처리는 여러 곳에서 공통으로 사용되는 기능이다.   
 ㆍ 따라서, 페이징 구현과 마찬가지로 공통 클래스를 추가해서 구현하는 것이 바람직하다.   
 ㆍ src/main/java 경로의 util 패키지에 FileUtils 클래스를 추가하고 아래의 코드를 작성한다.   
@@ -2410,13 +2410,13 @@ public class FileUtils {
 |---|---|
 |@Component|개발자가 직접 작성한 클래스를 스프링 컨테이너에 등록하는 데 사용되는 애너테이션|
 |today|업로드 경로에 포함되는 오늘 날짜|
-|uploadPath|1. 최종적으로 파일이 업로드되는 경로</br>2. 윈도우 환경에서 07월 24일을 기준으로 "C:\develop\upload\210724"와 같은 패턴의 디렉터리가 생성됨</br>3. Paths.get( ) 메서드를 사용하면 파라미터로 전달한 여러 개의 문자열을 하나로 연결해서 OS에 해당하는 패턴으로 경로를 리턴해 줌|
+|uploadPath|1. 최종적으로 파일이 업로드되는 경로</br>2. 윈도우 환경에서 2021년 07월 24일을 기준으로 "C:\develop\upload\210724"와 같은 패턴의 디렉터리가 생성됨</br>3. Paths.get( ) 메서드를 사용하면 파라미터로 전달한 여러 개의 문자열을 하나로 연결해서 OS에 해당하는 패턴으로 경로를 리턴해 줌|
 |getRandomString( )|서버에 생성할 파일명을 처리할 랜덤 문자열을 반환하는 메서드|
 |uploadFiles( )|1. 사용자가 등록한 첨부 파일을 서버에 업로드하고 파일 목록을 반환하는 메서드</br>2. files에는 업로드할 파일의 정보가 담겨 있고, boardIdx에는 파일을 등록할 게시글 번호가 담겨 있음|
 |transferTo( )|서버에 물리적으로 파일을 생성하는 메서드|
 </br>
 
-**8) 첨부 파일 예외 클래스 생성**   
+**✔️ 첨부 파일 예외 클래스 생성**   
 ㆍ src/main/java 디렉터리에 exception 패키지를 추가하고, AttachFileException 클래스를 생성한다.   
 ㆍ AttachFileException 클래스에 아래의 코드를 작성한다.   
 <details>
@@ -2438,10 +2438,10 @@ public class AttachFileException extends RuntimeException {
 </details>
 </br>
 
-**9) Service 영역의 변경**   
-ㆍ FileUtils 클래스의 uploadFiles 메서드를 호출하기 위해서는 MultipartFile[ ] 타입의 객체가 필요하다.   
-ㆍ BoardService 인터페이스의 registerBoard 메서드가 MultipartFile[ ]을 파라미터로 전달받도록 변경할 필요가 있다.   
-ㆍ 아래 코드와 같이 BoardService 인터페이스에 MultipartFile[ ]을 파라미터로 전달받는 registerBoard 메서드 추가한다.   
+**✔️ Service 영역의 변경**   
+ㆍ FileUtils 클래스의 uploadFiles( ) 메서드를 호출하기 위해서는 MultipartFile[ ] 타입의 객체가 필요하다.   
+ㆍ BoardService 인터페이스의 registerBoard( ) 메서드가 MultipartFile[ ]을 파라미터로 전달받도록 변경할 필요가 있다.   
+ㆍ 아래 코드와 같이 BoardService 인터페이스에 MultipartFile[ ]을 파라미터로 전달받는 registerBoard( ) 메서드 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2461,7 +2461,7 @@ public interface BoardService {
 ```
 </details>
 	
-ㆍ BoardServiceImpl 클래스에 FileMapper와 FileUtils 빈을 주입하고, registerBoard 메서드를 구현해야 한다.   
+ㆍ BoardServiceImpl 클래스에 FileMapper와 FileUtils 빈을 주입하고, registerBoard( ) 메서드를 구현해야 한다.   
 ㆍ 아래 코드와 같이 BoardServiceImpl 클래스를 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -2553,8 +2553,10 @@ public class BoardServiceImpl implements BoardService {
 </details>
 </br>
 	
-**10) BoardMapper XML 수정**   
-ㆍ uploadFiles 메서드로 전달되는 params의 idx 값은 게시글이 생성된 이후에도 NULL 값이 담기게 된다.   
+**✔️ BoardMapper XML 수정**   
+<img src="https://user-images.githubusercontent.com/61148914/127822921-35747134-1900-4a8c-a512-086f709b5312.JPG" width="50%">
+
+ㆍ 위 사진의 uploadFiles( ) 메서드로 전달되는 params의 idx 값은 게시글이 생성된 이후에도 NULL 값이 담기게 된다.   
 ㆍ 따라서, 마이바티스의 useGeneratedKeys, keyProperty 속성을 이용할 필요가 있다.   
 ㆍ BoardMapper.xml의 insertBoard 부분을 아래 코드와 같이 변경을 시킨다면, INSERT 쿼리의 실행과 동시에 생성된 PK가 파라미터로 전달된 객체인 BoardDTO의 게시글 번호(idx)에 담기게 된다.  
 <details>
@@ -2566,9 +2568,9 @@ public class BoardServiceImpl implements BoardService {
 </details>
 </br>
 	
-**11) Controller 영역의 변경**   
-ㆍ 파일 정보를 전달 받기 위해서는 BoardController 클래스의 registerBoard 메서드 또한 변경할 필요가 있다.   
-ㆍ BoardController의 registerBoard 메서드를 아래의 코드와 같이 변경한다.   
+**✔️ Controller 영역의 변경**   
+ㆍ 파일 정보를 전달 받기 위해서는 BoardController 클래스의 registerBoard( ) 메서드 또한 변경할 필요가 있다.   
+ㆍ BoardController의 registerBoard( ) 메서드를 아래의 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2597,10 +2599,10 @@ public String registerBoard(final BoardDTO params, final MultipartFile[] files, 
 </br>
 	
 ---
-### 21. 파일을 포함한 특정 게시글의 수정
-**1) Service 영역의 변경**   
+### :pushpin: 파일을 포함한 특정 게시글의 수정
+**✔️ Service 영역의 변경**   
 ㆍ 데이터베이스에 등록된 파일 목록을 View 영역으로 전달해야 하기 때문에 파일 리스트를 조회하는 메서드 추가가 필요하다.   
-ㆍ BoardService 인터페이스에 아래 코드와 같이 getFileList 메서드를 추가한다.   
+ㆍ BoardService 인터페이스에 아래 코드와 같이 getFileList( ) 메서드를 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2609,7 +2611,7 @@ public List<FileDTO> getFileList(Long boardIdx);
 ```
 </details>
 	
-ㆍ 다음으로, BoardServiceImpl 클래스에 아래 코드와 같이 getFileList 메소드를 구현한다.   
+ㆍ 다음으로, BoardServiceImpl 클래스에 아래 코드와 같이 getFileList( ) 메서드를 구현한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2628,9 +2630,9 @@ public List<AttachDTO> getAttachFileList(Long boardIdx) {
 </details>
 </br>	
 
-**2) Controller 영역의 변경**   
-ㆍ 앞서 BoardService에 추가한 getFileList 메서드의 호출 결과를 View 영역으로 전달하기 위해 컨트롤러 영역의 변경이 필요하다.   
-ㆍ BoardController의 openBoardWrite 메서드를 다음과 같이 변경한다.   
+**✔️ Controller 영역의 변경**   
+ㆍ 앞서 BoardService에 추가한 getFileList( ) 메서드의 호출 결과를 View 영역으로 전달하기 위해 Controller 영역의 변경이 필요하다.   
+ㆍ BoardController의 openBoardWrite( ) 메서드를 다음과 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2658,7 +2660,7 @@ public String openBoardWrite(@ModelAttribute("params") BoardDTO params, @Request
 ```
 </details>
 	
-**3) DTO 수정**   
+**✔️ DTO 수정**   
 ㆍ BoardDTO 클래스에 아래 코드와 같이 changeYn과 fileIdxs 멤버 변수를 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -2695,7 +2697,7 @@ public class BoardDTO extends CommonDTO {
 |fileIdxs|파일의 추가, 삭제, 변경이 일어났을 때 기존에 등록되어 있던 파일의 번호(PK)를 의미|
 </br>
 
-**3) Mapper 영역의 변경**   
+**✔️ Mapper 영역의 변경**   
 ㆍ 게시글을 삭제 취소 처리하는 메서드와 SQL 문을 정의할 필요가 있다.   
 ㆍ FileMapper 인터페이스에 아래의 메서드를 추가한다.   
 <details>
@@ -2726,8 +2728,8 @@ public int undeleteFile(List<Long> idxs);
 </details>
 </br>
 	
-**4) Service 영역의 변경**   
-ㆍ BoardServiceImpl 클래스의 registerBoard 메서드를 아래의 코드와 같이 변경해준다.   
+**✔️ Service 영역의 변경**   
+ㆍ BoardServiceImpl 클래스의 registerBoard( ) 메서드를 아래의 코드와 같이 변경해준다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2758,15 +2760,15 @@ public boolean registerBoard(BoardDTO params) {
 
 |구성 요소|설명|
 |---|---|
-|"Y".equals(params.getChangeYn( ))|게시글이 수정되는 시점에서 파일이 추가, 삭제 변경되었으면 기존의 파일을 모두 삭제 처리한다.|
-|CollectionUtils.isEmpty(params.getFileIdxs( )) == false|1. 기존에 특정 게시글에 포함되어 있던 파일이 유지되는 경우를 의미한다.</br>2. 예를 들어, 특정 게시글에 A, B, C 3개의 파일이 등록 되어 있던 상태에서, B와 C를 삭제한다고 가정한다. 이때, 3개의 파일을 모두 삭제한 후 삭제하지 않은 파일인 A 파일만 삭제 취소 처리한다.|
+|"Y".equals(params.getChangeYn( ))|게시글이 수정되는 시점에서 파일이 추가, 삭제, 변경되었으면 기존의 파일을 모두 삭제 처리|
+|CollectionUtils.isEmpty(params.getFileIdxs( )) == false|1. 기존에 특정 게시글에 포함되어 있던 파일이 유지되는 경우를 의미</br>2. 예를 들어, 특정 게시글에 A, B, C 3개의 파일이 등록 되어 있던 상태에서, B와 C를 삭제한다고 가정할 때, 3개의 파일을 모두 삭제한 후 삭제하지 않은 파일인 A 파일만 삭제 취소 처리|
 </br>
 	
 ---
-### 22. 파일 다운로드
-**1) Controller 영역의 변경**   
+### :pushpin: 파일 다운로드
+**✔️ Controller 영역의 변경**   
 ㆍ 파일이 포함되어 있는 게시글 상세 페이지에서 파일 목록을 볼 수 있도록 수정이 필요하다.   
-ㆍ BoardController 클래스의 openBoardDetail 메서드를 아래 코드와 같이 변경한다.   
+ㆍ BoardController 클래스의 openBoardDetail( ) 메서드를 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2794,9 +2796,9 @@ public String openBoardDetail(@ModelAttribute("params") BoardDTO params, @Reques
 </details>
 </br>
 	
-**2) Service 영역의 변경**   
+**✔️ Service 영역의 변경**   
 ㆍ 파일 다운로드를 처리해야할 메서드를 구성해야한다.   
-ㆍ 먼저, 아래 코드와 같이 BoardService에 파일의 상세 정보를 조회하는 getFileDetail 메서드를 추가한다.   
+ㆍ 먼저, 아래 코드와 같이 BoardService에 파일의 상세 정보를 조회하는 getFileDetail( ) 메서드를 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2822,7 +2824,7 @@ public interface BoardService {
 ```
 </details>
 	
-ㆍ 다음으로 BoardServiceImpl 클래스에 아래 코드와 같이 getFileDetail 메서드를 작성한다.   
+ㆍ 다음으로 BoardServiceImpl 클래스에 아래 코드와 같이 getFileDetail( ) 메서드를 작성한다.   
 ㆍ 해당 메서드는 파라미터로 전달받은 파일 번호에 해당하는 파일의 상세 정보를 조회하는 메서드이다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -2836,7 +2838,7 @@ public FileDTO getFileDetail(Long idx) {
 </details>
 </br>
 	
-**3) Controller 영역의 변경**   
+**✔️ Controller 영역의 변경**   
 ㆍ BoardController 클래스에 파일 다운로드 처리를 하는 메서드가 필요하다.   
 ㆍ BoardController 클래스에 아래 코드의 메서드를 추가한다.   
 <details>
@@ -2883,10 +2885,10 @@ public void downloadFile(@RequestParam(value = "idx", required = false) final Lo
 	
 |구성 요소|설명|
 |---|---|
-|HttpServletResponse|1. 파라미터로 선언된 해당 객체는 사용자로부터 들어오는 모든 요청에 대한 응답을 처리하는 객체이다.</br>2. 해당 객체를 이용해서 파일 다운로드를 처리한다.|
-|file|업로드 경로(uploadPath)에 저장된 파일 객체를 의미한다.|
-|FileUtils.readFileToByteArray( )|1. 해당 메서드는 업로드된 파일 정보를 파라미터로 전달받아서 실제 파일 데이터를 byte[ ] 형태로 반환하는 역할을 한다.</br>2. 이 메서드를 사용하는 FileUtils 클래스는 우리가 생성한 클래스가 아닌, org.apache.commons.io 패키지의 FileUtils 클래스이다.|
-|response.getOutputStream( ).write( )|byte[ ] 형태의 파일 정보를 이용해서 파일 다운로드를 수행하는 메서드이다.|
-|response.getOutputStream( ).flush( )|파일 다운로드가 완료되는 메서드이다.|
-|response.getOutputStream( ).close( )|버퍼를 정리하고 닫아주는 메서드이다.|
+|HttpServletResponse|1. 파라미터로 선언된 해당 객체는 사용자로부터 들어오는 모든 요청에 대한 응답을 처리하는 객체</br>2. 해당 객체를 이용해서 파일 다운로드를 처리|
+|file|업로드 경로(uploadPath)에 저장된 파일 객체를 의미|
+|FileUtils.readFileToByteArray( )|1. 해당 메서드는 업로드된 파일 정보를 파라미터로 전달받아서 실제 파일 데이터를 byte[ ] 형태로 반환하는 역할</br>2. 이 메서드를 사용하는 FileUtils 클래스는 우리가 생성한 클래스가 아닌, org.apache.commons.io 패키지의 FileUtils 클래스|
+|response.getOutputStream( ).write( )|byte[ ] 형태의 파일 정보를 이용해서 파일 다운로드를 수행하는 메서드|
+|response.getOutputStream( ).flush( )|파일 다운로드가 완료되는 메서드|
+|response.getOutputStream( ).close( )|버퍼를 정리하고 닫아주는 메서드|
 </br>

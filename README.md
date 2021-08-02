@@ -1066,12 +1066,12 @@ public class TransactionAspect {
 </br>
 
 ---
-### 14. 페이징 처리
-**1) 페이징이란?**   
+### :pushpin: 페이징 처리
+**✔️ 페이징이란?**   
 ㆍ 사용자가 어떠한 데이터를 필요로 할 때 전체 데이터 중 일부를 보여주는 방식이다.   
 </br>
 
-**2) 공통 페이징 파라미터 치리용 클래스 생성**   
+**✔️ 공통 페이징 파라미터 치리용 클래스 생성**   
 ㆍ src/main/java 경로에 paging 패키지를 추가하고, Criteria 클래스를 생성한 후 아래 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1113,8 +1113,8 @@ public class Criteria {
 |searchType|1. 검색 유형을 의미</br>2. 제목, 내용, 작성자 등</br>3. searchKeyword와 함께 사용|
 </br>
 
-**3) Mapper 인터페이스와 XML의 변경**   
-ㆍ BoardMapper 인터페이스의 selectBoardList와 selectBoardTotalCount 메서드를 아래에 코드처럼 변경한다.   
+**✔️ Mapper 인터페이스와 XML의 변경**   
+ㆍ BoardMapper 인터페이스의 selectBoardList( )와 selectBoardTotalCount( ) 메서드를 아래에 코드처럼 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1175,9 +1175,9 @@ public interface BoardMapper {
 |#{recordsPerPage}|페이지당 출력할 데이터의 개수를 의미|
 </br>
 
-**4) Service 영역의 변경**   
+**✔️ Service 영역의 변경**   
 ㆍ BoardMapper 인터페이스의 메서드가 변경되었기 때문에 서비스 영역도 수정 작업이 필요하다.   
-ㆍ BoardService 인터페이스의 getBoardList 메서드를 아래 코드와 같이 변경한다.   
+ㆍ BoardService 인터페이스의 getBoardList( ) 메서드를 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1195,7 +1195,7 @@ public interface BoardService {
 ```
 </details>
 
-ㆍ BoardServiceImpl 클래스의 getBoardList 메서드 또한 아래 코드와 같이 변경한다.   
+ㆍ BoardServiceImpl 클래스의 getBoardList( ) 메서드 또한 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1216,8 +1216,8 @@ public List<BoardDTO> getBoardList(Criteria criteria) {
 </details>
 </br>
 
-**5) Controller 영역의 변경**   
-ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경한다.   
+**✔️ Controller 영역의 변경**   
+ㆍ BoardController 클래스의 openBoardList( ) 메서드를 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1234,17 +1234,17 @@ public String openBoardList(@ModelAttribute("criteria") Criteria criteria, Model
 
 |구성 요소|설명|
 |---|---|
-|@ModelAttribute|해당 애너테이션을 사용하면 파라미터로 전달받은 객체를 자동으로 뷰 영역까지 전달 |
+|@ModelAttribute|해당 애너테이션을 사용하면 파라미터로 전달받은 객체를 자동으로 View 영역까지 전달 |
 </br>
 	
-**6) DBConfiguration 변경**   
-ㆍ 현재는 sqlSessionFactory 빈의 setTypeAliasesPackage가 "com.Board.domain" 으로 지정되어 있다.   
+**✔️ DBConfiguration 변경**   
+ㆍ 현재는 sqlSessionFactory 빈의 setTypeAliasesPackage가 "com.Board.domain"으로 지정되어 있다.   
 ㆍ 따라서 BoardMapper XML 파일에서 파라미터 타입으로 지정한 Criteria를 인식하지 못하는 문제가 발생한다.   
 ㆍ setTypeAliasesPackage를 아래 사진과 같이 "com.Board.*"로 변경한다.   
 <img src="https://user-images.githubusercontent.com/61148914/126029263-ef03b35d-b6c0-4132-8493-c2fca750e0f3.png" width="60%">   
 </br>
 
-**7) 페이징 정보 계산용 클래스 생성**   
+**✔️ 페이징 정보 계산용 클래스 생성**   
 ㆍ 전체 데이터의 개수를 기준으로 화면 하단에 페이지 개수를 계산하는 용도의 클래스 필요하다.   
 ㆍ paging 패키지 안에 PaginationInfo 클래스를 추가하고, 아래의 코드를 작성한다.
 <details>
@@ -1328,15 +1328,15 @@ public class PaginationInfo {
 |totalPageCount|전체 페이지의 개수|
 |firstPage|페이지 리스트의 첫 페이지 번호|
 |lastPage|페이지 리스트의 마지막 페이지 번호|
-|firstRecordIndex|1. Criteria 클래스의 getStartPage 메서드를 대체해서 LIMIT 구문의 첫 번째 값에 사용되는 변수</br>2. Criteria 클래스의 getStartPage 메서드는  삭제|
+|firstRecordIndex|1. Criteria 클래스의 getStartPage( ) 메서드를 대체해서 LIMIT 구문의 첫 번째 값에 사용되는 변수</br>2. Criteria 클래스의 getStartPage( ) 메서드는  삭제|
 |lastRecordIndex|1. 오라클과 같이 LIMIT 구문이 존재하지 않고, 인라인 뷰를 사용해야 하는 데이터베이스에서 사용</br>2. 이번 프로젝트는 MySQL을 기반으로 진행하기 때문에 사용하지 않음|
 |hasPreviousPage|1. 이전 페이지가 존재하는 지를 구분하는 용도로 사용</br>2. 예를 들어, currentPageNo가 13이라면 이전 페이지에 해당하는 1\~10까지의 페이지가 존재하기 때문에 true가 됨</br>3. 만약, currentPageNo이 1\~10 사이라면 false가 됨|
 |hasNextPage|1. 다음 페이지가 존재하는 지를 구분하는 용도로 사용</br>2. 예를 들어, pageSize가 10일 때 lastPage가 25이고, currentPageNo이 13이라면, 11\~20 사이에 있기 때문에 true가 됨</br>3. 만약, currentPageNo이 21\~25 사이라면 false가 됨|
-|setTotalRecordCount( )|파라미터로 넘어온 전체 데이터 개수를 totalRecordCount 변수에 저장</br>2. totalRecordCount가 1 이상이면 calculation 메서드를 실행|
-|calcaulation( )|PaginationInfo 클래스의 각 멤버변수의 값을 구하고, 페이지 번호를 계산하는 메서드|
+|setTotalRecordCount( )|파라미터로 넘어온 전체 데이터 개수를 totalRecordCount 변수에 저장</br>2. totalRecordCount가 1 이상이면 calculation( ) 메서드를 실행|
+|calculation( )|PaginationInfo 클래스의 각 멤버변수의 값을 구하고, 페이지 번호를 계산하는 메서드|
 </br>
 
-**8) 전체 영역의 변경**   
+**✔️ 전체 영역의 변경**   
 ㆍ 이제까지, 게시글 리스트를 호출하는 모든 메서드를 Controller부터 Mapper 영역까지 모두 Criteria 클래스를 파라미터로 받도록 처리하였다.   
 ㆍ 위 과정처럼 Controller 영역에서 페이징 정보와 같은 비즈니스 로직을 처리하는 것은 문제가 있다. (Controller 영역은 Service 영역에서 가공한 데이터를 View 영역으로 전달하는 작업만을 해야하기 때문)   
 ㆍ 따라서, Service 영역에서 페이징 정보를 계산할 수 있도록 처리해 줘야 한다.   
@@ -1389,7 +1389,7 @@ public class BoardDTO extends CommonDTO {
 ```
 </details>
 
-ㆍ BoardMapper 인터페이스에서 selectBoardList, selectBoardTotalCount 메서드가 BoardDTO 클래스를 파라미터로 받도록 아래 코드와 같이 변경한다.   
+ㆍ BoardMapper 인터페이스에서 selectBoardList( ), selectBoardTotalCount( ) 메서드가 BoardDTO 클래스를 파라미터로 받도록 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1443,7 +1443,7 @@ public interface BoardMapper {
 ```
 </details>
 	
-ㆍ BoardService 인터페이스 중 getBoardList 메서드의 파라미터를 BoardDTO 클래스로 받을 수 있도록 아래 코드와 같이 변경한다.   
+ㆍ BoardService 인터페이스 중 getBoardList( ) 메서드의 파라미터를 BoardDTO 클래스로 받을 수 있도록 아래 코드와 같이 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1461,7 +1461,7 @@ public interface BoardService {
 ```
 </details>
 	
-ㆍ BoardServiceImpl 클래스의 getBoardList 메서드를 다음 코드와 같이 변경한다.   
+ㆍ BoardServiceImpl 클래스의 getBoardList( ) 메서드를 다음 코드와 같이 변경한다.   
 ㆍ Controller 영역에서 PaginationInfo 객체를 처리하지 않고 Service 영역에서 처리하도록 하는 방식이다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1487,7 +1487,7 @@ public List<BoardDTO> getBoardList(BoardDTO params) {
 ```
 </details>
 	
-ㆍ BoardController 클래스의 openBoardList 메서드를 아래 코드와 같이 변경한다.   
+ㆍ BoardController 클래스의 openBoardList( ) 메서드를 아래 코드와 같이 변경한다.   
 ㆍ Controller 영역은 단순히 View 영역으로 데이터를 전달하는 역할만 하도록 설정한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1503,7 +1503,7 @@ public String openBoardList(@ModelAttribute("params") BoardDTO params, Model mod
 ```
 </details>
 	
-ㆍ 마지막으로 Criteria 클래스에 아래 코드와 같이 makeQueryString 메서드를 추가한다.   
+ㆍ 마지막으로 Criteria 클래스에 아래 코드와 같이 makeQueryString( ) 메서드를 추가한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -1551,8 +1551,8 @@ public class Criteria {
 </br>
 
 ---
-### 15. 검색 처리
-**1) 공통 Mapper XML 생성**   
+### :pushpin: 검색 처리
+**✔️ 공통 Mapper XML 생성**   
 ㆍ 검색 기능은 공통으로 사용되는 기능이기 때문에 하나의 Mapper XML에 검색을 처리하는 SQL 문을 선언하고 사용하는 것이 좋다.   
 ㆍ src/main/resources 경로의 mappers 폴더에 CommonMapper.xml 파일을 추가하고 아래의 코드를 작성한다.   
 <details>
@@ -1612,7 +1612,7 @@ public class Criteria {
 |search|1. 조건문을 통해 검색 키워드가 파라미터로 넘어온 경우에만 쿼리를 실행하도록 설정</br>2. 검색 유형이 파라미터로 넘어오면 <choose> 태그 안에 있는 각각의 <when> 조건에 알맞은 검색 유형을 기준으로 LIKE 쿼리를 실행|
 </br>
 	
-**2) BoardMapper XML 변경**   
+**✔️ BoardMapper XML 변경**   
 ㆍ 기존의 BoardMapper XML 파일을 위에서 작성한 CommonMapper XML의 SQL 문을 인클루드 하는 형태로 변경할 필요가 있다.   
 ㆍ BoardMapper XML의 selectBoardList, selectBoardTotalCount를 아래 코드와 같이 변경한다.   
 <details>
@@ -1648,15 +1648,15 @@ public class Criteria {
 </br>
 
 ---
-### 16. REST 방식을 이용한 댓글 CRUD 처리   
-**1) REST란?**   
+### :pushpin: REST 방식을 이용한 댓글 CRUD 처리   
+**✔️ REST란?**   
 ㆍ REST는 Representational State Tranfer의 약자이고, 하나의 URI는 하나의 고유한 리소스를 대표하도록 설계된다는 개념이다.   
 ㆍ 디바이스의 종류에 상관없이 공통으로 데이터를 처리할 수 있도록 하는 방식을 뜻한다.   
 ㆍ 지금까지의 게시판 구현 방식은 Controller 영역에서 비즈니스 로직을 호출하고 필요한 결과를 View 영역으로 전달한 다음 HTML 파일을 리턴해주는 방식으로 진행하였다.   
 ㆍ REST API를 이용하면 HTML 파일을 리턴해주는 방식이 아닌, 사용자가 필요로 하는 데이터만을 리턴해주는 방식으로 구현이 가능하다.   
 </br>
 
-**2) 댓글 테이블 생성**   
+**✔️ 댓글 테이블 생성**   
 ㆍ MySQL Workbench 내에서, 아래의 스크립트를 실행한 후 댓글 테이블을 생성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1687,7 +1687,7 @@ alter table tb_comment add constraint fk_comment_board_idx foreign key (board_id
 </details>
 </br>
 
-**3) 도메인 클래스 생성**   
+**✔️ 도메인 클래스 생성**   
 ㆍ 위에서 생성한 댓글 테이블의 구조화 역할을 하는 도메인 클래스가 필요하다.   
 ㆍ src/main/java 경로의 domain 패키지 내에 CommentDTO 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
@@ -1717,7 +1717,7 @@ public class CommentDTO extends CommonDTO {
 |writer|댓글 작성자|
 </br>
 
-**4) Mapper 인터페이스 생성**   
+**✔️ Mapper 인터페이스 생성**   
 ㆍ 데이터베이스와 통신 역할을 하는 Mapper 인터페이스의 생성이 필요하다.   
 ㆍ src/main/java 경로의 mapper 패키지에 CommentMapper 인터페이스를 생성하고, 아래의 코드를 작성한다.   
 <details>
@@ -1752,7 +1752,7 @@ public interface CommentMapper {
 |selectCommentTotalCount( )|특정 게시글에 포함된 댓글 개수를 조회하는 SELECT 쿼리를 호출하는 메서드|
 </br>
 
-**5) 마이바티스 XML Mapper 생성**   
+**✔️ 마이바티스 XML Mapper 생성**   
 ㆍ src/main/resources 디렉터리의 mappers 폴더에 CommentMapper XML을 추가하고, 아래에 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1849,7 +1849,7 @@ public interface CommentMapper {
 </details>
 </br>
 
-**6) Service 영역의 구현**   
+**✔️ Service 영역의 구현**   
 ㆍ src/main/java 경로의 service 패키지에 CommentService 인터페이스를 추가하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1929,7 +1929,7 @@ public class CommentServiceImpl implements CommentService {
 |getCommentList( )|특정 게시글에 포함된 댓글이 1개 이상이면 댓글 목록 리스트를 반환|
 </br>
 
-**7) Gson 라이브러리 추가**   
+**✔️ Gson 라이브러리 추가**   
 ㆍ Controller 영역을 구현하기 전에 JSON과 자바 객체의 직렬화(자바 객체 → JSON), 역직렬화(JSON → 자바 객체)를 처리해주는 오픈 소스 자바 라이브러리인 Gson의 추가가 필요하다.   
 ㆍ build.gradle에서 dependencies의 가장 하단에 아래 코드를 입력해 Gson 라이브러리를 추가한다.   
 <details>
@@ -1951,8 +1951,8 @@ spring.mvc.converters.preferred-json-mapper=gson
 </br>
 
 ---
-### 17. 댓글 리스트 조회
-**1) Controller 영역**   
+### :pushpin: 댓글 리스트 조회
+**✔️ Controller 영역**   
 ㆍ src/main/java 경로의 controller 패키지에 CommentController 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
@@ -1988,8 +1988,8 @@ public class CommentController {
 |@PathVariable|1. @RequestParam과 유사한 기능을 하며, REST 방식에서 리소스를 표현하는 데 사용</br>2. 호출된 URI에 파라미터로 전달받을 변수를 지정할 수 있음|
 </br>
 
-**2) JSON 날짜 데이터 형식 지정**   
-ㆍ CommentController 클래스의 getCommentList 메서드가 리턴하는 JSON 데이터를 확인해보면, insertTime 또한 JSON 형태로 이루어졌다는 것을 확인할 수 있다.   
+**✔️ JSON 날짜 데이터 형식 지정**   
+ㆍ CommentController 클래스의 getCommentList( ) 메서드가 리턴하는 JSON 데이터를 확인해보면, insertTime 또한 JSON 형태로 이루어졌다는 것을 확인할 수 있다.   
 ㆍ View 영역에서의 원할한 처리를 위해 형식을 변환할 필요가 있다.   
 ㆍ src/main/java 경로에 adapter 패키지를 추가하고, GsonLocalDateTimeAdapter 클래스를 생성한 후 아래 코드를 작성한다.   
 <details>
@@ -2011,7 +2011,7 @@ public class GsonLocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, 
 ```
 </details>
 	
-ㆍ CommentController 클래스의 getCommentList 메서드를 아래 코드와 같이 어댑터 클래스를 포함하여 객체를 생성하는 형태로 변경한다.   
+ㆍ CommentController 클래스의 getCommentList( ) 메서드를 아래 코드와 같이 어댑터 클래스를 포함하여 객체를 생성하는 형태로 변경한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2042,9 +2042,9 @@ public class CommentController {
 </br>
 
 ---
-### 18. 댓글 등록(수정)
-**1) Controller 영역**   
-ㆍ CommentController 클래스에 아래의 registerComment 메서드에 대한 코드를 작성한다.   
+### :pushpin: 댓글 등록(수정)
+**✔️ Controller 영역**   
+ㆍ CommentController 클래스에 아래의 registerComment( ) 메서드에 대한 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	
@@ -2081,9 +2081,9 @@ public JsonObject registerComment(@PathVariable(value = "idx", required = false)
 </br>
 
 ---
-### 19. 특정 댓글 삭제   
-**1) Controller 영역**   
-ㆍ CommentController 클래스에 아래 deleteComment 메서드에 대한 코드를 작성한다.   
+### :pushpin: 특정 댓글 삭제   
+**✔️ Controller 영역**   
+ㆍ CommentController 클래스에 아래 deleteComment( ) 메서드에 대한 코드를 작성한다.   
 <details>
 	<summary><b>코드 보기</b></summary>
 	

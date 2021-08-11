@@ -3,61 +3,88 @@
 ---
 ### :pushpin: 목차
 * [프로젝트 이름](#pushpin-프로젝트-이름)
+
+* [프로젝트 기능](#pushpin-프로젝트-기능)
+
 * [기술 스택](#pushpin-기술-스택)
-* [프로젝트 구조](#pushpin-프로젝트-구조)
-* [MySQL 연동](#pushpin-mysql-연동)
-* [게시글 CRUD 처리](#pushpin-게시글-crud-처리)
-* [게시글 등록(수정)](#pushpin-게시글-등록수정)
-* [게시글 리스트 조회](#pushpin-게시글-리스트-조회)
-* [특정 게시글 조회](#pushpin-특정-게시글-조회)
-* [특정 게시글 삭제](#pushpin-특정-게시글-삭제)
-* [경고 메시지 처리](#pushpin-경고-메시지-처리)
-* [인터셉터 적용](#pushpin-인터셉터-적용)
-* [AOP 적용](#pushpin-aop-적용)
-* [트랜잭션 적용](#pushpin-트랜잭션-적용)
-* [페이징 처리](#pushpin-페이징-처리)
-* [검색 처리](#pushpin-검색-처리)
-* [REST 방식을 이용한 댓글 CRUD 처리](#pushpin-rest-방식을-이용한-댓글-crud-처리)
-* [댓글 리스트 조회](#pushpin-댓글-리스트-조회)
-* [댓글 등록(수정)](#pushpin-댓글-등록수정)
-* [특정 댓글 삭제](#pushpin-특정-댓글-삭제)
-* [파일 업로드](#pushpin-파일-업로드)
-* [파일을 포함한 특정 게시글의 수정](#pushpin-파일을-포함한-특정-게시글의-수정)
-* [파일 다운로드](#pushpin-파일-다운로드)
+
+* [제작 과정](#pushpin-제작-과정)
+	
+* [프로젝트 시연](#pushpin-프로젝트-시연)
 </br>
 
 ---
 ### :pushpin: 프로젝트 이름
-* **게시글 등록, 조회, 수정, 삭제가 가능한 게시판**
+* **Spring Boot를 이용하여 만든 게시판**
+</br>
+
+---
+### :pushpin: 프로젝트 기능
+**:one: 게시글 등록, 조회, 수정 ,삭제 기능**   
+
+**:two: 댓글 등록, 조회, 수정 ,삭제 기능**   
+
+**:three: 게시글 검색 기능**   
+
+**:four: 파일 업로드, 다운로드 기능**   
 </br>
 
 ---
 ### :pushpin: 기술 스택
-* IDE
+**:one: IDE**
 ```
 - IntelliJ
 ```
-* Framework
+**:two: Framework**
 ```
 - Spring Boot
 - MyBatis
 ```
-* Library
+**:three: Library**
 ```
 - Lombok
 ```
-* Template Engine
+**:four: Template Engine**
 ```
 - Thymeleaf
 ```
-* Database
+**:five: Database**
 ```
 - MySQL
 ```
 </br>
 
 ---
-### :pushpin: 프로젝트 구조
+### :pushpin: 제작 과정
+
+<details>
+    <summary><b>제작 과정 보기</b></summary>
+	
+#### :bulb: 목차
+* [프로젝트 구조](#bulb-프로젝트-구조)
+* [MySQL 연동](#bulb-mysql-연동)
+* [게시글 CRUD 처리](#bulb-게시글-crud-처리)
+* [게시글 등록(수정)](#bulb-게시글-등록수정)
+* [게시글 리스트 조회](#bulb-게시글-리스트-조회)
+* [특정 게시글 조회](#bulb-특정-게시글-조회)
+* [특정 게시글 삭제](#bulb-특정-게시글-삭제)
+* [경고 메시지 처리](#bulb-경고-메시지-처리)
+* [인터셉터 적용](#bulb-인터셉터-적용)
+* [AOP 적용](#bulb-aop-적용)
+* [트랜잭션 적용](#bulb-트랜잭션-적용)
+* [페이징 처리](#bulb-페이징-처리)
+* [검색 처리](#bulb-검색-처리)
+* [REST 방식을 이용한 댓글 CRUD 처리](#bulb-rest-방식을-이용한-댓글-crud-처리)
+* [댓글 리스트 조회](#bulb-댓글-리스트-조회)
+* [댓글 등록(수정)](#bulb-댓글-등록수정)
+* [특정 댓글 삭제](#bulb-특정-댓글-삭제)
+* [파일 업로드](#bulb-파일-업로드)
+* [파일을 포함한 특정 게시글의 수정](#bulb-파일을-포함한-특정-게시글의-수정)
+* [파일 다운로드](#bulb-파일-다운로드)
+</br>
+	
+---
+#### :bulb: 프로젝트 구조
 <img src="https://user-images.githubusercontent.com/61148914/124562382-ecc9f680-de79-11eb-8863-e4560bec3570.JPG" width="35%">
 </br>
 
@@ -92,7 +119,7 @@
 </br>
 
 ---
-### :pushpin: MySQL 연동
+#### :bulb: MySQL 연동
 **✔️ 데이터 소스 설정**   
 ㆍ 스프링 부트에서는 데이터 소스 설정 방법이 두 가지가 존재한다.   
 ㆍ @Bean 애너테이션 또는 application.properties 파일을 이용한 방법이 존재한다.(이번 프로젝트에서는 후자의 방법을 사용)   
@@ -173,7 +200,7 @@ public class DBConfiguration {
 </br>
 
 ---
-### :pushpin: 게시글 CRUD 처리
+#### :bulb: 게시글 CRUD 처리
 **✔️ 게시판 테이블 생성**   
 ㆍ 게시판 테이블은 데이터베이스에 저장될 게시글에 대한 정보를 정의한 것이다.   
 ㆍ MySQL Workbench을 실행하고 스키마를 생성한 후 아래에 스크립트를 실행한다.
@@ -457,7 +484,7 @@ public class DBConfiguration {
 </br>
 
 ---
-### :pushpin: 게시글 등록(수정)
+#### :bulb: 게시글 등록(수정)
 **✔️ Service 영역**   
 ㆍ Service 영역은 비즈니스 로직을 담당한다.   
 ㆍ src/main/java 경로의 service 패키지에 BoardService 인터페이스를 생성하고 아래 코드를 작성한다.   
@@ -606,7 +633,7 @@ public class BoardController {
 </br>
 
 ---
-### :pushpin: 게시글 리스트 조회
+#### :bulb: 게시글 리스트 조회
 **✔️ Controller 영역**   
 ㆍ 게시글 목록을 보여줄 리스트 페이지에 대한 Controller 영역의 처리가 필요하다.   
 ㆍ BoardController 클래스에 아래의 코드를 작성한다.   
@@ -630,7 +657,7 @@ public String openBoardList(Model model) {
 </br>
 
 ---
-### :pushpin: 특정 게시글 조회
+#### :bulb: 특정 게시글 조회
 **✔️ Controller 영역**   
 ㆍ 특정 게시물을 조회해 출력해 주는 Controller 영역의 처리가 필요하다.   
 ㆍ BoardController 클래스에 아래의 코드를 작성한다.
@@ -663,7 +690,7 @@ public String openBoardDetail(@RequestParam(value = "idx", required = false) Lon
 </br>
 	
 ---
-### :pushpin: 특정 게시글 삭제
+#### :bulb: 특정 게시글 삭제
 **✔️ Controller 영역**   
 ㆍ 특정 게시물을 삭제해 주는 Controller 영역의 처리가 필요하다.   
 ㆍ BoardController 클래스에 아래의 코드를 작성한다.   
@@ -699,7 +726,7 @@ public String deleteBoard(@RequestParam(value = "idx", required = false) Long id
 </br>
 
 ---
-### :pushpin: 경고 메시지 처리
+#### :bulb: 경고 메시지 처리
 **✔️ Enum 클래스**   
 ㆍ src/main/java 경로에 constatnt 패키지를 추가한 후, Method라는 이름으로 다음의 Enum 클래스를 추가한다.   
 ㆍ Enum 클래스는 상수를 처리하는 목적으로 사용된다.  
@@ -846,7 +873,7 @@ public class BoardController extends UiUtils {
 </br>
 	
 ---
-### :pushpin: 인터셉터 적용
+#### :bulb: 인터셉터 적용
 **✔️ 인터셉터란?**   
 ㆍ 인터셉터(Interceptor)의 의미는 "가로챈다." 라는 의미가 있다.   
 ㆍ 컨트롤러의 URI에 접근하는 과정에서 무언가를 제어할 필요가 있을 때 사용된다.   
@@ -913,7 +940,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 </br>
 
 ---
-### :pushpin: AOP 적용
+#### :bulb: AOP 적용
 **✔️ AOP란?**   
 ㆍ AOP는 Aspect Oriented Programming의 약자이다.   
 ㆍ 관점 지향 프로그래밍으로써 자바와 같은 객체 지향 프로그래밍을 더욱 객체 지향스럽게 사용할 수 있도록 도와준다.   
@@ -988,7 +1015,7 @@ public class LoggerAspect {
 </br>
 
 ---
-### :pushpin: 트랜잭션 적용
+#### :bulb: 트랜잭션 적용
 **✔️ 트랜잭션이란?**   
 ㆍ 트랜잭션은 일련의 작업들이 모두 하나의 논리적 작업으로 취급되는 것을 말한다.   
 ㆍ 즉, 하나의 작업에 여러 개의 작업이 같이 묶여 있는 것이다.   
@@ -1068,7 +1095,7 @@ public class TransactionAspect {
 </br>
 
 ---
-### :pushpin: 페이징 처리
+#### :bulb: 페이징 처리
 **✔️ 페이징이란?**   
 ㆍ 사용자가 어떠한 데이터를 필요로 할 때 전체 데이터 중 일부를 보여주는 방식이다.   
 </br>
@@ -1553,7 +1580,7 @@ public class Criteria {
 </br>
 
 ---
-### :pushpin: 검색 처리
+#### :bulb: 검색 처리
 **✔️ 공통 Mapper XML 생성**   
 ㆍ 검색 기능은 공통으로 사용되는 기능이기 때문에 하나의 Mapper XML에 검색을 처리하는 SQL 문을 선언하고 사용하는 것이 좋다.   
 ㆍ src/main/resources 경로의 mappers 폴더에 CommonMapper.xml 파일을 추가하고 아래의 코드를 작성한다.   
@@ -1650,7 +1677,7 @@ public class Criteria {
 </br>
 
 ---
-### :pushpin: REST 방식을 이용한 댓글 CRUD 처리   
+#### :bulb: REST 방식을 이용한 댓글 CRUD 처리   
 **✔️ REST란?**   
 ㆍ REST는 Representational State Tranfer의 약자이고, 하나의 URI는 하나의 고유한 리소스를 대표하도록 설계된다는 개념이다.   
 ㆍ 디바이스의 종류에 상관없이 공통으로 데이터를 처리할 수 있도록 하는 방식을 뜻한다.   
@@ -1953,7 +1980,7 @@ spring.mvc.converters.preferred-json-mapper=gson
 </br>
 
 ---
-### :pushpin: 댓글 리스트 조회
+#### :bulb: 댓글 리스트 조회
 **✔️ Controller 영역**   
 ㆍ src/main/java 경로의 controller 패키지에 CommentController 클래스를 추가하고, 아래의 코드를 작성한다.   
 <details>
@@ -2044,7 +2071,7 @@ public class CommentController {
 </br>
 
 ---
-### :pushpin: 댓글 등록(수정)
+#### :bulb: 댓글 등록(수정)
 **✔️ Controller 영역**   
 ㆍ CommentController 클래스에 아래의 registerComment( ) 메서드에 대한 코드를 작성한다.   
 <details>
@@ -2083,7 +2110,7 @@ public JsonObject registerComment(@PathVariable(value = "idx", required = false)
 </br>
 
 ---
-### :pushpin: 특정 댓글 삭제   
+#### :bulb: 특정 댓글 삭제   
 **✔️ Controller 영역**   
 ㆍ CommentController 클래스에 아래 deleteComment( ) 메서드에 대한 코드를 작성한다.   
 <details>
@@ -2118,7 +2145,7 @@ public JsonObject deleteComment(@PathVariable("idx") final Long idx) {
 </br>
 
 ---
-### :pushpin: 파일 업로드
+#### :bulb: 파일 업로드
 **✔️ 파일 테이블 생성**   
 ㆍ MySQL Workbench를 실행하고, 아래의 스크립트를 실행하여 파일 테이블을 생성한다.   
 <details>
@@ -2601,7 +2628,7 @@ public String registerBoard(final BoardDTO params, final MultipartFile[] files, 
 </br>
 	
 ---
-### :pushpin: 파일을 포함한 특정 게시글의 수정
+#### :bulb: 파일을 포함한 특정 게시글의 수정
 **✔️ Service 영역의 변경**   
 ㆍ 데이터베이스에 등록된 파일 목록을 View 영역으로 전달해야 하기 때문에 파일 리스트를 조회하는 메서드 추가가 필요하다.   
 ㆍ BoardService 인터페이스에 아래 코드와 같이 getFileList( ) 메서드를 추가한다.   
@@ -2767,7 +2794,7 @@ public boolean registerBoard(BoardDTO params) {
 </br>
 	
 ---
-### :pushpin: 파일 다운로드
+#### :bulb: 파일 다운로드
 **✔️ Controller 영역의 변경**   
 ㆍ 파일이 포함되어 있는 게시글 상세 페이지에서 파일 목록을 볼 수 있도록 수정이 필요하다.   
 ㆍ BoardController 클래스의 openBoardDetail( ) 메서드를 아래 코드와 같이 변경한다.   
@@ -2893,4 +2920,10 @@ public void downloadFile(@RequestParam(value = "idx", required = false) final Lo
 |response.getOutputStream( ).write( )|byte[ ] 형태의 파일 정보를 이용해서 파일 다운로드를 수행하는 메서드|
 |response.getOutputStream( ).flush( )|파일 다운로드가 완료되는 메서드|
 |response.getOutputStream( ).close( )|버퍼를 정리하고 닫아주는 메서드|
+</br>
+</details>
+</br>
+	
+---
+### :pushpin: 프로젝트 시연
 </br>

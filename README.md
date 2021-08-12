@@ -56,7 +56,7 @@
 
 ---
 ## :pushpin: 제작 과정
-* 제작 과정 확인가기 : [바로가기 링크](https://github.com/qlsdud0604/board/blob/master/%EC%A0%9C%EC%9E%91%20%EA%B3%BC%EC%A0%95.md)
+* 제작 과정 확인기 : [바로가기 링크](https://github.com/qlsdud0604/board/blob/master/%EC%A0%9C%EC%9E%91%20%EA%B3%BC%EC%A0%95.md)
 </br>
 	
 ---

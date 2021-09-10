@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration   // "@Configuration"이 지정된 클래스를 자바 기반의 설정 파일로 인식
-@EnableTransactionManagement   // 스프링에서 제공하는 어노테이션 기반 트랜잭션을 활성화
+@EnableTransactionManagement   // 스프링에서 제공하는 애너테이션 기반 트랜잭션을 활성화
 @PropertySource("classpath:/application.properties")   // 해당 클래스에서 참조할 properties 파일의 위치를 지정
 public class DBConfiguration {
 
@@ -42,7 +42,7 @@ public class DBConfiguration {
         factoryBean.setDataSource(dataSource());
         factoryBean.setMapperLocations(applicationContext.getResources("classpath:/mappers/**/*Mapper.xml"));   // XML Mapper를 인식하도록 하는 역할
         factoryBean.setTypeAliasesPackage("com.Board.*");
-        factoryBean.setConfiguration(mybatisConfg());
+        factoryBean.setConfiguration(mybatisConfig());
         return factoryBean.getObject();
     }
 
@@ -53,7 +53,7 @@ public class DBConfiguration {
 
     @Bean
     @ConfigurationProperties(prefix = "mybatis.configuration")
-    public org.apache.ibatis.session.Configuration mybatisConfg() {
+    public org.apache.ibatis.session.Configuration mybatisConfig() {
         return new org.apache.ibatis.session.Configuration();
     }
 

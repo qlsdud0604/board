@@ -61,5 +61,5 @@
 
 ---
 ## :pushpin: 프로젝트 시연
-* 유트브에서 확인하기 : [바로가기 링크](youtube.com/watch?v=NJxDIiRL0vk)
+* 유트브에서 확인하기 : [바로가기 링크](https://youtu.be/NJxDIiRL0vk)
 </br>

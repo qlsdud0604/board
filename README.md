@@ -9,6 +9,8 @@
 * [기술 스택](#pushpin-기술-스택)
 
 * [제작 과정](#pushpin-제작-과정)
+
+* [프로젝트 시연](#pushpin-프로젝트-시연)
 </br>
 
 ---
@@ -55,4 +57,9 @@
 ---
 ## :pushpin: 제작 과정
 * 제작 과정 확인하기 : [바로가기 링크](https://github.com/qlsdud0604/board/wiki)
+</br>
+
+---
+## :pushpin: 프로젝트 시연
+* 유트브에서 확인하기 : [바로가기 링크](youtube.com/watch?v=NJxDIiRL0vk)
 </br>

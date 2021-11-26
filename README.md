@@ -54,4 +54,4 @@
 </br>
 
 ## 링크
-* YouTube : https://www.youtube.com/watch?v=NJxDIiRL0vk&t=10s
+* YouTube : https://www.youtube.com/watch?v=kStiXXZZqfE

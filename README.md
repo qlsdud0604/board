@@ -1,4 +1,4 @@
-# Spring Boot를 이용한 게시판의 제작
+# Board
 
 ## 기술 스택
 * IDE
